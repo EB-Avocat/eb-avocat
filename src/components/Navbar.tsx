@@ -19,7 +19,7 @@ export function Navbar() {
 				navBackground ? "bg-white/90 shadow-md backdrop-blur-md" : "bg-transparent"
 			}`}
 		>
-			<div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+			<div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-2 md:py-4">
 				<a
 					href={NAV_LINKS[0].href}
 					className={`flex items-center transition-all duration-500 ${logoVisible ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-4 opacity-0"}`}
@@ -29,6 +29,7 @@ export function Navbar() {
 						alt="Eva Biezunski - Avocate"
 						width={180}
 						height={40}
+						className="w-[120px] md:w-[180px]"
 						priority
 					/>
 				</a>

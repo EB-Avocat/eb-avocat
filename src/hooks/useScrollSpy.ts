@@ -44,8 +44,11 @@ export function useScrollSpy(
 				if (heroLogo && nav) {
 					const heroLogoRect = heroLogo.getBoundingClientRect();
 					const navBottom = nav.getBoundingClientRect().bottom;
-					navBackground = heroLogoRect.top <= navBottom;
-					logoVisible = heroLogoRect.top + heroLogoRect.height * 0.25 <= navBottom;
+					// Require the hero logo to have actually scrolled behind the nav,
+					// not just be naturally close to it on load (e.g. Firefox mobile)
+					const hasScrolled = window.scrollY > 10;
+					navBackground = hasScrolled && heroLogoRect.top <= navBottom;
+					logoVisible = hasScrolled && heroLogoRect.top + heroLogoRect.height * 0.25 <= navBottom;
 				}
 
 				setState({ activeId, navBackground, logoVisible });

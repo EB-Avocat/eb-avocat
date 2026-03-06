@@ -5,7 +5,7 @@ export function Hero() {
 	return (
 		<section
 			id="accueil"
-			className="relative flex min-h-screen items-center justify-center bg-gradient-to-b from-darker-teal to-dark-teal"
+			className="relative flex min-h-screen items-center justify-center bg-gradient-to-b from-darker-teal to-dark-teal pt-20 md:pt-0"
 		>
 			<div className="mx-auto flex max-w-4xl flex-col items-center px-6 text-center">
 				<Image

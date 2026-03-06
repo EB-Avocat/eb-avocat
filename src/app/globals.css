@@ -36,6 +36,12 @@
 
 html {
 	scroll-behavior: smooth;
-	scroll-padding-top: 80px;
+	scroll-padding-top: 48px;
+}
+
+@media (min-width: 768px) {
+	html {
+		scroll-padding-top: 80px;
+	}
 }
 
