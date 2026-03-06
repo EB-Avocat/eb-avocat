@@ -47,12 +47,12 @@ export function Footer() {
 				</div>
 
 				<div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 md:flex-row">
-					<p className="text-xs font-300 text-white/40">{FOOTER.copyright}</p>
+					<p className="text-xs font-300 text-white/60">{FOOTER.copyright}</p>
 					<div className="flex gap-4">
-						<a href="#" className="text-xs font-300 text-white/40 hover:text-white/60">
+						<a href="#" className="text-xs font-300 text-white/60 hover:text-white/60">
 							{FOOTER.legalNotice}
 						</a>
-						<a href="#" className="text-xs font-300 text-white/40 hover:text-white/60">
+						<a href="#" className="text-xs font-300 text-white/60 hover:text-white/60">
 							{FOOTER.privacyPolicy}
 						</a>
 					</div>

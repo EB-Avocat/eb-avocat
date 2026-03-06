@@ -5,6 +5,9 @@ import "./globals.css";
 export const metadata: Metadata = {
 	title: SITE.title,
 	description: SITE.description,
+	icons: {
+		icon: "/images/favicon.svg",
+	},
 	openGraph: {
 		title: SITE.title,
 		description: SITE.description,
