@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@font-face {
+	font-family: "Museo";
+	src: url("/fonts/Museo300-Regular.otf") format("opentype");
+	font-weight: 300;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Museo";
+	src: url("/fonts/Museo500-Regular.otf") format("opentype");
+	font-weight: 500;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Museo";
+	src: url("/fonts/Museo700-Regular.otf") format("opentype");
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+
+@theme {
+	--color-primary: #3f5b57;
+	--color-primary-light: #618983;
+	--color-dark-teal: #264445;
+	--color-darker-teal: #162729;
+	--color-near-black: #191919;
+
+	--font-museo: "Museo", ui-serif, Georgia, serif;
+}
+
+html {
+	scroll-behavior: smooth;
+	scroll-padding-top: 80px;
+}
+
