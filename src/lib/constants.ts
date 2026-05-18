@@ -91,7 +91,7 @@ export const TESTIMONIALS = {
 
 export const CONTACT = {
 	sectionTitle: "Contact",
-	address: "12 rue de l'Exemple, 69001 Lyon",
+	address: "29 rue du Président Édouard Herriot, 69002 Lyon",
 	phone: "+33 7 56 85 62 75",
 	email: "eva@biezunski-avocat.fr",
 	formFields: {

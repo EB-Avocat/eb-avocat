@@ -26,9 +26,9 @@ const jsonLd = {
 	url: SITE.url,
 	address: {
 		"@type": "PostalAddress",
-		streetAddress: "12 rue de l'Exemple",
+		streetAddress: "29 rue du Président Édouard Herriot",
 		addressLocality: "Lyon",
-		postalCode: "69001",
+		postalCode: "69002",
 		addressCountry: "FR",
 	},
 	knowsAbout: ["Droit des affaires", "Droit des sociétés", "Professionnels de santé libéraux"],
