@@ -14,6 +14,11 @@ const MOBILE_UA = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|Mobile/i;
 
 const contactLinks = [
 	{
+		Icon: MapPin,
+		label: CONTACT.address,
+		href: `https://maps.apple.com/?q=${encodeURIComponent(CONTACT.address)}`,
+	},
+	{
 		Icon: Phone,
 		label: CONTACT.phone,
 		href: `tel:${CONTACT.phone.replace(/\s/g, "")}`,
@@ -22,11 +27,6 @@ const contactLinks = [
 		Icon: Mail,
 		label: CONTACT.email,
 		href: `mailto:${CONTACT.email}`,
-	},
-	{
-		Icon: MapPin,
-		label: CONTACT.address,
-		href: `https://maps.apple.com/?q=${encodeURIComponent(CONTACT.address)}`,
 	},
 ];
 
@@ -55,13 +55,24 @@ export default async function CartePage() {
 				<p className="mt-2 text-lg font-300 text-white/80">{QR_CARD.subtitle}</p>
 
 				<div className="mt-12 flex w-full flex-col gap-4">
-					<a
-						href="/carte/vcard"
-						className="inline-flex items-center justify-center gap-2 rounded bg-primary-light px-8 py-4 font-500 text-white transition-all duration-300 hover:bg-primary"
-					>
-						<UserPlus className="h-5 w-5" strokeWidth={1.5} />
-						{QR_CARD.saveContact}
-					</a>
+					{isFirefox ? (
+						<button
+							type="button"
+							disabled
+							className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded bg-primary-light/40 px-8 py-4 font-500 text-white/50"
+						>
+							<UserPlus className="h-5 w-5" strokeWidth={1.5} />
+							{QR_CARD.saveContact}
+						</button>
+					) : (
+						<a
+							href="/carte/vcard"
+							className="inline-flex items-center justify-center gap-2 rounded bg-primary-light px-8 py-4 font-500 text-white transition-all duration-300 hover:bg-primary"
+						>
+							<UserPlus className="h-5 w-5" strokeWidth={1.5} />
+							{QR_CARD.saveContact}
+						</a>
+					)}
 					<a
 						href="/"
 						className="inline-flex items-center justify-center gap-2 rounded border-2 border-white px-8 py-4 font-500 text-white transition-all duration-300 hover:bg-white/10"
@@ -77,15 +88,17 @@ export default async function CartePage() {
 					</p>
 				)}
 
-				<div className="mt-10 flex w-full flex-col gap-3 border-t border-white/15 pt-8">
+				<div className="mt-10 flex w-full flex-col gap-4 border-t border-white/15 pt-8 text-left">
 					{contactLinks.map(({ Icon, label, href }) => (
 						<a
 							key={href}
 							href={href}
-							className="inline-flex items-center justify-center gap-3 font-300 text-sm text-white/70 transition-colors hover:text-white"
+							className="flex items-start gap-3 font-300 text-sm text-white/70 transition-colors hover:text-white"
 						>
-							<Icon className="h-4 w-4 shrink-0 text-primary-light" strokeWidth={1.5} />
-							{label}
+							<span className="flex h-5 shrink-0 items-center">
+								<Icon className="h-5 w-5 text-primary-light" strokeWidth={1.5} />
+							</span>
+							<span className="leading-5">{label}</span>
 						</a>
 					))}
 				</div>
