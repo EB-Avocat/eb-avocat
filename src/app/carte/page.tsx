@@ -38,10 +38,11 @@ export default async function CartePage() {
 		redirect("/");
 	}
 
-	// Firefox on iOS (FxiOS, WebKit) cannot hand a .vcf off to Contacts (known
-	// Mozilla bug), so we disable the save button there and nudge to Safari. Android
-	// Firefox (Gecko) handles vCards fine, so this is scoped to iOS only.
-	const isFirefoxIOS = /FxiOS/i.test(userAgent);
+	// The vCard save works everywhere except Firefox on iOS (FxiOS, WebKit), which
+	// can't hand a .vcf off to Contacts (known Mozilla bug). The fallback links and
+	// Safari nudge are therefore only needed on iOS — Android handles .vcf fine.
+	const isIOS = /iPhone|iPad|iPod/i.test(userAgent);
+	const isFirefoxIOS = isIOS && /FxiOS/i.test(userAgent);
 
 	return (
 		<main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-darker-teal to-dark-teal px-6 py-16">
@@ -90,20 +91,22 @@ export default async function CartePage() {
 					</p>
 				)}
 
-				<div className="mt-10 flex w-full flex-col gap-4 border-t border-white/15 pt-8 text-left">
-					{contactLinks.map(({ Icon, label, href }) => (
-						<a
-							key={href}
-							href={href}
-							className="flex items-start gap-3 font-300 text-sm text-white/70 transition-colors hover:text-white"
-						>
-							<span className="flex h-5 shrink-0 items-center">
-								<Icon className="h-5 w-5 text-primary-light" strokeWidth={1.5} />
-							</span>
-							<span className="leading-5">{label}</span>
-						</a>
-					))}
-				</div>
+				{isIOS && (
+					<div className="mt-10 flex w-full flex-col gap-4 border-t border-white/15 pt-8 text-left">
+						{contactLinks.map(({ Icon, label, href }) => (
+							<a
+								key={href}
+								href={href}
+								className="flex items-start gap-3 font-300 text-sm text-white/70 transition-colors hover:text-white"
+							>
+								<span className="flex h-5 shrink-0 items-center">
+									<Icon className="h-5 w-5 text-primary-light" strokeWidth={1.5} />
+								</span>
+								<span className="leading-5">{label}</span>
+							</a>
+						))}
+					</div>
+				)}
 			</div>
 		</main>
 	);
