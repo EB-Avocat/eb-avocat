@@ -7,7 +7,7 @@ import { Main } from "@/components/ui/Main";
 import { CONTACT, QR_CARD } from "@/lib/constants";
 
 export const metadata: Metadata = {
-	title: `${QR_CARD.title} — ${QR_CARD.subtitle}`,
+	title: { absolute: `${QR_CARD.title} — ${QR_CARD.subtitle}` },
 	robots: { index: false, follow: false },
 };
 

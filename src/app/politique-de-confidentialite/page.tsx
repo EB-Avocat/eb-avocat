@@ -6,9 +6,12 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { CONTACT, SITE } from "@/lib/constants";
 
 export const metadata: Metadata = {
-	title: "Politique de confidentialité — Eva Biezunski Avocate",
+	title: "Politique de confidentialité",
 	description:
 		"Politique de confidentialité du site Eva Biezunski Avocate : traitement de vos données personnelles (RGPD).",
+	alternates: {
+		canonical: "/politique-de-confidentialite",
+	},
 };
 
 const linkClass = "text-primary underline transition-colors hover:text-primary-light";

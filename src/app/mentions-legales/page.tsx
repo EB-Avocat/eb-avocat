@@ -6,8 +6,11 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { CONTACT, SITE } from "@/lib/constants";
 
 export const metadata: Metadata = {
-	title: "Mentions légales — Eva Biezunski Avocate",
+	title: "Mentions légales",
 	description: "Mentions légales du site Eva Biezunski Avocate : éditeur, hébergeur et médiation.",
+	alternates: {
+		canonical: "/mentions-legales",
+	},
 };
 
 const linkClass = "text-primary underline transition-colors hover:text-primary-light";
