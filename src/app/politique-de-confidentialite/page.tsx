@@ -364,7 +364,7 @@ export default function PolitiqueDeConfidentialitePage() {
 					</section>
 				</div>
 			</Main>
-			<Footer />
+			<Footer variant="solid" />
 		</>
 	);
 }

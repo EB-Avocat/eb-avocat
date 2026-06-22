@@ -2,7 +2,17 @@ import Image from "next/image";
 import { contactItems } from "@/components/contactItems";
 import { FOOTER, NAV_LINKS } from "@/lib/constants";
 
-export function Footer() {
+type FooterProps = {
+	// On pages without the home-page sections (e.g. /mentions-legales), the nav
+	// links must point back to the home page (/#section) rather than resolving to
+	// a bare in-page anchor on the current route. Mirrors the Navbar's variant.
+	variant?: "overlay" | "solid";
+};
+
+export function Footer({ variant = "overlay" }: FooterProps) {
+	const solid = variant === "solid";
+	const sectionHref = (href: string) => (solid ? `/${href}` : href);
+
 	return (
 		<footer className="bg-darker-teal py-12 text-white">
 			<div className="mx-auto max-w-6xl px-6">
@@ -26,7 +36,7 @@ export function Footer() {
 							{NAV_LINKS.map((link) => (
 								<li key={link.href}>
 									<a
-										href={link.href}
+										href={sectionHref(link.href)}
 										className="text-sm font-300 text-white/60 transition-colors hover:text-white"
 									>
 										{link.label}

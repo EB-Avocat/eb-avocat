@@ -115,7 +115,7 @@ export default function MentionsLegalesPage() {
 					</section>
 				</div>
 			</Main>
-			<Footer />
+			<Footer variant="solid" />
 		</div>
 	);
 }
