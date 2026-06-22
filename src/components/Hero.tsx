@@ -31,7 +31,7 @@ export function Hero() {
 				</a>
 			</div>
 
-			{/* Scroll indicator */}
+			{/* Scroll indicator (decorative) */}
 			<div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
 				<svg
 					className="h-8 w-8 text-white/60"
@@ -39,6 +39,7 @@ export function Hero() {
 					viewBox="0 0 24 24"
 					stroke="currentColor"
 					strokeWidth={2}
+					aria-hidden="true"
 				>
 					<path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7" />
 				</svg>

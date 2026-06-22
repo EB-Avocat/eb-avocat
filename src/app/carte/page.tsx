@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { Main } from "@/components/ui/Main";
 import { CONTACT, QR_CARD } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -45,7 +46,7 @@ export default async function CartePage() {
 	const isFirefoxIOS = isIOS && /FxiOS/i.test(userAgent);
 
 	return (
-		<main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-darker-teal to-dark-teal px-6 py-16">
+		<Main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-darker-teal to-dark-teal px-6 py-16">
 			<div className="flex w-full max-w-sm flex-col items-center text-center">
 				<Image
 					src="/images/logo-for-dark-green-background.svg"
@@ -108,6 +109,6 @@ export default async function CartePage() {
 					</div>
 				)}
 			</div>
-		</main>
+		</Main>
 	);
 }

@@ -43,7 +43,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 					dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
 				/>
 			</head>
-			<body className="font-museo antialiased">{children}</body>
+			<body className="font-museo antialiased">
+				<a href="#contenu" className="skip-link">
+					Aller au contenu
+				</a>
+				{children}
+			</body>
 		</html>
 	);
 }

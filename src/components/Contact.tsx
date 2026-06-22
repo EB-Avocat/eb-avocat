@@ -7,8 +7,10 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { CONTACT, OTHER_SUBJECT } from "@/lib/constants";
 
 const labelClass = "mb-1 block text-sm font-500 text-near-black";
+// Keep the brand border+ring on focus, but do NOT suppress the outline: the global
+// :focus-visible rule (globals.css) supplies the high-contrast keyboard indicator.
 const inputClass =
-	"w-full rounded border border-gray-300 px-4 py-2 font-300 text-sm text-near-black focus:border-primary-light focus:ring-2 focus:ring-primary-light/20 focus:outline-none transition-colors";
+	"w-full rounded border border-gray-300 px-4 py-2 font-300 text-sm text-near-black focus:border-primary-light focus:ring-2 focus:ring-primary-light/30 transition-colors";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -105,17 +107,24 @@ export function Contact() {
 							</div>
 						</div>
 						<div>
-							<label htmlFor="subject" className={labelClass}>
+							<label id="subject-label" htmlFor="subject" className={labelClass}>
 								{CONTACT.formFields.subject}
 							</label>
+							{/* VoiceOver is unreliable at announcing a native <select>'s label via
+							    implicit for/id association, so reference the label explicitly with
+							    aria-labelledby. The placeholder is a disabled prompt (not a real
+							    value) so screen readers present the actual options as the choices. */}
 							<select
 								id="subject"
 								name="subject"
+								aria-labelledby="subject-label"
 								value={subject}
 								onChange={(e) => setSubject(e.target.value)}
 								className={inputClass}
 							>
-								<option value="">-- Sélectionnez --</option>
+								<option value="" disabled>
+									-- Sélectionnez --
+								</option>
 								{CONTACT.subjectOptions.map((opt) => (
 									<option key={opt} value={opt}>
 										{opt}

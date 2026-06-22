@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
+import { Main } from "@/components/ui/Main";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { CONTACT, SITE } from "@/lib/constants";
 
@@ -113,8 +114,8 @@ export default function PolitiqueDeConfidentialitePage() {
 	return (
 		<>
 			<Navbar variant="solid" />
-			<main className="mx-auto max-w-6xl px-6 py-16 text-near-black">
-				<SectionHeading>Politique de confidentialité</SectionHeading>
+			<Main className="mx-auto max-w-6xl px-6 py-16 text-near-black">
+				<SectionHeading as="h1">Politique de confidentialité</SectionHeading>
 
 				<div className="mx-auto max-w-3xl space-y-12 font-300 leading-relaxed">
 					<section className="space-y-4">
@@ -362,7 +363,7 @@ export default function PolitiqueDeConfidentialitePage() {
 						</ul>
 					</section>
 				</div>
-			</main>
+			</Main>
 			<Footer />
 		</>
 	);

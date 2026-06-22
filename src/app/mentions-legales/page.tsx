@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
+import { Main } from "@/components/ui/Main";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { CONTACT, SITE } from "@/lib/constants";
 
@@ -15,8 +16,8 @@ export default function MentionsLegalesPage() {
 	return (
 		<>
 			<Navbar variant="solid" />
-			<main className="mx-auto max-w-6xl px-6 py-16 text-near-black">
-				<SectionHeading>Mentions légales</SectionHeading>
+			<Main className="mx-auto max-w-6xl px-6 py-16 text-near-black">
+				<SectionHeading as="h1">Mentions légales</SectionHeading>
 
 				<div className="mx-auto max-w-3xl space-y-12 font-300 leading-relaxed">
 					<section className="space-y-4">
@@ -113,7 +114,7 @@ export default function MentionsLegalesPage() {
 						</p>
 					</section>
 				</div>
-			</main>
+			</Main>
 			<Footer />
 		</>
 	);

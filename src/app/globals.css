@@ -45,3 +45,49 @@ html {
 	}
 }
 
+/* Visible keyboard focus indicator. The default browser outline was being removed
+   on form inputs (focus:outline-none) and was otherwise low-contrast, so define a
+   consistent ring that meets the 3:1 non-text contrast on both the light pages and
+   the dark teal hero/footer. */
+:focus-visible {
+	outline: 2px solid var(--color-primary-light);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+/* Skip-to-content link: hidden until focused, then slides into the top-left. */
+.skip-link {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 100;
+	margin: 0.5rem;
+	padding: 0.5rem 1rem;
+	border-radius: 0.25rem;
+	background-color: var(--color-primary);
+	color: #fff;
+	font-weight: 500;
+	transform: translateY(-150%);
+	transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+	transform: translateY(0);
+}
+
+/* Respect users who ask for less motion: disable smooth scroll, the hero bounce,
+   and the scroll-in fade transitions on cards. */
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}

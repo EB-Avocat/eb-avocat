@@ -22,7 +22,7 @@ export function Footer() {
 
 					{/* Quick links */}
 					<div>
-						<h4 className="mb-4 text-sm font-700">Navigation</h4>
+						<h2 className="mb-4 text-sm font-700">Navigation</h2>
 						<ul className="space-y-2">
 							{NAV_LINKS.map((link) => (
 								<li key={link.href}>
@@ -39,7 +39,7 @@ export function Footer() {
 
 					{/* Contact */}
 					<div>
-						<h4 className="mb-4 text-sm font-700">Contact</h4>
+						<h2 className="mb-4 text-sm font-700">Contact</h2>
 						<ul className="space-y-2 text-sm text-white/60">
 							{contactItems.map(({ Icon, text, href, external }) => (
 								<li key={text} className="flex items-start gap-2 font-300">

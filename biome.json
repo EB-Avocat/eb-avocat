@@ -19,11 +19,6 @@
 			"correctness": {
 				"noUnusedImports": "warn"
 			},
-			"a11y": {
-				"noSvgWithoutTitle": "off",
-				"useAltText": "off",
-				"useValidAnchor": "off"
-			},
 			"performance": {
 				"noImgElement": "off"
 			},

@@ -36,6 +36,7 @@ export function Navbar({ variant = "overlay" }: NavbarProps) {
 	return (
 		<nav
 			ref={navRef}
+			aria-label="Navigation principale"
 			// Overlay floats over the hero (fixed); solid sits in the flow (sticky) so
 			// the page content clears the header on its own — no hand-tuned padding.
 			className={`top-0 z-50 transition-all duration-300 ${solid ? "sticky" : "fixed right-0 left-0"} ${
@@ -65,6 +66,7 @@ export function Navbar({ variant = "overlay" }: NavbarProps) {
 							<a
 								key={link.href}
 								href={sectionHref(link.href)}
+								aria-current={isActive ? "location" : undefined}
 								className={`text-sm font-500 transition-colors ${
 									isActive
 										? showBackground
@@ -86,7 +88,9 @@ export function Navbar({ variant = "overlay" }: NavbarProps) {
 					type="button"
 					className="md:hidden"
 					onClick={() => setMenuOpen(!menuOpen)}
-					aria-label="Menu"
+					aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+					aria-expanded={menuOpen}
+					aria-controls="mobile-menu"
 				>
 					{menuOpen ? (
 						<X className={`h-6 w-6 ${showBackground ? "text-near-black" : "text-white"}`} />
@@ -98,7 +102,7 @@ export function Navbar({ variant = "overlay" }: NavbarProps) {
 
 			{/* Mobile menu */}
 			{menuOpen && (
-				<div className="border-t border-gray-100 md:hidden">
+				<div id="mobile-menu" className="border-t border-gray-100 md:hidden">
 					<div className="flex flex-col px-6 py-4">
 						{NAV_LINKS.map((link) => {
 							const isActive = !solid && activeId === link.href.replace("#", "");
@@ -107,6 +111,7 @@ export function Navbar({ variant = "overlay" }: NavbarProps) {
 									key={link.href}
 									href={sectionHref(link.href)}
 									onClick={() => setMenuOpen(false)}
+									aria-current={isActive ? "location" : undefined}
 									className={`border-b border-gray-100 py-3 text-sm font-500 last:border-0 ${
 										isActive ? "text-primary" : "text-near-black/70"
 									}`}

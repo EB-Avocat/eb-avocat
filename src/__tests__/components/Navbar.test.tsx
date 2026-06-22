@@ -13,10 +13,13 @@ describe("Navbar", () => {
 
 	it("toggles mobile menu on hamburger click", () => {
 		render(<Navbar />);
-		const menuButton = screen.getByLabelText("Menu");
+		const menuButton = screen.getByLabelText("Ouvrir le menu");
+		expect(menuButton).toHaveAttribute("aria-expanded", "false");
 		fireEvent.click(menuButton);
 		const mobileLinks = screen.getAllByText(NAV_LINKS[0]!.label);
 		expect(mobileLinks.length).toBeGreaterThanOrEqual(2);
+		// The button now reflects the open state for screen-reader users.
+		expect(screen.getByLabelText("Fermer le menu")).toHaveAttribute("aria-expanded", "true");
 	});
 
 	it("links to in-page anchors on the home (overlay) variant", () => {
