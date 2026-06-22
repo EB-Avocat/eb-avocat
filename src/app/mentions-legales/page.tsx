@@ -14,9 +14,9 @@ const linkClass = "text-primary underline transition-colors hover:text-primary-l
 
 export default function MentionsLegalesPage() {
 	return (
-		<>
+		<div className="flex min-h-screen flex-col">
 			<Navbar variant="solid" />
-			<Main className="mx-auto max-w-6xl px-6 py-16 text-near-black">
+			<Main className="mx-auto w-full max-w-6xl flex-1 px-6 py-16 text-near-black">
 				<SectionHeading as="h1">Mentions légales</SectionHeading>
 
 				<div className="mx-auto max-w-3xl space-y-12 font-300 leading-relaxed">
@@ -116,6 +116,6 @@ export default function MentionsLegalesPage() {
 				</div>
 			</Main>
 			<Footer />
-		</>
+		</div>
 	);
 }
