@@ -155,3 +155,20 @@ export const FOOTER = {
 	legalNotice: "Mentions légales",
 	privacyPolicy: "Politique de confidentialité",
 } as const;
+
+export const NOT_FOUND = {
+	metaTitle: "Page introuvable — Eva Biezunski Avocate",
+	title: "Nous n'avons pas trouvé cette page",
+	message:
+		"La page que vous recherchez n'existe pas ou a été déplacée. Vérifiez l'adresse saisie ou revenez à l'accueil.",
+	homeCta: "Retour à l'accueil",
+	contactCta: "Nous contacter",
+} as const;
+
+export const ERROR_PAGE = {
+	title: "Une erreur est survenue",
+	message:
+		"Un incident technique nous empêche d'afficher cette page. Vous pouvez réessayer ; si le problème persiste, n'hésitez pas à nous contacter.",
+	retryCta: "Réessayer",
+	homeCta: "Retour à l'accueil",
+} as const;

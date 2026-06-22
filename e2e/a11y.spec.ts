@@ -26,6 +26,8 @@ test.describe("axe-core WCAG 2.1 AA scan", () => {
 		{ name: "home", path: "/" },
 		{ name: "mentions-legales", path: "/mentions-legales" },
 		{ name: "politique-de-confidentialite", path: "/politique-de-confidentialite" },
+		// Any unmatched path renders the custom not-found.tsx (404) page.
+		{ name: "not-found", path: "/cette-page-nexiste-pas" },
 	]) {
 		test(`${name} has no detectable a11y violations`, async ({ page }) => {
 			await page.goto(path);
