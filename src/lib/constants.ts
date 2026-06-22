@@ -29,10 +29,10 @@ export const HERO = {
 export const ABOUT = {
 	sectionTitle: "À propos",
 	paragraphs: [
-		"Aider les professionnels libéraux à se structurer et à entretenir des relations harmonieuses est le cœur de l'activité d'Eva.",
-		"Elle détermine aux côtés des professionnels libéraux le type de sociétés, les contrats les plus adaptés à leurs projets, qu'ils relèvent de leur activité professionnelle réglementée, ou de démarches entrepreneuriales.",
-		"Elle anticipe le développement de ces activités, afin de proposer un cadre adapté dès la création du projet tout en prenant en compte les ambitions futures de ses clients. Elle apporte une attention particulière aux relations entre associés en traitant en amont les sujets de friction éventuels.",
-		"Son accompagnement se poursuit pour trouver des réponses adaptées aux questions déontologiques, et dans leurs relations avec les Ordres professionnels.",
+		"Aider les professionnels libéraux à se structurer et à entretenir des relations harmonieuses est le cœur de mon activité.",
+		"Je détermine aux côtés de mes clients le type de sociétés, les contrats les plus adaptés à leurs projets, qu'ils relèvent de leur activité professionnelle réglementée, ou de démarches entrepreneuriales.",
+		"J'anticipe le développement de ces activités. Cela me permet de proposer un cadre adapté dès la création du projet, tout en prenant en compte les ambitions futures de chacun. J'apporte une attention particulière aux relations entre associés, entre dirigeants, en traitant en amont les points de friction éventuels.",
+		"Mon accompagnement se poursuit dans les relations de mes clients avec leur Ordre professionnel, et pour trouver des réponses adaptées aux questions déontologiques qu’ils rencontrent.",
 	],
 } as const;
 
@@ -72,7 +72,7 @@ export const SERVICES = {
 			icon: "graduation",
 			title: "Formations",
 			description:
-				"Auprès des Élèves-avocats, des Confrères, d'entrepreneurs, j'interviens pour leur parler de structures d'exercice, de passage du statut d'entrepreneur individuel à celui de dirigeant de société, d'activités commerciales pour les avocats, etc.",
+				"Je forme des libéraux et des entrepreneurs sur des thèmes tels que les structures d’exercice de leur profession, la transition entre le statut d'entrepreneur individuel et celui de dirigeant de société, etc.",
 		},
 	],
 } as const;
