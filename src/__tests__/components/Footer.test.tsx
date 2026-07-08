@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Footer } from "@/components/Footer";
-import { NAV_LINKS } from "@/lib/constants";
+import { FOOTER, NAV_LINKS } from "@/lib/constants";
 
 describe("Footer", () => {
 	it("links to in-page anchors on the home (overlay) variant", () => {
@@ -22,5 +22,13 @@ describe("Footer", () => {
 			// e.g. "#accueil" on the home page becomes "/#accueil" here.
 			expect(anchor).toHaveAttribute("href", `/${link.href}`);
 		}
+	});
+
+	it("credits the site author with an external link to their website", () => {
+		render(<Footer />);
+		const anchor = screen.getByRole("link", { name: FOOTER.credit.name });
+		expect(anchor).toHaveAttribute("href", FOOTER.credit.href);
+		expect(anchor).toHaveAttribute("target", "_blank");
+		expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
 	});
 });
