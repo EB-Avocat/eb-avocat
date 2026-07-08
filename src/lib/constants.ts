@@ -27,6 +27,10 @@ export const NAV_LINKS = [
 	{ label: "Contact", href: "#contact" },
 ] as const;
 
+// Route link (not an in-page hash anchor, so it lives outside NAV_LINKS / the
+// scroll-spy) surfaced in the navbar and footer.
+export const PUBLICATIONS_LINK = { label: "Publications", href: "/publications" } as const;
+
 export const HERO = {
 	heading: "Avocate en droit des sociétés",
 	subheading: "Cabinet d'avocat dédié aux professionnels libéraux",
@@ -82,6 +86,24 @@ export const SERVICES = {
 				"Je forme des libéraux et des entrepreneurs sur des thèmes tels que les structures d’exercice de leur profession, la transition entre le statut d'entrepreneur individuel et celui de dirigeant de société, etc.",
 		},
 	],
+} as const;
+
+export const PUBLICATIONS = {
+	sectionTitle: "Publications",
+	pageTitle: "Publications",
+	metaDescription:
+		"Articles, analyses et actualités d'Eva Biezunski, avocate au Barreau de Lyon, à destination des professionnels libéraux : droit des sociétés, contrats, contentieux et actualités.",
+	intro: "Articles, analyses et actualités à destination des professionnels libéraux.",
+	empty: "Aucune publication pour le moment. Revenez bientôt.",
+	viewAll: "Voir toutes les publications",
+	allCategories: "Toutes",
+	readMore: "Lire l'article",
+	by: "Par",
+	backToList: "Retour aux publications",
+	previousPage: "Page précédente",
+	nextPage: "Page suivante",
+	pageLabel: "Page",
+	coverAlt: "Illustration de l'article",
 } as const;
 
 export const REVIEW_CTA = {
