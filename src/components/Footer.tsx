@@ -98,6 +98,18 @@ export function Footer({ variant = "overlay" }: FooterProps) {
 						</a>
 					</div>
 				</div>
+
+				<p className="mt-4 text-center text-xs font-300 text-white/60">
+					{FOOTER.credit.prefix}
+					<a
+						href={FOOTER.credit.href}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="underline transition-colors hover:text-white"
+					>
+						{FOOTER.credit.name}
+					</a>
+				</p>
 			</div>
 		</footer>
 	);

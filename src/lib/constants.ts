@@ -172,6 +172,11 @@ export const FOOTER = {
 	copyright: `\u00A9 ${new Date().getFullYear()} Eva Biezunski - Avocate au Barreau de Lyon. Tous droits réservés.`,
 	legalNotice: "Mentions légales",
 	privacyPolicy: "Politique de confidentialité",
+	credit: {
+		prefix: "Site créé par ",
+		name: "Guillaume Ojardias",
+		href: "https://guillaume.ojardias.info",
+	},
 } as const;
 
 export const NOT_FOUND = {
