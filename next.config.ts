@@ -1,9 +1,10 @@
 import type { NextConfig } from "next";
 
-// Mock publications (served when NOTION_TOKEN is absent) use Unsplash cover URLs.
-// With a real token, covers are mirrored to Vercel Blob, so prod only needs the
-// Blob host — keep Unsplash out of the production allow-list.
-const useMocks = !process.env.NOTION_TOKEN;
+// Mock publications (local dev only — see src/lib/mock-publications.ts) use
+// Unsplash cover URLs. On Vercel and with a real token, covers are mirrored to
+// Vercel Blob, so preview/prod only need the Blob host — keep Unsplash out of
+// their allow-list.
+const useMocks = !process.env.NOTION_TOKEN && !process.env.VERCEL;
 
 const nextConfig: NextConfig = {
 	// Allow physical devices on the local network (e.g. a phone) to load the

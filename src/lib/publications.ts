@@ -21,6 +21,9 @@ const REVALIDATE_SECONDS = 3600;
 /** Fetch + map all published pages, mirroring cover/avatar images to Blob. */
 async function loadPublicationsUncached(): Promise<Publication[]> {
 	if (useMocks) return mockPublications;
+	// On Vercel without a Notion token (e.g. before the database is connected),
+	// show no publications rather than crash on a Notion call.
+	if (!process.env.NOTION_TOKEN) return [];
 
 	const pages = await queryPublishedPages();
 	const publications = await Promise.all(

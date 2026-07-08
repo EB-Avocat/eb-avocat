@@ -1,10 +1,15 @@
 import type { Author, Publication } from "./publications-parse";
 
-// Fixtures served when NOTION_TOKEN is absent (local dev, CI, tests) so the whole
-// Publications UI — list, filter, pagination, article body — renders without any
-// Notion/Blob credentials. Mirrors the reference site's `mock-posts` idea.
-
-export const useMocks = !process.env.NOTION_TOKEN;
+// Fixtures so the whole Publications UI — list, filter, pagination, article body —
+// renders without any Notion/Blob credentials. Mirrors the reference site's
+// `mock-posts` idea.
+//
+// Mocks are a local-development (and CI/test) convenience only: they render when
+// there is no Notion token AND we are not on Vercel. Preview/prod deployments
+// therefore never show fixture articles — they show the empty state until the
+// real Notion database is connected. CI (not on Vercel) still uses mocks so
+// tests and builds pass without secrets.
+export const useMocks = !process.env.NOTION_TOKEN && !process.env.VERCEL;
 
 const eva: Author = {
 	name: "Eva Biezunski",

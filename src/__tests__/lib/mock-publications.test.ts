@@ -27,15 +27,23 @@ describe("useMocks gating", () => {
 		vi.resetModules();
 	});
 
-	it("is true without a Notion token, false with one", async () => {
+	it("uses mocks only locally without a Notion token", async () => {
+		// Local dev, no token → mocks.
 		vi.stubEnv("NOTION_TOKEN", "");
+		vi.stubEnv("VERCEL", "");
 		vi.resetModules();
-		const off = await import("@/lib/mock-publications");
-		expect(off.useMocks).toBe(true);
+		expect((await import("@/lib/mock-publications")).useMocks).toBe(true);
 
+		// With a token → real data, never mocks.
 		vi.stubEnv("NOTION_TOKEN", "secret_abc");
+		vi.stubEnv("VERCEL", "");
 		vi.resetModules();
-		const on = await import("@/lib/mock-publications");
-		expect(on.useMocks).toBe(false);
+		expect((await import("@/lib/mock-publications")).useMocks).toBe(false);
+
+		// On Vercel (preview/prod) without a token → empty state, not mocks.
+		vi.stubEnv("NOTION_TOKEN", "");
+		vi.stubEnv("VERCEL", "1");
+		vi.resetModules();
+		expect((await import("@/lib/mock-publications")).useMocks).toBe(false);
 	});
 });
