@@ -28,7 +28,7 @@
 		"vitest": "4.1.10"
 	},
 	"peerDependencies": {
-		"typescript": "6.0.3"
+		"typescript": "7.0.2"
 	},
 	"dependencies": {
 		"@notion-render/bookmark-plugin": "0.0.2",
