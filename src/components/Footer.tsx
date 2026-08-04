@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { contactItems } from "@/components/contactItems";
-import { FOOTER, NAV_LINKS, PUBLICATIONS_LINK } from "@/lib/constants";
+import { FOOTER, NAV_LINKS } from "@/lib/constants";
 
 type FooterProps = {
 	// On pages without the home-page sections (e.g. /mentions-legales), the nav
@@ -43,14 +43,6 @@ export function Footer({ variant = "overlay" }: FooterProps) {
 									</a>
 								</li>
 							))}
-							<li key={PUBLICATIONS_LINK.href}>
-								<a
-									href={PUBLICATIONS_LINK.href}
-									className="text-sm font-300 text-white/60 transition-colors hover:text-white"
-								>
-									{PUBLICATIONS_LINK.label}
-								</a>
-							</li>
 						</ul>
 					</div>
 

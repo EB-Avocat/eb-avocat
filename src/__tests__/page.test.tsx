@@ -1,14 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
+import Home from "@/app/page";
 import { ABOUT, CONTACT, HERO, REVIEW_CTA, SERVICES } from "@/lib/constants";
-
-// LatestPublications is an async server component that fetches from Notion (and
-// imports server-only modules) — out of scope for a jsdom render. Stub it out.
-vi.mock("@/components/LatestPublications", () => ({
-	LatestPublications: () => null,
-}));
-
-const { default: Home } = await import("@/app/page");
 
 describe("Home page", () => {
 	it("renders all sections", () => {
