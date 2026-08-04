@@ -18,14 +18,14 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import sharp from "sharp";
+import sharp, { type Sharp } from "sharp";
 import { BRAND_COLORS } from "../src/lib/constants.ts";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const LOGO = readFileSync(join(ROOT, "public/images/favicon-white.svg"));
 
 /** The hero-gradient square canvas the logo sits on by default. */
-function gradient(size: number): sharp.Sharp {
+function gradient(size: number): Sharp {
 	return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
@@ -38,7 +38,7 @@ function gradient(size: number): sharp.Sharp {
 }
 
 /** A fully transparent square canvas (Android tints the composited glyph's alpha). */
-function transparent(size: number): sharp.Sharp {
+function transparent(size: number): Sharp {
 	return sharp({ create: { width: size, height: size, channels: 4, background: "#00000000" } });
 }
 
@@ -52,7 +52,7 @@ async function makeIcon(
 	size: number,
 	logoRatio: number,
 	out: string,
-	base: sharp.Sharp = gradient(size),
+	base: Sharp = gradient(size),
 ) {
 	const logo = await sharp(LOGO, { density: 400 })
 		.resize({ width: Math.round(size * logoRatio) })

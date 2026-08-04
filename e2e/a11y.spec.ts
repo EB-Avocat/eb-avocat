@@ -1,5 +1,14 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
+
+// @axe-core/playwright takes a `Page` from its own `playwright-core` resolution.
+// When the installer leaves a second copy of playwright-core nested under
+// playwright/ (Vercel restores node_modules from its build cache, and bun does not
+// prune the stale nested copy), TS sees two structurally identical but distinct
+// `Page` types and `next build` fails its type check. Funnel the fixture page
+// through one place so that mismatch is asserted away exactly once.
+type AxePage = ConstructorParameters<typeof AxeBuilder>[0]["page"];
+const axe = (page: Page) => new AxeBuilder({ page: page as AxePage });
 
 // WCAG 2.1 Level A + AA — the conformance target for the French RGAA / European
 // accessibility requirements that apply to a professional services site.
@@ -33,7 +42,7 @@ test.describe("axe-core WCAG 2.1 AA scan", () => {
 	]) {
 		test(`${name} has no detectable a11y violations`, async ({ page }) => {
 			await page.goto(path);
-			const { violations } = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+			const { violations } = await axe(page).withTags(WCAG_TAGS).analyze();
 			expect(violations, `\n${formatViolations(violations)}`).toEqual([]);
 		});
 	}
@@ -42,7 +51,7 @@ test.describe("axe-core WCAG 2.1 AA scan", () => {
 		test.use({ userAgent: MOBILE_UA });
 		test("carte has no detectable a11y violations", async ({ page }) => {
 			await page.goto("/carte");
-			const { violations } = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+			const { violations } = await axe(page).withTags(WCAG_TAGS).analyze();
 			expect(violations, `\n${formatViolations(violations)}`).toEqual([]);
 		});
 	});
