@@ -40,7 +40,7 @@ class VercelBlobStorage(Storage):
         response.raise_for_status()
         return response.json()["url"]
 
-    def _open(self, name: str, mode: str = "rb") -> File[Any]:
+    def _open(self, name: str, mode: str = "rb") -> "File[Any]":
         from io import BytesIO
 
         response = httpx.get(self.url(name), timeout=30, follow_redirects=True)

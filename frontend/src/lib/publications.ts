@@ -1,10 +1,9 @@
 import "server-only";
 
 import {
-	type ApiArticle,
 	type ApiArticleDetail,
+	type ApiArticlePage,
 	type ApiCategory,
-	type ApiPage,
 	type Category,
 	mapArticle,
 	mapArticleDetail,
@@ -67,7 +66,7 @@ export async function getPublications({
 	if (current > 1) params.set("page", String(current));
 
 	const [list, categories] = await Promise.all([
-		getJson<ApiPage<ApiArticle>>(`/api/v1/articles/?${params}`),
+		getJson<ApiArticlePage>(`/api/v1/articles/?${params}`),
 		getJson<ApiCategory[]>("/api/v1/categories/"),
 	]);
 	const total = list?.count ?? 0;
@@ -84,7 +83,7 @@ export async function getPublications({
 export async function getLatestPublications(
 	count: number,
 ): Promise<{ items: Publication[]; total: number }> {
-	const list = await getJson<ApiPage<ApiArticle>>("/api/v1/articles/");
+	const list = await getJson<ApiArticlePage>("/api/v1/articles/");
 	return { items: list?.results.slice(0, count).map(mapArticle) ?? [], total: list?.count ?? 0 };
 }
 
@@ -97,7 +96,7 @@ export async function getPublicationBySlug(slug: string): Promise<PublicationDet
 export async function getPublicationSlugs(): Promise<string[]> {
 	const slugs: string[] = [];
 	for (let page = 1; page <= 50; page++) {
-		const list = await getJson<ApiPage<ApiArticle>>(`/api/v1/articles/?page=${page}`);
+		const list = await getJson<ApiArticlePage>(`/api/v1/articles/?page=${page}`);
 		if (!list) break;
 		slugs.push(...list.results.map((a) => a.slug));
 		if (!list.next) break;

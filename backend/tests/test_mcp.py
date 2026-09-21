@@ -83,4 +83,113 @@ def test_author_cannot_touch_others_articles(client: TestClient) -> None:
     result = call(client, raw, "delete_article", article_id=str(other.pk))
 
     assert result["isError"] is True
+    assert "Article introuvable" in result["content"][0]["text"]
     assert Article.objects.filter(pk=other.pk).exists()
+
+
+@pytest.fixture
+def editor_token() -> tuple[User, str]:
+    user = UserFactory.create(role=User.Role.EDITOR)
+    return user, ApiToken.issue(user, "claude")[1]
+
+
+def test_list_articles_filters(client: TestClient, editor_token: tuple[User, str]) -> None:
+    _, raw = editor_token
+    draft = ArticleFactory.create(title="Brouillon fiscal", status=Article.Status.DRAFT)
+    published = ArticleFactory.create(title="Publié social")
+    published.categories.set(services_categories(["Social"]))
+
+    def titles(**filters: Any) -> list[str]:
+        return [a["title"] for a in payload(call(client, raw, "list_articles", **filters))]
+
+    assert set(titles()) == {draft.title, published.title}
+    assert titles(status="draft") == [draft.title]
+    assert titles(category="social") == [published.title]
+    assert titles(search="fiscal") == [draft.title]
+
+
+def services_categories(names: list[str]) -> list[Any]:
+    from articles.services import categories_from_names
+
+    return categories_from_names(names)
+
+
+def test_get_update_unpublish_delete(client: TestClient, editor_token: tuple[User, str]) -> None:
+    _, raw = editor_token
+    article = ArticleFactory.create(title="Avant")
+
+    assert payload(call(client, raw, "get_article", article_id=str(article.pk)))["title"] == "Avant"
+    assert payload(call(client, raw, "get_article", article_id=article.slug))["id"] == str(article.pk)
+    assert call(client, raw, "get_article", article_id="inconnu")["isError"] is True
+
+    updated = payload(
+        call(client, raw, "update_article", article_id=article.slug, title="Après", markdown="Texte", categories=["X"])
+    )
+    assert updated["title"] == "Après"
+    assert [c["name"] for c in updated["categories"]] == ["X"]
+
+    call(client, raw, "unpublish_article", article_id=str(article.pk))
+    article.refresh_from_db()
+    assert article.status == Article.Status.DRAFT
+
+    result = call(client, raw, "delete_article", article_id=str(article.pk))
+    assert "supprimé" in result["content"][0]["text"]
+    assert not Article.objects.filter(pk=article.pk).exists()
+
+
+def test_invalid_data_is_a_tool_error(client: TestClient, editor_token: tuple[User, str]) -> None:
+    _, raw = editor_token
+    result = call(client, raw, "create_article", title="X", markdown="", status="bogus")
+    assert result["isError"] is True
+    assert "Données invalides" in result["content"][0]["text"]
+
+
+def test_set_cover_from_base64_and_url(client: TestClient, editor_token: tuple[User, str]) -> None:
+    import base64
+    from unittest import mock
+
+    from tests.conftest import png_bytes, png_upload
+
+    _, raw = editor_token
+    article = ArticleFactory.create()
+
+    data = base64.b64encode(png_bytes()).decode()
+    result = payload(
+        call(client, raw, "set_article_cover", article_id=article.slug, base64_data=data, filename="c.png", alt="Alt")
+    )
+    assert result["cover"].endswith(".png")
+    assert result["cover_alt"] == "Alt"
+
+    with mock.patch("articles.services.fetch_remote_image", return_value=png_upload("web.png")) as fetch:
+        call(client, raw, "set_article_cover", article_id=article.slug, url="https://example.com/web.png")
+    fetch.assert_called_once_with("https://example.com/web.png")
+
+    assert call(client, raw, "set_article_cover", article_id=article.slug)["isError"] is True
+    assert call(client, raw, "set_article_cover", article_id=article.slug, base64_data="%%%")["isError"] is True
+
+
+def test_create_article_with_cover_url(client: TestClient, editor_token: tuple[User, str]) -> None:
+    from unittest import mock
+
+    from tests.conftest import png_upload
+
+    _, raw = editor_token
+    with mock.patch("articles.services.fetch_remote_image", return_value=png_upload("web.png")):
+        created = payload(
+            call(client, raw, "create_article", title="Avec image", markdown="x", cover_url="https://example.com/a.png")
+        )
+    assert created["cover"]
+
+
+def test_categories_tools(client: TestClient, editor_token: tuple[User, str]) -> None:
+    _, editor_raw = editor_token
+    _, author_raw = ApiToken.issue(UserFactory.create(role=User.Role.AUTHOR), "claude")
+
+    assert payload(call(client, author_raw, "create_category", name="Santé", is_primary=True))["is_primary"] is False
+    assert payload(call(client, editor_raw, "create_category", name="santé", is_primary=True))["is_primary"] is True
+    names = [c["name"] for c in payload(call(client, editor_raw, "list_categories"))]
+    assert names == ["Santé"]
+
+
+def test_non_mcp_paths_reach_django(client: TestClient) -> None:
+    assert client.get("/api/v1/articles/").status_code == 200

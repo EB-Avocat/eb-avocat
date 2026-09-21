@@ -91,3 +91,12 @@ class ImageUploadSerializer(serializers.Serializer[None]):
         if bool(attrs.get("file")) == bool(attrs.get("url")):
             raise serializers.ValidationError("Fournissez soit un fichier, soit une URL.")
         return attrs
+
+
+class ApiTokenCreatedSerializer(ApiTokenSerializer):
+    """Returned once, at creation: includes the raw token."""
+
+    token = serializers.CharField(read_only=True)
+
+    class Meta(ApiTokenSerializer.Meta):
+        fields = (*ApiTokenSerializer.Meta.fields, "token")

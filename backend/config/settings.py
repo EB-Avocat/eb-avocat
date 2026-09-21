@@ -156,6 +156,11 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "EB Avocat API",
     "VERSION": "1.0.0",
     "COMPONENT_SPLIT_REQUEST": True,
+    "SCHEMA_PATH_PREFIX": "/api/v1",
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.postprocess_schema_enums",
+        "core.openapi.require_response_fields",
+    ],
 }
 
 LOGGING = {

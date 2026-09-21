@@ -16,6 +16,10 @@ Run from the repo root:
 - `tox -e dev` — full local stack in Docker (Postgres + backend + frontend).
 - `tox -e lint,type,test` — backend checks.
 - `tox -e frontend` — frontend lint, typecheck and tests.
+- `tox -e api-types` — regenerate `backend/openapi.yaml` + `frontend/src/lib/api/schema.ts` after any
+  serializer/view change (never hand-write API types; CI checks they are up to date).
+
+Backend tests go in `backend/tests/`; coverage must stay ≥ 90% (`tox -e test` enforces it).
 
 Inside `frontend/`: `bun run dev|build|lint|typecheck|test|test:a11y`.
 Inside `backend/`: `uv run manage.py <cmd>`, `uv run ruff check`, `uv run ty check`, `uv run pytest`.

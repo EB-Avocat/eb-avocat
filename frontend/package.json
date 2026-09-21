@@ -11,7 +11,8 @@
 		"test:a11y": "playwright test",
 		"typecheck": "tsc --noEmit",
 		"lint": "biome check .",
-		"format": "biome format . --write"
+		"format": "biome format . --write",
+		"api:types": "bun install --cwd tools/api-types --frozen-lockfile && bun run --cwd tools/api-types generate && biome format --write src/lib/api/schema.ts"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "4.12.1",

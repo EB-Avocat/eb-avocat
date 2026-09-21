@@ -1,3 +1,10 @@
+import type {
+	Category as ApiCategoryBase,
+	PaginatedPublicArticleList,
+	PublicArticle,
+	PublicArticleDetail,
+} from "@/lib/api/schema";
+
 // Pure, dependency-free helpers for the Publications feature: API payload
 // mapping, pagination math, category grouping and date formatting. Kept free of
 // `server-only` so it can be imported directly from Vitest.
@@ -37,38 +44,12 @@ export interface PublicationDetail extends Publication {
 /** Page size of the backend's public article list (DRF PAGE_SIZE). */
 export const PAGE_SIZE = 12;
 
-// --- API payloads (snake_case, as returned by Django REST Framework) ---
+// --- API payloads: generated from the backend OpenAPI schema (`bun run api:types`) ---
 
-export interface ApiCategory {
-	id: string;
-	name: string;
-	slug: string;
-	is_primary: boolean;
-}
-
-export interface ApiArticle {
-	id: string;
-	slug: string;
-	title: string;
-	summary: string;
-	categories: ApiCategory[];
-	published_at: string | null;
-	cover: string | null;
-	cover_alt: string;
-	author: { id: string; name: string; avatar: string | null } | null;
-}
-
-export interface ApiArticleDetail extends ApiArticle {
-	body_html: string;
-	updated_at: string;
-}
-
-export interface ApiPage<T> {
-	count: number;
-	next: string | null;
-	previous: string | null;
-	results: T[];
-}
+export type ApiCategory = ApiCategoryBase;
+export type ApiArticle = PublicArticle;
+export type ApiArticleDetail = PublicArticleDetail;
+export type ApiArticlePage = PaginatedPublicArticleList;
 
 export function mapCategory(category: ApiCategory): Category {
 	return {

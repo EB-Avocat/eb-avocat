@@ -13,6 +13,7 @@ from asgiref.sync import sync_to_async
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import QuerySet
 from mcp.server.mcpserver import Context, MCPServer
+from mcp.server.mcpserver.exceptions import ToolError as SDKToolError
 from rest_framework.exceptions import ValidationError as DRFValidationError
 
 from accounts.authentication import user_from_authorization
@@ -30,8 +31,8 @@ Les catégories se passent par nom ; celles qui n'existent pas sont créées."""
 server = MCPServer(name="eb-avocat", title="EB Avocat — Publications", instructions=INSTRUCTIONS)
 
 
-class ToolError(Exception):
-    pass
+class ToolError(SDKToolError):
+    """Anticipated failure: the message reaches the model (other exceptions are masked)."""
 
 
 def _user(ctx: Context) -> User:

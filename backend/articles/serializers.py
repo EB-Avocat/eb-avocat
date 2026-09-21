@@ -9,13 +9,24 @@ from core.fields import MediaUrlField
 
 
 class CategorySerializer(serializers.ModelSerializer[Category]):
-    article_count = serializers.IntegerField(read_only=True, required=False)
-
     class Meta:
         model = Category
-        fields = ("id", "name", "slug", "is_primary", "order", "article_count")
+        fields = ("id", "name", "slug", "is_primary", "order")
         read_only_fields = ("id",)
         extra_kwargs = {"slug": {"required": False}}  # noqa: RUF012
+
+
+class CategoryWithCountSerializer(CategorySerializer):
+    """Category lists: adds how many articles use it (the view's annotation when present)."""
+
+    article_count = serializers.SerializerMethodField()
+
+    class Meta(CategorySerializer.Meta):
+        fields = (*CategorySerializer.Meta.fields, "article_count")
+
+    def get_article_count(self, category: Category) -> int:
+        annotated = getattr(category, "article_count", None)
+        return annotated if annotated is not None else Article.objects.filter(categories=category).count()
 
 
 class AuthorSerializer(serializers.ModelSerializer[User]):
@@ -124,3 +135,11 @@ class ArticleImageSerializer(serializers.ModelSerializer[ArticleImage]):
 
 class PreviewSerializer(serializers.Serializer[None]):
     markdown = serializers.CharField(allow_blank=True, trim_whitespace=False)
+
+
+class PreviewResultSerializer(serializers.Serializer[None]):
+    html = serializers.CharField()
+
+
+class ReorderSerializer(serializers.Serializer[None]):
+    ids = serializers.ListField(child=serializers.UUIDField())

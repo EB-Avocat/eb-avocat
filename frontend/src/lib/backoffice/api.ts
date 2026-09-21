@@ -2,15 +2,31 @@
 // (proxied to Django) with the session cookie and Django's CSRF header.
 
 import type {
-	AdminArticle,
-	AdminCategory,
-	ApiToken,
-	ArticleInput,
-	ManagedUser,
-	Paginated,
+	ApiTokenCreated,
+	ApiTokenRequest,
+	Article,
+	ArticleImage,
+	CategoryWithCount,
+	CategoryWithCountRequest,
+	LoginRequest,
+	PaginatedApiTokenList,
+	PaginatedArticleList,
+	PaginatedUserList,
+	PasswordChangeRequest,
+	PasswordResetConfirmRequest,
+	PasswordResetRequestRequest,
+	PatchedArticleRequest,
+	PatchedCategoryWithCountRequest,
+	PatchedProfileRequest,
+	PatchedUserRequest,
+	PreviewRequest,
+	PreviewResult,
 	Profile,
-	Role,
-} from "@/lib/backoffice/types";
+	ReorderRequest,
+	User,
+	UserCreate,
+	UserCreateRequest,
+} from "@/lib/api/schema";
 
 const BASE = "/api/v1";
 
@@ -90,67 +106,71 @@ function imageForm(source: { file: File } | { url: string }, extra: Record<strin
 
 export const api = {
 	auth: {
-		login: (email: string, password: string) => post<Profile>("/auth/login/", { email, password }),
+		login: (email: string, password: string) =>
+			post<Profile>("/auth/login/", { email, password } satisfies LoginRequest),
 		logout: () => post<void>("/auth/logout/"),
-		requestReset: (email: string) => post<void>("/auth/password-reset/", { email }),
+		requestReset: (email: string) =>
+			post<void>("/auth/password-reset/", { email } satisfies PasswordResetRequestRequest),
 		confirmReset: (uid: string, token: string, new_password: string) =>
-			post<void>("/auth/password-reset/confirm/", { uid, token, new_password }),
+			post<void>("/auth/password-reset/confirm/", {
+				uid,
+				token,
+				new_password,
+			} satisfies PasswordResetConfirmRequest),
 	},
 	me: {
 		get: () => get<Profile>("/me/"),
-		update: (data: Partial<Pick<Profile, "email" | "first_name" | "last_name">>) =>
-			patch<Profile>("/me/", data),
+		update: (data: PatchedProfileRequest) => patch<Profile>("/me/", data),
 		changePassword: (current_password: string, new_password: string) =>
-			post<void>("/me/password/", { current_password, new_password }),
+			post<void>("/me/password/", {
+				current_password,
+				new_password,
+			} satisfies PasswordChangeRequest),
 		setAvatar: (source: { file: File } | { url: string }) =>
-			post<Profile>("/me/avatar/", imageForm(source)),
+			post<User>("/me/avatar/", imageForm(source)),
 		removeAvatar: () => del("/me/avatar/"),
-		tokens: () => get<Paginated<ApiToken>>("/me/tokens/"),
-		createToken: (name: string) => post<ApiToken & { token: string }>("/me/tokens/", { name }),
+		tokens: () => get<PaginatedApiTokenList>("/me/tokens/"),
+		createToken: (name: string) =>
+			post<ApiTokenCreated>("/me/tokens/", { name } satisfies ApiTokenRequest),
 		revokeToken: (id: string) => del(`/me/tokens/${id}/`),
 	},
 	articles: {
 		list: (params: Record<string, string> = {}) =>
-			get<Paginated<AdminArticle>>(`/admin/articles/?${new URLSearchParams(params)}`),
-		get: (id: string) => get<AdminArticle>(`/admin/articles/${id}/`),
-		create: (data: Partial<ArticleInput>) => post<AdminArticle>("/admin/articles/", data),
-		update: (id: string, data: Partial<ArticleInput>) =>
-			patch<AdminArticle>(`/admin/articles/${id}/`, data),
+			get<PaginatedArticleList>(`/admin/articles/?${new URLSearchParams(params)}`),
+		get: (id: string) => get<Article>(`/admin/articles/${id}/`),
+		create: (data: PatchedArticleRequest) => post<Article>("/admin/articles/", data),
+		update: (id: string, data: PatchedArticleRequest) =>
+			patch<Article>(`/admin/articles/${id}/`, data),
 		remove: (id: string) => del(`/admin/articles/${id}/`),
 		setCover: (id: string, source: { file: File } | { url: string }, alt: string) =>
-			post<AdminArticle>(`/admin/articles/${id}/cover/`, imageForm(source, { alt })),
-		removeCover: (id: string) => request<AdminArticle>("DELETE", `/admin/articles/${id}/cover/`),
-		preview: (markdown: string) => post<{ html: string }>("/admin/preview/", { markdown }),
+			post<Article>(`/admin/articles/${id}/cover/`, imageForm(source, { alt })),
+		removeCover: (id: string) => request<Article>("DELETE", `/admin/articles/${id}/cover/`),
+		preview: (markdown: string) =>
+			post<PreviewResult>("/admin/preview/", { markdown } satisfies PreviewRequest),
 		uploadImage: (file: File) => {
 			const form = new FormData();
 			form.append("file", file);
-			return post<{ id: string; url: string }>("/admin/uploads/", form);
+			return post<ArticleImage>("/admin/uploads/", form);
 		},
 	},
 	categories: {
-		list: () => get<AdminCategory[]>("/admin/categories/"),
-		create: (name: string) => post<AdminCategory>("/admin/categories/", { name }),
-		update: (id: string, data: Partial<Pick<AdminCategory, "name" | "is_primary">>) =>
-			patch<AdminCategory>(`/admin/categories/${id}/`, data),
+		list: () => get<CategoryWithCount[]>("/admin/categories/"),
+		create: (name: string) =>
+			post<CategoryWithCount>("/admin/categories/", { name } satisfies CategoryWithCountRequest),
+		update: (id: string, data: PatchedCategoryWithCountRequest) =>
+			patch<CategoryWithCount>(`/admin/categories/${id}/`, data),
 		remove: (id: string) => del(`/admin/categories/${id}/`),
-		reorder: (ids: string[]) => post<void>("/admin/categories/reorder/", { ids }),
+		reorder: (ids: string[]) =>
+			post<void>("/admin/categories/reorder/", { ids } satisfies ReorderRequest),
 	},
 	users: {
-		list: () => get<Paginated<ManagedUser>>("/admin/users/"),
-		create: (data: {
-			email: string;
-			first_name: string;
-			last_name: string;
-			role: Role;
-			password?: string;
-		}) => post<ManagedUser>("/admin/users/", data),
-		update: (
-			id: string,
-			data: Partial<Pick<ManagedUser, "role" | "is_active" | "first_name" | "last_name" | "email">>,
-		) => patch<ManagedUser>(`/admin/users/${id}/`, data),
+		list: () => get<PaginatedUserList>("/admin/users/"),
+		create: (data: UserCreateRequest) => post<UserCreate>("/admin/users/", data),
+		update: (id: string, data: PatchedUserRequest) => patch<User>(`/admin/users/${id}/`, data),
 		remove: (id: string) => del(`/admin/users/${id}/`),
 		setAvatar: (id: string, source: { file: File } | { url: string }) =>
-			post<ManagedUser>(`/admin/users/${id}/avatar/`, imageForm(source)),
-		sendReset: (email: string) => post<void>("/auth/password-reset/", { email }),
+			post<User>(`/admin/users/${id}/avatar/`, imageForm(source)),
+		sendReset: (email: string) =>
+			post<void>("/auth/password-reset/", { email } satisfies PasswordResetRequestRequest),
 	},
 };

@@ -25,7 +25,7 @@ describe("mapArticleDetail", () => {
 			slug: "structurer-son-activite-en-sel",
 			title: "Structurer son activité en SEL",
 			summary: "SELARL ou SELAS ?",
-			categories: [{ id: "c1", name: "Sociétés", slug: "societes", is_primary: true }],
+			categories: [{ id: "c1", name: "Sociétés", slug: "societes", is_primary: true, order: 0 }],
 			published_at: "2026-09-01T10:00:00+02:00",
 			cover: "https://x.public.blob.vercel-storage.com/covers/a.png",
 			cover_alt: "Un cabinet",

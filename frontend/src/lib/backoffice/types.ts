@@ -1,73 +1,41 @@
-// Shapes of the authenticated back-office API (backend/*/serializers.py).
+// Back-office API types, generated from the backend OpenAPI schema
+// (`bun run api:types`, see src/lib/api/schema.ts). Only aliases and UI labels live here.
 
-export type Role = "admin" | "editor" | "author";
-export type ArticleStatus = "draft" | "published";
+import type {
+	Article,
+	CategoryWithCount,
+	PatchedArticleRequest,
+	RoleEnum,
+	StatusEnum,
+	User,
+} from "@/lib/api/schema";
 
-export interface Profile {
-	id: string;
-	email: string;
-	first_name: string;
-	last_name: string;
-	role: Role;
-	avatar: string | null;
-}
+export type {
+	ApiToken,
+	ApiTokenCreated,
+	Category,
+	PaginatedApiTokenList,
+	PaginatedArticleList,
+	PaginatedUserList,
+	PatchedProfileRequest,
+	PatchedUserRequest,
+	Profile,
+	UserCreateRequest,
+} from "@/lib/api/schema";
 
-export interface ManagedUser extends Profile {
-	is_active: boolean;
-	date_joined: string;
-}
-
-export interface AdminCategory {
-	id: string;
-	name: string;
-	slug: string;
-	is_primary: boolean;
-	order: number;
-	article_count?: number;
-}
-
-export interface AdminArticle {
-	id: string;
-	title: string;
-	slug: string;
-	summary: string;
-	body_markdown: string;
-	body_html: string;
-	cover: string | null;
-	cover_alt: string;
-	status: ArticleStatus;
-	published_at: string | null;
-	author: { id: string; name: string; avatar: string | null };
-	categories: AdminCategory[];
-	created_at: string;
-	updated_at: string;
-}
-
-export interface ArticleInput {
-	title: string;
-	slug?: string;
-	summary: string;
-	body_markdown: string;
-	cover_alt: string;
-	status: ArticleStatus;
-	published_at: string | null;
-	category_ids: string[];
-}
-
-export interface ApiToken {
-	id: string;
-	name: string;
-	prefix: string;
-	created_at: string;
-	last_used_at: string | null;
-}
-
-export interface Paginated<T> {
-	count: number;
-	next: string | null;
-	previous: string | null;
-	results: T[];
-}
+export type Role = RoleEnum;
+export type ArticleStatus = StatusEnum;
+export type AdminArticle = Article;
+export type AdminCategory = CategoryWithCount;
+export type ManagedUser = User;
+/** Editable article fields, as sent by the editor. */
+export type ArticleInput = Required<
+	Pick<
+		PatchedArticleRequest,
+		"title" | "summary" | "body_markdown" | "cover_alt" | "status" | "published_at" | "category_ids"
+	>
+> &
+	Pick<PatchedArticleRequest, "slug">;
 
 export const ROLE_LABELS: Record<Role, string> = {
 	admin: "Administrateur",

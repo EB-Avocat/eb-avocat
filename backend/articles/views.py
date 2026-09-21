@@ -3,6 +3,7 @@ from typing import Any
 import django_filters
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import Count, Q, QuerySet
+from drf_spectacular.utils import extend_schema
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -20,11 +21,13 @@ from articles.rendering import render_markdown
 from articles.serializers import (
     ArticleImageSerializer,
     ArticleSerializer,
-    CategorySerializer,
+    CategoryWithCountSerializer,
     CoverUploadSerializer,
+    PreviewResultSerializer,
     PreviewSerializer,
     PublicArticleDetailSerializer,
     PublicArticleSerializer,
+    ReorderSerializer,
 )
 from core.auth import optional_user, request_user
 
@@ -63,7 +66,7 @@ class PublicCategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet[Categ
 
     permission_classes = (permissions.AllowAny,)
     authentication_classes = ()
-    serializer_class = CategorySerializer
+    serializer_class = CategoryWithCountSerializer
     pagination_class = None
 
     def get_queryset(self) -> QuerySet[Category]:
@@ -90,6 +93,8 @@ class ArticleViewSet(viewsets.ModelViewSet[Article]):
 
     def get_queryset(self) -> QuerySet[Article]:
         queryset = Article.objects.select_related("author").prefetch_related("categories").distinct()
+        if getattr(self, "swagger_fake_view", False):  # schema generation
+            return queryset.none()
         user = request_user(self.request)
         if not user.can_edit_all_articles:
             queryset = queryset.filter(author=user)
@@ -98,6 +103,8 @@ class ArticleViewSet(viewsets.ModelViewSet[Article]):
     def perform_create(self, serializer: BaseSerializer[Article]) -> None:
         serializer.save(author=request_user(self.request))
 
+    @extend_schema(methods=["POST"], request=CoverUploadSerializer, responses=ArticleSerializer)
+    @extend_schema(methods=["DELETE"], request=None, responses=ArticleSerializer)
     @action(detail=True, methods=["post", "delete"], parser_classes=(MultiPartParser, FormParser, JSONParser))
     def cover(self, request: Request, pk: str | None = None) -> Response:
         article = self.get_object()
@@ -131,7 +138,7 @@ class IsEditorOrReadOnly(permissions.BasePermission):
 class CategoryViewSet(viewsets.ModelViewSet[Category]):
     """Authors may create categories (from the editor); editors and admins manage them."""
 
-    serializer_class = CategorySerializer
+    serializer_class = CategoryWithCountSerializer
     pagination_class = None
 
     def get_permissions(self) -> list[Any]:
@@ -142,12 +149,12 @@ class CategoryViewSet(viewsets.ModelViewSet[Category]):
     def get_queryset(self) -> QuerySet[Category]:
         return Category.objects.annotate(article_count=Count("articles", distinct=True))
 
+    @extend_schema(request=ReorderSerializer, responses={204: None})
     @action(detail=False, methods=["post"])
     def reorder(self, request: Request) -> Response:
-        ids = request.data.get("ids") if isinstance(request.data, dict) else None
-        if not isinstance(ids, list):
-            raise ValidationError({"ids": "Liste d'identifiants attendue."})
-        for index, pk in enumerate(ids):
+        serializer = ReorderSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        for index, pk in enumerate(serializer.validated_data["ids"]):
             Category.objects.filter(pk=pk).update(order=index)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -155,6 +162,7 @@ class CategoryViewSet(viewsets.ModelViewSet[Category]):
 class ArticleImageUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
+    @extend_schema(request=ArticleImageSerializer, responses={201: ArticleImageSerializer})
     def post(self, request: Request) -> Response:
         serializer = ArticleImageSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -168,6 +176,7 @@ class ArticleImageUploadView(APIView):
 class PreviewView(APIView):
     """Render Markdown exactly as the public page will (same sanitiser)."""
 
+    @extend_schema(request=PreviewSerializer, responses=PreviewResultSerializer)
     def post(self, request: Request) -> Response:
         serializer = PreviewSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

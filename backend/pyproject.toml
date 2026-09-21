@@ -26,6 +26,7 @@ dev = [
     "djangorestframework-stubs>=3.18.1",
     "factory-boy>=3.3.3",
     "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
     "pytest-django>=4.14.0",
     "ruff>=0.16.8",
     "tox>=4.63.0",
@@ -57,3 +58,14 @@ exclude = ["**/migrations/**", ".venv/**"]
 DJANGO_SETTINGS_MODULE = "config.settings"
 python_files = ["test_*.py"]
 addopts = "-p no:cacheprovider"
+
+[tool.coverage.run]
+source = ["."]
+branch = true
+omit = ["tests/*", "*/migrations/*", ".venv/*", "manage.py", "config/wsgi.py"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true
+exclude_also = ["if TYPE_CHECKING:"]

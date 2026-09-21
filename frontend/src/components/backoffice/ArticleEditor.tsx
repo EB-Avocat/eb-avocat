@@ -177,7 +177,9 @@ export function ArticleEditor({ id }: { id: string | null }) {
 	}, [mode, form.body_markdown]);
 
 	async function uploadInlineImage(file: File): Promise<string> {
-		return (await api.articles.uploadImage(file)).url;
+		const { url } = await api.articles.uploadImage(file);
+		if (!url) throw new Error("Import de l'image impossible.");
+		return url;
 	}
 
 	async function setCover(source: ImageSource) {

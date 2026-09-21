@@ -9,6 +9,7 @@ from django.db.models import QuerySet
 from django.middleware.csrf import get_token
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -23,6 +24,7 @@ from rest_framework.views import APIView
 from accounts.models import ApiToken, User
 from accounts.permissions import IsAdminRole
 from accounts.serializers import (
+    ApiTokenCreatedSerializer,
     ApiTokenSerializer,
     ImageUploadSerializer,
     LoginSerializer,
@@ -48,6 +50,7 @@ class CsrfView(APIView):
 
     permission_classes = (AllowAny,)
 
+    @extend_schema(responses={204: None})
     def get(self, request: Request) -> Response:
         get_token(request._request)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -58,6 +61,7 @@ class LoginView(APIView):
     throttle_classes = (ScopedRateThrottle,)
     throttle_scope = "auth"
 
+    @extend_schema(request=LoginSerializer, responses=ProfileSerializer)
     def post(self, request: Request) -> Response:
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -73,6 +77,7 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
+    @extend_schema(request=None, responses={204: None})
     def post(self, request: Request) -> Response:
         logout(request._request)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -83,6 +88,7 @@ class PasswordResetRequestView(APIView):
     throttle_classes = (ScopedRateThrottle,)
     throttle_scope = "auth"
 
+    @extend_schema(request=PasswordResetRequestSerializer, responses={204: None})
     def post(self, request: Request) -> Response:
         serializer = PasswordResetRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -105,6 +111,7 @@ class PasswordResetRequestView(APIView):
 class PasswordResetConfirmView(APIView):
     permission_classes = (AllowAny,)
 
+    @extend_schema(request=PasswordResetConfirmSerializer, responses={204: None})
     def post(self, request: Request) -> Response:
         serializer = PasswordResetConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -132,6 +139,7 @@ class MeView(generics.RetrieveUpdateAPIView[User]):
 
 
 class MePasswordView(APIView):
+    @extend_schema(request=PasswordChangeSerializer, responses={204: None})
     def post(self, request: Request) -> Response:
         user = request_user(request)
         serializer = PasswordChangeSerializer(data=request.data, context={"request": request})
@@ -161,9 +169,11 @@ def store_avatar(user: User, request: Request) -> Response:
 class MeAvatarView(APIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
 
+    @extend_schema(request=ImageUploadSerializer, responses=UserSerializer)
     def post(self, request: Request) -> Response:
         return store_avatar(request_user(request), request)
 
+    @extend_schema(responses={204: None})
     def delete(self, request: Request) -> Response:
         user = request_user(request)
         if user.avatar:
@@ -177,12 +187,16 @@ class ApiTokenViewSet(
     serializer_class = ApiTokenSerializer
 
     def get_queryset(self) -> QuerySet[ApiToken]:
+        if getattr(self, "swagger_fake_view", False):  # schema generation
+            return ApiToken.objects.none()
         return ApiToken.objects.filter(user=request_user(self.request))
 
+    @extend_schema(responses={201: ApiTokenCreatedSerializer})
     def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         token, raw = ApiToken.issue(request_user(request), serializer.validated_data["name"])
+        # Same shape as ApiTokenCreatedSerializer (documented response); the raw value is shown once.
         return Response({**ApiTokenSerializer(token).data, "token": raw}, status=status.HTTP_201_CREATED)
 
 
@@ -219,6 +233,8 @@ class UserViewSet(viewsets.ModelViewSet[User]):
             )
         instance.delete()
 
+    @extend_schema(methods=["POST"], request=ImageUploadSerializer, responses=UserSerializer)
+    @extend_schema(methods=["DELETE"], request=None, responses={204: None})
     @action(detail=True, methods=["post", "delete"], parser_classes=(MultiPartParser, FormParser, JSONParser))
     def avatar(self, request: Request, pk: str | None = None) -> Response:
         user = self.get_object()

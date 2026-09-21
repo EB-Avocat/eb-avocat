@@ -42,6 +42,17 @@ tox -e seed    # in another terminal: dev admin + demo articles
 - `tox -e down` stops the stack; `tox -e lint,type,test` runs ruff, ty and pytest
   (needs `docker compose up -d db`); `tox -e fmt` formats; `tox -e frontend` runs the Bun checks.
 
+### Tests and API types
+
+- Backend tests live in `backend/tests/`. `tox -e test` runs them with coverage and **fails under
+  90%** (configured in `backend/pyproject.toml`).
+- The API contract is generated, not hand-written. drf-spectacular produces `backend/openapi.yaml`,
+  and [openapi-typescript](https://openapi-ts.dev/) turns it into `frontend/src/lib/api/schema.ts`,
+  which the frontend imports for every request and response type. After changing a serializer or a
+  view, run `tox -e api-types` and commit both files. A backend test and the `api-types` CI job fail
+  when they are stale. The generator lives in `frontend/tools/api-types` with its own TypeScript 5,
+  because openapi-typescript needs the TS 5 compiler API and the app uses TypeScript 7.
+
 ## Publications back-office
 
 The back-office lives at `/${BACKOFFICE_PATH}` (e.g. `/admin-3f9c…`), set with the
