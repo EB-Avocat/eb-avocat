@@ -4,7 +4,7 @@ import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
-import { NAV_LINKS } from "@/lib/constants";
+import { NAV_LINKS, PUBLICATIONS_LINK } from "@/lib/constants";
 
 const sectionIds = NAV_LINKS.map((l) => l.href.replace("#", ""));
 
@@ -81,6 +81,16 @@ export function Navbar({ variant = "overlay" }: NavbarProps) {
 							</a>
 						);
 					})}
+					<a
+						href={PUBLICATIONS_LINK.href}
+						className={`text-sm font-500 transition-colors ${
+							showBackground
+								? "text-near-black/70 hover:text-primary"
+								: "text-white/70 hover:text-white"
+						}`}
+					>
+						{PUBLICATIONS_LINK.label}
+					</a>
 				</div>
 
 				{/* Mobile hamburger */}
@@ -120,6 +130,13 @@ export function Navbar({ variant = "overlay" }: NavbarProps) {
 								</a>
 							);
 						})}
+						<a
+							href={PUBLICATIONS_LINK.href}
+							onClick={() => setMenuOpen(false)}
+							className="border-b border-gray-100 py-3 text-sm font-500 text-near-black/70 last:border-0"
+						>
+							{PUBLICATIONS_LINK.label}
+						</a>
 					</div>
 				</div>
 			)}

@@ -1,12 +1,28 @@
 import type { NextConfig } from "next";
 
+// Local/docker only: proxy the Django API (+ local media) and the MCP endpoint so
+// the browser, the back-office and the image optimizer stay same-origin. On
+// Vercel, the Services rewrites in the root vercel.json route these paths.
+const backendUrl = process.env.BACKEND_URL;
+
 const nextConfig: NextConfig = {
 	// Allow physical devices on the local network (e.g. a phone) to load the
 	// dev server's /_next/* resources (HMR client + image optimizer). Without
-	// this, Next.js 16 blocks those cross-origin requests, so the page renders
+	// this, Next 16 blocks those cross-origin dev requests, so the page renders
 	// but never hydrates (dead menu/scroll) and images fail to load.
 	// Adjust the subnet if your LAN uses a different range.
 	allowedDevOrigins: ["192.168.1.*", "*.local"],
+	images: {
+		// Covers and avatars live on Vercel Blob in production.
+		remotePatterns: [{ protocol: "https", hostname: "**.public.blob.vercel-storage.com" }],
+	},
+	async rewrites() {
+		if (!backendUrl) return [];
+		return [
+			{ source: "/api/v1/:path*", destination: `${backendUrl}/api/v1/:path*` },
+			{ source: "/mcp", destination: `${backendUrl}/mcp` },
+		];
+	},
 };
 
 export default nextConfig;
