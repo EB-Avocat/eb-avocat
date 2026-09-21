@@ -141,3 +141,36 @@ def test_revalidation_is_triggered_on_commit(author: User, settings, django_capt
         json={"tag": "articles"},
         timeout=5,
     )
+
+
+def test_cover_from_url_is_copied_to_storage_and_source_kept(author: User) -> None:
+    article = ArticleFactory.create(author=author)
+    client = client_for(author)
+    source = "https://images.example.com/photos/cabinet.png"
+    url = f"/api/v1/admin/articles/{article.pk}/cover/"
+    with mock.patch("articles.services.fetch_remote_image", return_value=png_upload("cabinet.png")):
+        data = client.post(url, {"url": source}, format="json").json()
+
+    # Served from our own storage (Vercel Blob in production), not hotlinked; the origin is kept.
+    assert data["cover"].startswith("/api/v1/media/covers/")
+    assert data["cover_source_url"] == source
+    article.refresh_from_db()
+    assert article.cover.name and article.cover.storage.exists(article.cover.name)
+    assert article.cover_source_url == source
+
+    # A file upload replaces the source; removing the cover clears it.
+    assert client.post(url, {"file": png_upload()}, format="multipart").json()["cover_source_url"] == ""
+    with mock.patch("articles.services.fetch_remote_image", return_value=png_upload("again.png")):
+        client.post(url, {"url": source}, format="json")
+    data = client.delete(url).json()
+    assert data["cover"] is None
+    assert data["cover_source_url"] == ""
+
+
+def test_cover_source_url_is_read_only(author: User) -> None:
+    article = ArticleFactory.create(author=author)
+    response = client_for(author).patch(
+        f"/api/v1/admin/articles/{article.pk}/", {"cover_source_url": "https://other.example.com/x.png"}, format="json"
+    )
+    assert response.status_code == 200
+    assert response.json()["cover_source_url"] == ""

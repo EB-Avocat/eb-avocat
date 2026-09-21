@@ -417,6 +417,19 @@ export function ArticleEditor({ id }: { id: string | null }) {
 								</button>
 							</div>
 						)}
+						{article?.cover && article.cover_source_url && (
+							<p className="break-all text-xs text-gray-500">
+								Copie de{" "}
+								<a
+									href={article.cover_source_url}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="text-primary hover:underline"
+								>
+									{article.cover_source_url}
+								</a>
+							</p>
+						)}
 						<ImageSourcePicker busy={busy === "cover"} onPick={setCover} label="Image" />
 						<Field label="Texte alternatif" hint="Décrit l'image pour les lecteurs d'écran.">
 							{(props) => (

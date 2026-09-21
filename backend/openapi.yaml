@@ -1358,6 +1358,13 @@ components:
           type: string
           title: Texte alternatif de la couverture
           maxLength: 200
+        cover_source_url:
+          type: string
+          format: uri
+          readOnly: true
+          title: URL d'origine de la couverture
+          description: Adresse d'où l'image a été importée ; l'image elle-même est
+            copiée dans le stockage.
         status:
           $ref: '#/components/schemas/StatusEnum'
         published_at:
@@ -1391,6 +1398,7 @@ components:
       - body_html
       - cover
       - cover_alt
+      - cover_source_url
       - status
       - published_at
       - author

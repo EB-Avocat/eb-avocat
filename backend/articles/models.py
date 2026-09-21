@@ -58,6 +58,12 @@ class Article(TimestampedModel):
     body_html = models.TextField(editable=False, blank=True)
     cover = models.ImageField(upload_to=cover_upload_to, max_length=500, blank=True)
     cover_alt = models.CharField("texte alternatif de la couverture", max_length=200, blank=True)
+    cover_source_url = models.URLField(
+        "URL d'origine de la couverture",
+        max_length=2000,
+        blank=True,
+        help_text="Adresse d'où l'image a été importée ; l'image elle-même est copiée dans le stockage.",
+    )
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.DRAFT)
     published_at = models.DateTimeField("date de publication", null=True, blank=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="articles")

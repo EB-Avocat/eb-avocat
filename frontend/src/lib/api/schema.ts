@@ -475,6 +475,12 @@ export interface components {
 			readonly cover: string | null;
 			/** Texte alternatif de la couverture */
 			cover_alt: string;
+			/**
+			 * URL d'origine de la couverture
+			 * Format: uri
+			 * @description Adresse d'où l'image a été importée ; l'image elle-même est copiée dans le stockage.
+			 */
+			readonly cover_source_url: string;
 			status: components["schemas"]["StatusEnum"];
 			/**
 			 * Date de publication

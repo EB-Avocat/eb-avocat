@@ -74,10 +74,10 @@ class ArticleSerializer(serializers.ModelSerializer[Article]):
         model = Article
         fields = (
             "id", "title", "slug", "summary", "body_markdown", "body_html", "cover", "cover_alt",
-            "status", "published_at", "author", "categories", "category_ids", "category_names",
+            "cover_source_url", "status", "published_at", "author", "categories", "category_ids", "category_names",
             "created_at", "updated_at",
         )  # fmt: skip
-        read_only_fields = ("id", "body_html", "cover", "author", "created_at", "updated_at")
+        read_only_fields = ("id", "body_html", "cover", "cover_source_url", "author", "created_at", "updated_at")
         extra_kwargs = {"slug": {"required": False, "allow_blank": True}}  # noqa: RUF012
 
     def validate_slug(self, value: str) -> str:

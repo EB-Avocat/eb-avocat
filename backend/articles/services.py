@@ -26,9 +26,14 @@ def categories_from_names(names: list[str]) -> list[Category]:
     return categories
 
 
-def _store_cover(article: Article, image: SimpleUploadedFile) -> Article:
+def _store_cover(article: Article, image: SimpleUploadedFile, source_url: str = "") -> Article:
+    """Store the image in the media storage (Vercel Blob in production), never hotlinked.
+
+    ``source_url`` records where an imported image came from (kept for history).
+    """
     if article.cover:
         article.cover.delete(save=False)
+    article.cover_source_url = source_url
     article.cover.save(image.name or "cover", image, save=True)
     return article
 
@@ -38,7 +43,7 @@ def set_cover_from_upload(article: Article, upload: UploadedFile) -> Article:
 
 
 def set_cover_from_url(article: Article, url: str) -> Article:
-    return _store_cover(article, fetch_remote_image(url))
+    return _store_cover(article, fetch_remote_image(url), source_url=url)
 
 
 def set_cover_from_bytes(article: Article, data: bytes, filename: str) -> Article:
@@ -50,7 +55,8 @@ def set_cover_from_bytes(article: Article, data: bytes, filename: str) -> Articl
 def remove_cover(article: Article) -> Article:
     if article.cover:
         article.cover.delete(save=False)
-        article.save(update_fields=["cover"])
+        article.cover_source_url = ""
+        article.save(update_fields=["cover", "cover_source_url"])
     return article
 
 
