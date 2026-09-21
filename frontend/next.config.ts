@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
 	// but never hydrates (dead menu/scroll) and images fail to load.
 	// Adjust the subnet if your LAN uses a different range.
 	allowedDevOrigins: ["192.168.1.*", "*.local"],
+	// Django routes end with "/": keep Next from stripping it before proxying /api/v1.
+	skipTrailingSlashRedirect: true,
 	images: {
 		// Covers and avatars live on Vercel Blob in production.
 		remotePatterns: [{ protocol: "https", hostname: "**.public.blob.vercel-storage.com" }],
@@ -19,6 +21,8 @@ const nextConfig: NextConfig = {
 	async rewrites() {
 		if (!backendUrl) return [];
 		return [
+			// `:path*` drops a trailing slash, which Django needs: match it explicitly first.
+			{ source: "/api/v1/:path*/", destination: `${backendUrl}/api/v1/:path*/` },
 			{ source: "/api/v1/:path*", destination: `${backendUrl}/api/v1/:path*` },
 			{ source: "/mcp", destination: `${backendUrl}/mcp` },
 		];
