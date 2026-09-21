@@ -22,6 +22,7 @@ with a digital business card (`/carte`) that exposes a downloadable vCard.
 Requires [Bun](https://bun.com/) (CI pins `1.3.14`).
 
 ```sh
+cd frontend
 bun install
 bun run dev
 ```
@@ -32,7 +33,7 @@ The dev server runs with Turbopack at http://localhost:3000.
 
 The contact form posts to `POST /api/contact`, which sends Eva a transactional email via the
 [Brevo](https://www.brevo.com/) API (with the visitor set as `reply-to`). Configure these
-environment variables — see [`env.example`](env.example):
+environment variables — see [`env.example`](frontend/env.example):
 
 | Variable             | Required | Description                                                        |
 | -------------------- | -------- | ------------------------------------------------------------------ |
@@ -74,7 +75,7 @@ public/
 ```
 
 Site content (text, services, contact details, testimonials) lives in
-[`src/lib/constants.ts`](src/lib/constants.ts) and is fully in French.
+[`src/lib/constants.ts`](frontend/src/lib/constants.ts) and is fully in French.
 
 ## Continuous integration
 

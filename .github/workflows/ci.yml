@@ -6,8 +6,11 @@ on:
   pull_request:
 
 jobs:
-  check:
+  frontend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v7
         # lfs not enabled: lint/typecheck/tests don't need the binary assets
