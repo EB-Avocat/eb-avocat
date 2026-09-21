@@ -6,7 +6,22 @@ from rest_framework import serializers
 from accounts.models import ApiToken, User
 
 
-class UserSerializer(serializers.ModelSerializer[User]):
+class NormalizedEmailMixin:
+    # Emails are stored lowercase (login and password reset look them up that way).
+
+    instance: Any
+
+    def validate_email(self, value: str) -> str:
+        email = value.strip().lower()
+        others = User.objects.filter(email__iexact=email)
+        if isinstance(self.instance, User):
+            others = others.exclude(pk=self.instance.pk)
+        if others.exists():
+            raise serializers.ValidationError("Un utilisateur utilise déjà cette adresse e-mail.")
+        return email
+
+
+class UserSerializer(NormalizedEmailMixin, serializers.ModelSerializer[User]):
     avatar = serializers.ImageField(read_only=True)
 
     class Meta:
@@ -15,7 +30,7 @@ class UserSerializer(serializers.ModelSerializer[User]):
         read_only_fields = ("id", "avatar", "date_joined")
 
 
-class ProfileSerializer(serializers.ModelSerializer[User]):
+class ProfileSerializer(NormalizedEmailMixin, serializers.ModelSerializer[User]):
     """The current user's own profile; role and activation are not self-editable."""
 
     avatar = serializers.ImageField(read_only=True)

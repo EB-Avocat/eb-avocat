@@ -119,7 +119,10 @@ def _set_cover(user: User, article_id: str, url: str | None, data: str | None, f
 
 
 def _create_category(user: User, name: str, is_primary: bool) -> dict[str, Any]:
-    category = services.categories_from_names([name])[0]
+    created = services.categories_from_names([name])
+    if not created:
+        raise ToolError("Le nom de la catégorie est obligatoire.")
+    category = created[0]
     if is_primary and user.can_edit_all_articles and not category.is_primary:
         category.is_primary = True
         category.save(update_fields=["is_primary"])

@@ -164,7 +164,7 @@ export const api = {
 			post<void>("/admin/categories/reorder/", { ids } satisfies ReorderRequest),
 	},
 	users: {
-		list: () => get<PaginatedUserList>("/admin/users/"),
+		list: () => get<PaginatedUserList>("/admin/users/?page_size=100"),
 		create: (data: UserCreateRequest) => post<UserCreate>("/admin/users/", data),
 		update: (id: string, data: PatchedUserRequest) => patch<User>(`/admin/users/${id}/`, data),
 		remove: (id: string) => del(`/admin/users/${id}/`),

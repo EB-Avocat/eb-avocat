@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, type ReactNode, useContext } from "react";
+import { createContext, type ReactNode, useCallback, useContext, useMemo } from "react";
 import { backofficeHref } from "@/lib/backoffice/routes";
 import type { Profile } from "@/lib/backoffice/types";
 
@@ -12,14 +12,15 @@ interface BackofficeBase {
 const BaseContext = createContext<BackofficeBase | null>(null);
 
 export function BackofficeBaseProvider({ base, children }: { base: string; children: ReactNode }) {
-	return <BaseContext.Provider value={{ base }}>{children}</BaseContext.Provider>;
+	const value = useMemo(() => ({ base }), [base]);
+	return <BaseContext.Provider value={value}>{children}</BaseContext.Provider>;
 }
 
 /** `href("/articles")` → "/admin-xyz/articles". */
 export function useBackofficeHref(): (path?: string) => string {
-	const ctx = useContext(BaseContext);
-	if (!ctx) throw new Error("useBackofficeHref must be used inside BackofficeBaseProvider");
-	return (path = "") => backofficeHref(ctx.base, path);
+	const base = useBackofficeBase();
+	// Stable identity: callers list it in effect dependencies (e.g. the Shell's /me/ fetch).
+	return useCallback((path = "") => backofficeHref(base, path), [base]);
 }
 
 export function useBackofficeBase(): string {
