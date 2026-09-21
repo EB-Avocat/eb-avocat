@@ -1,0 +1,93 @@
+from typing import Any
+
+from django.contrib.auth import password_validation
+from rest_framework import serializers
+
+from accounts.models import ApiToken, User
+
+
+class UserSerializer(serializers.ModelSerializer[User]):
+    avatar = serializers.ImageField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ("id", "email", "first_name", "last_name", "role", "avatar", "is_active", "date_joined")
+        read_only_fields = ("id", "avatar", "date_joined")
+
+
+class ProfileSerializer(serializers.ModelSerializer[User]):
+    """The current user's own profile; role and activation are not self-editable."""
+
+    avatar = serializers.ImageField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ("id", "email", "first_name", "last_name", "role", "avatar")
+        read_only_fields = ("id", "role", "avatar")
+
+
+class UserCreateSerializer(UserSerializer):
+    password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+
+    class Meta(UserSerializer.Meta):
+        fields = (*UserSerializer.Meta.fields, "password")
+
+    def validate_password(self, value: str) -> str:
+        if value:
+            password_validation.validate_password(value)
+        return value
+
+    def create(self, validated_data: dict[str, Any]) -> User:
+        password = validated_data.pop("password", "") or None
+        user = User.objects.create_user(password=password, **validated_data)
+        if password is None:
+            # No password yet: the user sets one through the reset link.
+            user.set_unusable_password()
+            user.save(update_fields=["password"])
+        return user
+
+
+class PasswordChangeSerializer(serializers.Serializer[None]):
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+
+    def validate_current_password(self, value: str) -> str:
+        if not self.context["request"].user.check_password(value):
+            raise serializers.ValidationError("Mot de passe actuel incorrect.")
+        return value
+
+    def validate_new_password(self, value: str) -> str:
+        password_validation.validate_password(value, self.context["request"].user)
+        return value
+
+
+class LoginSerializer(serializers.Serializer[None]):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+
+class PasswordResetRequestSerializer(serializers.Serializer[None]):
+    email = serializers.EmailField()
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer[None]):
+    uid = serializers.CharField()
+    token = serializers.CharField()
+    new_password = serializers.CharField(write_only=True)
+
+
+class ApiTokenSerializer(serializers.ModelSerializer[ApiToken]):
+    class Meta:
+        model = ApiToken
+        fields = ("id", "name", "prefix", "created_at", "last_used_at")
+        read_only_fields = ("id", "prefix", "created_at", "last_used_at")
+
+
+class ImageUploadSerializer(serializers.Serializer[None]):
+    file = serializers.ImageField(required=False)
+    url = serializers.URLField(required=False)
+
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        if bool(attrs.get("file")) == bool(attrs.get("url")):
+            raise serializers.ValidationError("Fournissez soit un fichier, soit une URL.")
+        return attrs
