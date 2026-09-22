@@ -119,35 +119,67 @@ export function ArticleEditor({ id }: { id: string | null }) {
 		return () => window.removeEventListener("beforeunload", onBeforeUnload);
 	}, [dirty]);
 
+	// Guards against concurrent saves (e.g. Ctrl+S pressed twice on a new article would
+	// otherwise POST twice and create a duplicate).
+	const saving = useRef(false);
+	// A new article lives at ".../articles/nouveau" until it is saved; moving to its
+	// own URL remounts the editor (keyed by id), so it happens once, when nothing is pending.
+	const needsRoute = useRef(id === null);
+	const goToSavedArticle = useCallback(
+		(articleId: string) => {
+			needsRoute.current = false;
+			router.replace(href(`/articles/${articleId}`));
+		},
+		[href, router],
+	);
+
 	const save = useCallback(
-		async (overrides: Partial<ArticleInput> = {}): Promise<AdminArticle | null> => {
-			const data = { ...form, ...overrides };
+		async (
+			overrides: Partial<ArticleInput> = {},
+			{ navigate = true }: { navigate?: boolean } = {},
+		): Promise<AdminArticle | null> => {
+			if (saving.current) return null;
+			const sent = form;
+			const data = { ...sent, ...overrides };
 			if (!data.title.trim()) {
 				setError("Le titre est obligatoire.");
 				return null;
 			}
+			saving.current = true;
 			setBusy("save");
 			setError(null);
 			try {
 				const result = article
 					? await api.articles.update(article.id, data)
 					: await api.articles.create(data);
+				const stored = toInput(result);
 				setArticle(result);
-				setForm(toInput(result));
-				setSaved(toInput(result));
+				// Keep anything typed while the request was in flight (it stays "unsaved").
+				setForm((current) =>
+					current === sent
+						? stored
+						: {
+								...current,
+								status: result.status,
+								published_at: current.published_at ?? result.published_at,
+								slug: current.slug || result.slug,
+							},
+				);
+				setSaved(stored);
 				setNotice(
 					result.status === "published" ? "Article enregistré et publié." : "Brouillon enregistré.",
 				);
-				if (!article) router.replace(href(`/articles/${result.id}`));
+				if (navigate && needsRoute.current) goToSavedArticle(result.id);
 				return result;
 			} catch (err) {
 				setError(messageOf(err, "Enregistrement impossible."));
 				return null;
 			} finally {
+				saving.current = false;
 				setBusy(null);
 			}
 		},
-		[article, form, href, router],
+		[article, form, goToSavedArticle],
 	);
 
 	// Ctrl/Cmd + S saves.
@@ -186,17 +218,23 @@ export function ArticleEditor({ id }: { id: string | null }) {
 	}
 
 	async function setCover(source: ImageSource) {
-		// A cover needs an article id: save the draft first if needed.
-		const target = article ?? (await save());
+		// A cover needs an article id: save the draft first if needed. Navigating to the
+		// new article's URL remounts the editor, so do it only once the cover is stored.
+		const target = article ?? (await save({}, { navigate: false }));
 		if (!target) return;
 		setBusy("cover");
 		setError(null);
 		try {
 			const result = await api.articles.setCover(target.id, source, form.cover_alt);
 			setArticle(result);
-			setCropping(true); // centered 16:9 by default: let the author reframe it right away
+			if (needsRoute.current) {
+				// The remounted editor offers the "Recadrer" button instead of the dialog.
+				goToSavedArticle(result.id);
+			} else {
+				setCropping(true); // centered 16:9 by default: let the author reframe it right away
+			}
 		} catch (err) {
-			fail(err, "Image refusée.");
+			fail(err, "Image refusée."); // a later save moves to the article's URL
 		} finally {
 			setBusy(null);
 		}

@@ -186,7 +186,14 @@ async def create_article(
         )  # fmt: skip
         article = _save(user, data)
         if cover_url:
-            return _set_cover(user, article["id"], cover_url, None, "cover", None)
+            try:
+                return _set_cover(user, article["id"], cover_url, None, "cover", None)
+            except ToolError as exc:
+                # The article exists already: say so, or the model retries and creates a duplicate.
+                raise ToolError(
+                    f"Article créé (id {article['id']}, slug {article['slug']}) sans couverture : {exc}. "
+                    "Utilisez set_article_cover pour réessayer."
+                ) from exc
         return article
 
     return await sync_to_async(run)()

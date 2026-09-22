@@ -18,7 +18,7 @@ def validate_image_bytes(data: bytes, filename: str = "image") -> SimpleUploaded
         with Image.open(BytesIO(data)) as image:
             image.verify()
             image_format = image.format or ""
-    except (UnidentifiedImageError, OSError, SyntaxError) as exc:
+    except (UnidentifiedImageError, OSError, SyntaxError, Image.DecompressionBombError) as exc:
         raise ValidationError("Le fichier n'est pas une image valide.") from exc
     extension = ALLOWED_FORMATS.get(image_format)
     if extension is None:
