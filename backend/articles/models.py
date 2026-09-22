@@ -91,7 +91,16 @@ class Article(TimestampedModel):
             self.published_at = timezone.now()
         update_fields = kwargs.get("update_fields")
         if update_fields is not None:
-            kwargs["update_fields"] = {*update_fields, "body_html", "published_at", "slug"}
+            # Only write derived columns whose sources are written too: the in-memory
+            # values of the other fields may be stale (e.g. a long cover upload).
+            fields = set(update_fields)
+            if "body_markdown" in fields:
+                fields.add("body_html")
+            if "status" in fields:
+                fields.add("published_at")
+            if "title" in fields:
+                fields.add("slug")
+            kwargs["update_fields"] = fields
         super().save(*args, **kwargs)
 
 

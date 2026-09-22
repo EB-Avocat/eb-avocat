@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from rest_framework.test import APIClient
 
 from accounts.models import User
+from articles import services
 from articles.models import Article, Category
 from tests.conftest import ArticleFactory, CategoryFactory, client_for, png_upload
 
@@ -175,3 +176,27 @@ def test_cover_source_url_is_read_only(author: User) -> None:
     )
     assert response.status_code == 200
     assert response.json()["cover_source_url"] == ""
+
+
+def test_author_cannot_create_a_primary_category(author: User, editor: User) -> None:
+    url = "/api/v1/admin/categories/"
+    response = client_for(author).post(url, {"name": "Auteur", "is_primary": True, "order": 5}, format="json")
+    assert response.status_code == 201, response.json()
+    assert response.json()["is_primary"] is False
+    assert response.json()["order"] == 0
+    response = client_for(editor).post(url, {"name": "Éditeur", "is_primary": True}, format="json")
+    assert response.json()["is_primary"] is True
+
+
+def test_cover_upload_does_not_overwrite_concurrent_edits(author: User) -> None:
+    article = ArticleFactory.create(author=author, title="Avant", body_markdown="avant")
+    stale = Article.objects.get(pk=article.pk)
+    # Saved from the editor while the (slow) cover upload was in flight.
+    Article.objects.filter(pk=article.pk).update(title="Après", body_markdown="après", body_html="<p>après</p>")
+    services.set_cover_from_upload(stale, png_upload())
+    stale.cover_alt = "Alt"
+    stale.save(update_fields=["cover_alt"])
+    article.refresh_from_db()
+    assert (article.title, article.body_markdown, article.body_html) == ("Après", "après", "<p>après</p>")
+    assert article.cover
+    assert article.cover_alt == "Alt"

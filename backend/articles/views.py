@@ -164,6 +164,13 @@ class CategoryViewSet(viewsets.ModelViewSet[Category]):
     def get_queryset(self) -> QuerySet[Category]:
         return Category.objects.annotate(article_count=Count("articles", distinct=True))
 
+    def perform_create(self, serializer: BaseSerializer[Category]) -> None:
+        # Authors may add a category, but only editors and admins decide what is a main filter.
+        if request_user(self.request).can_edit_all_articles:
+            serializer.save()
+        else:
+            serializer.save(is_primary=False, order=0)
+
     @extend_schema(request=ReorderSerializer, responses={204: None})
     @action(detail=False, methods=["post"])
     def reorder(self, request: Request) -> Response:

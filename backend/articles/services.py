@@ -37,7 +37,7 @@ def _store_cover(
     never hotlinked. ``source_url`` records where an imported image came from.
     """
     article.cover_source_url = source_url
-    cropped.set_image(article, "cover", image, COVER, crop)
+    cropped.set_image(article, "cover", image, COVER, crop, extra_fields=("cover_source_url",))
     return article
 
 
@@ -61,7 +61,7 @@ def recrop_cover(article: Article, crop: Crop | None) -> Article:
 def remove_cover(article: Article) -> Article:
     if article.cover or article.cover_original:
         article.cover_source_url = ""
-        cropped.clear(article, "cover")
+        cropped.clear(article, "cover", extra_fields=("cover_source_url",))
     return article
 
 

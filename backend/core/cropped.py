@@ -32,6 +32,15 @@ def _stored(instance: models.Model, *names: str) -> list[tuple[FieldFile, str]]:
     return [(file, file.name) for name in names if (file := getattr(instance, name))]
 
 
+def _save(instance: models.Model, field: str, extra_fields: tuple[str, ...]) -> None:
+    """Write only the image columns: a slow upload must not overwrite concurrent edits
+    of the other fields with the stale values loaded before it started."""
+    names = {field, f"{field}_original", f"{field}_crop", *extra_fields}
+    if any(f.name == "updated_at" for f in instance._meta.concrete_fields):
+        names.add("updated_at")
+    instance.save(update_fields=names)
+
+
 def _delete_replaced(replaced: list[tuple[FieldFile, str]]) -> None:
     # Only after the new files are stored and the row saved: a failed upload keeps the old image.
     for file, name in replaced:
@@ -39,7 +48,12 @@ def _delete_replaced(replaced: list[tuple[FieldFile, str]]) -> None:
 
 
 def set_image(
-    instance: models.Model, field: str, upload: SimpleUploadedFile, rendition: Rendition, crop: Crop | None = None
+    instance: models.Model,
+    field: str,
+    upload: SimpleUploadedFile,
+    rendition: Rendition,
+    crop: Crop | None = None,
+    extra_fields: tuple[str, ...] = (),
 ) -> None:
     """Store ``upload`` as the new original and render it (centered crop by default)."""
     data = upload.read()
@@ -48,7 +62,7 @@ def set_image(
     getattr(instance, f"{field}_original").save(_original_name(upload.name, data), ContentFile(data), save=False)
     getattr(instance, field).save(rendered.name, rendered, save=False)
     setattr(instance, f"{field}_crop", applied.as_dict() if applied else None)
-    instance.save()
+    _save(instance, field, extra_fields)
     _delete_replaced(replaced)
 
 
@@ -65,12 +79,12 @@ def recrop(instance: models.Model, field: str, crop: Crop | None, rendition: Ren
     replaced = _stored(instance, field)
     getattr(instance, field).save(rendered.name, rendered, save=False)
     setattr(instance, f"{field}_crop", applied.as_dict() if applied else None)
-    instance.save()
+    _save(instance, field, ())
     _delete_replaced(replaced)
 
 
-def clear(instance: models.Model, field: str) -> None:
+def clear(instance: models.Model, field: str, extra_fields: tuple[str, ...] = ()) -> None:
     _delete(instance, f"{field}_original")
     _delete(instance, field)
     setattr(instance, f"{field}_crop", None)
-    instance.save()
+    _save(instance, field, extra_fields)
