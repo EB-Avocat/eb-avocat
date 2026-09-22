@@ -20,6 +20,7 @@ from articles.models import Article, Category, published_articles
 from articles.rendering import render_markdown
 from articles.serializers import (
     ArticleImageSerializer,
+    ArticleImageUploadSerializer,
     ArticleSerializer,
     CategoryWithCountSerializer,
     CoverUploadSerializer,
@@ -176,12 +177,16 @@ class CategoryViewSet(viewsets.ModelViewSet[Category]):
 class ArticleImageUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
-    @extend_schema(request=ArticleImageSerializer, responses={201: ArticleImageSerializer})
+    @extend_schema(request=ArticleImageUploadSerializer, responses={201: ArticleImageSerializer})
     def post(self, request: Request) -> Response:
-        serializer = ArticleImageSerializer(data=request.data)
+        serializer = ArticleImageUploadSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        user, data = request_user(request), serializer.validated_data
         try:
-            record = services.store_inline_image(serializer.validated_data["file"], request_user(request))
+            if data.get("url"):
+                record = services.store_inline_image_from_url(data["url"], user)
+            else:
+                record = services.store_inline_image(data["file"], user)
         except DjangoValidationError as exc:
             raise ValidationError({"detail": exc.messages}) from exc
         return Response(ArticleImageSerializer(record).data, status=status.HTTP_201_CREATED)

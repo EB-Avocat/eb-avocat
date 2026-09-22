@@ -104,6 +104,7 @@ class ArticleImage(TimestampedModel):
     """Image inserted inside an article body from the editor."""
 
     image = models.ImageField(upload_to=inline_upload_to, max_length=500)
+    source_url = models.URLField("adresse d'origine", max_length=2000, blank=True)
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
     def __str__(self) -> str:

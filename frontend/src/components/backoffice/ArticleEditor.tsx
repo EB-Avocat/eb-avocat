@@ -1,21 +1,22 @@
 "use client";
 
-import { ArrowLeft, Crop as CropIcon, Eye, FileCode2, PenLine, Trash2 } from "lucide-react";
+import { ArrowLeft, Eye, FileCode2, PenLine, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useBackofficeHref, useSession } from "@/components/backoffice/BackofficeContext";
 import { CategoryPicker } from "@/components/backoffice/CategoryPicker";
 import { RichEditor } from "@/components/backoffice/editor/RichEditor";
-import { ImageCropper } from "@/components/backoffice/ImageCropper";
-import { type ImageSource, ImageSourcePicker } from "@/components/backoffice/ImageSourcePicker";
+import type { ImageSource } from "@/components/backoffice/ImageDialog";
+import { CoverField, type StoredImage } from "@/components/backoffice/ImageFields";
 import {
 	Alert,
 	BoButton,
 	ConfirmModal,
 	Field,
 	Select,
-	Spinner,
+	Skeleton,
+	SkeletonGroup,
 	TextArea,
 	TextInput,
 } from "@/components/backoffice/ui";
@@ -62,6 +63,14 @@ function toInput(article: AdminArticle): ArticleInput {
 	};
 }
 
+function coverOf(article: AdminArticle | null): StoredImage {
+	return {
+		url: article?.cover ?? null,
+		original: article?.cover_original ?? null,
+		crop: article?.cover_crop ?? null,
+	};
+}
+
 /** `datetime-local` value (local time) ↔ ISO string. */
 function toLocalInput(iso: string | null): string {
 	if (!iso) return "";
@@ -70,11 +79,44 @@ function toLocalInput(iso: string | null): string {
 	return new Date(date.getTime() - offset).toISOString().slice(0, 16);
 }
 
+/** Placeholder with the editor's layout while the article loads. */
+export function ArticleEditorSkeleton() {
+	return (
+		<SkeletonGroup label="Chargement de l'article…">
+			<div className="mb-6 flex items-center justify-between">
+				<Skeleton className="h-4 w-32" />
+				<div className="flex gap-2">
+					<Skeleton className="h-9 w-24" />
+					<Skeleton className="h-9 w-28" />
+				</div>
+			</div>
+			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
+				<div className="flex flex-col gap-4">
+					<Skeleton className="h-10 w-3/4" />
+					<Skeleton className="h-10 w-full" />
+					<Skeleton className="h-20 w-full" />
+					<Skeleton className="aspect-[16/9] w-full !rounded-lg" />
+					<Skeleton className="h-9 w-64" />
+					<Skeleton className="h-96 w-full !rounded-lg" />
+				</div>
+				<div className="flex flex-col gap-5 rounded-lg bg-white p-5 shadow-sm lg:self-start">
+					{[0, 1, 2].map((key) => (
+						<div key={key} className="flex flex-col gap-2">
+							<Skeleton className="h-4 w-24" />
+							<Skeleton className="h-9 w-full" />
+						</div>
+					))}
+				</div>
+			</div>
+		</SkeletonGroup>
+	);
+}
+
 export function ArticleEditor({ id }: { id: string | null }) {
 	const router = useRouter();
 	const href = useBackofficeHref();
 	const { user } = useSession();
-	const titleLabelId = useId();
+	const titleId = useId();
 	const bodyLabelId = useId();
 
 	const [article, setArticle] = useState<AdminArticle | null>(null);
@@ -84,15 +126,13 @@ export function ArticleEditor({ id }: { id: string | null }) {
 	const [loading, setLoading] = useState(id !== null);
 	const [mode, setMode] = useState<Mode>("visual");
 	const [previewHtml, setPreviewHtml] = useState("");
-	const [busy, setBusy] = useState<null | "save" | "cover" | "delete">(null);
+	const [busy, setBusy] = useState<null | "save" | "delete">(null);
 	const [error, setError] = useState<string | null>(null);
 	const [notice, setNotice] = useState<string | null>(null);
 	const [confirmDelete, setConfirmDelete] = useState(false);
-	const [cropping, setCropping] = useState(false);
 
 	const dirty = JSON.stringify(form) !== JSON.stringify(saved);
 	const update = (patch: Partial<ArticleInput>) => setForm((f) => ({ ...f, ...patch }));
-	const fail = (err: unknown, fallback: string) => setError(messageOf(err, fallback));
 
 	useEffect(() => {
 		api.categories
@@ -211,58 +251,30 @@ export function ArticleEditor({ id }: { id: string | null }) {
 			.catch((err) => setError(messageOf(err, "Aperçu indisponible.")));
 	}, [mode, form.body_markdown]);
 
-	async function uploadInlineImage(file: File): Promise<string> {
-		const { url } = await api.articles.uploadImage(file);
+	async function uploadInlineImage(source: ImageSource): Promise<string> {
+		const { url } = await api.articles.uploadImage(source);
 		if (!url) throw new Error("Import de l'image impossible.");
 		return url;
 	}
 
-	async function setCover(source: ImageSource) {
-		// A cover needs an article id: save the draft first if needed. Navigating to the
-		// new article's URL remounts the editor, so do it only once the cover is stored.
+	async function uploadCover(source: ImageSource): Promise<StoredImage> {
+		// A cover needs an article id: save the draft first if needed. The move to the
+		// new article's URL waits until the image dialog is closed (it remounts the editor).
 		const target = article ?? (await save({}, { navigate: false }));
-		if (!target) return;
-		setBusy("cover");
-		setError(null);
-		try {
-			const result = await api.articles.setCover(target.id, source, form.cover_alt);
-			setArticle(result);
-			if (needsRoute.current) {
-				// The remounted editor offers the "Recadrer" button instead of the dialog.
-				goToSavedArticle(result.id);
-			} else {
-				setCropping(true); // centered 16:9 by default: let the author reframe it right away
-			}
-		} catch (err) {
-			fail(err, "Image refusée."); // a later save moves to the article's URL
-		} finally {
-			setBusy(null);
-		}
+		if (!target) throw new Error("Donnez un titre à l'article avant d'ajouter une image.");
+		const result = await api.articles.setCover(target.id, source, form.cover_alt);
+		setArticle(result);
+		return coverOf(result);
 	}
 
-	async function saveCrop(crop: CropRequest) {
+	async function cropCover(crop: CropRequest) {
 		if (!article) return;
-		setBusy("cover");
-		try {
-			setArticle(await api.articles.cropCover(article.id, crop));
-			setCropping(false);
-		} catch (err) {
-			fail(err, "Recadrage impossible.");
-		} finally {
-			setBusy(null);
-		}
+		setArticle(await api.articles.cropCover(article.id, crop));
 	}
 
 	async function removeCover() {
 		if (!article) return;
-		setBusy("cover");
-		try {
-			setArticle(await api.articles.removeCover(article.id));
-		} catch (err) {
-			fail(err, "Suppression impossible.");
-		} finally {
-			setBusy(null);
-		}
+		setArticle(await api.articles.removeCover(article.id));
 	}
 
 	async function remove() {
@@ -273,12 +285,12 @@ export function ArticleEditor({ id }: { id: string | null }) {
 			setSaved(form); // no "unsaved changes" prompt
 			router.replace(href("/articles"));
 		} catch (err) {
-			fail(err, "Suppression impossible.");
+			setError(messageOf(err, "Suppression impossible."));
 			setBusy(null);
 		}
 	}
 
-	if (loading) return <Spinner />;
+	if (loading) return <ArticleEditorSkeleton />;
 	if (id && !article) return <Alert>{error ?? "Article introuvable."}</Alert>;
 
 	const selectedCategories = form.category_ids
@@ -331,17 +343,82 @@ export function ArticleEditor({ id }: { id: string | null }) {
 			</div>
 
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
-				<div className="flex min-w-0 flex-col gap-4">
-					<label id={titleLabelId} className="sr-only" htmlFor={`${titleLabelId}-input`}>
-						Titre
-					</label>
-					<input
-						id={`${titleLabelId}-input`}
-						value={form.title}
-						onChange={(e) => update({ title: e.target.value })}
-						placeholder="Titre de l'article"
-						className="w-full border-0 bg-transparent text-3xl font-700 text-near-black placeholder:text-gray-300 focus:outline-none"
+				{/* Same order as the published page: title, categories, summary, cover, body. */}
+				<div className="flex min-w-0 flex-col gap-5">
+					<div>
+						<label className="sr-only" htmlFor={titleId}>
+							Titre
+						</label>
+						<input
+							id={titleId}
+							value={form.title}
+							onChange={(e) => update({ title: e.target.value })}
+							placeholder="Titre de l'article"
+							className="w-full border-0 bg-transparent text-3xl font-700 text-near-black placeholder:text-gray-300 focus:outline-none"
+						/>
+					</div>
+
+					<CategoryPicker
+						all={categories}
+						selectedIds={form.category_ids}
+						onChange={(category_ids) => update({ category_ids })}
+						onCreated={(c) => setCategories((list) => [...list, c])}
+						onError={setError}
 					/>
+
+					<Field label="Résumé" hint="Affiché sur les cartes et en tête d'article.">
+						{(props) => (
+							<TextArea
+								{...props}
+								rows={3}
+								value={form.summary}
+								placeholder="Quelques phrases pour donner envie de lire l'article…"
+								onChange={(e) => update({ summary: e.target.value })}
+							/>
+						)}
+					</Field>
+
+					<section aria-label="Image de couverture" className="flex flex-col gap-2">
+						<CoverField
+							image={coverOf(article)}
+							onUpload={uploadCover}
+							onCrop={cropCover}
+							onRemove={removeCover}
+							onError={setError}
+							onDialogClosed={() => {
+								if (needsRoute.current && article) goToSavedArticle(article.id);
+							}}
+						/>
+						{article?.cover && (
+							<>
+								<Field
+									label="Texte alternatif de la couverture"
+									hint="Décrit l'image pour les personnes qui ne la voient pas."
+								>
+									{(props) => (
+										<TextInput
+											{...props}
+											value={form.cover_alt}
+											onChange={(e) => update({ cover_alt: e.target.value })}
+										/>
+									)}
+								</Field>
+								{article.cover_source_url && (
+									<p className="break-all text-xs text-gray-500">
+										Copie de{" "}
+										<a
+											href={article.cover_source_url}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-primary hover:underline"
+										>
+											{article.cover_source_url}
+										</a>
+									</p>
+								)}
+							</>
+						)}
+					</section>
 
 					<div
 						role="tablist"
@@ -414,7 +491,7 @@ export function ArticleEditor({ id }: { id: string | null }) {
 					</div>
 				</div>
 
-				<aside className="flex flex-col gap-5 rounded-lg bg-white p-5 shadow-sm lg:self-start">
+				<aside className="flex flex-col gap-5 rounded-lg bg-white p-5 shadow-sm lg:sticky lg:top-6 lg:self-start">
 					<Field label="Statut">
 						{(props) => (
 							<Select
@@ -445,73 +522,6 @@ export function ArticleEditor({ id }: { id: string | null }) {
 										published_at: e.target.value ? new Date(e.target.value).toISOString() : null,
 									})
 								}
-							/>
-						)}
-					</Field>
-
-					<CategoryPicker
-						all={categories}
-						selectedIds={form.category_ids}
-						onChange={(category_ids) => update({ category_ids })}
-						onCreated={(c) => setCategories((list) => [...list, c])}
-						onError={setError}
-					/>
-
-					<div className="flex flex-col gap-2">
-						<span className="text-sm font-500">Image de couverture</span>
-						{article?.cover && (
-							<div className="relative overflow-hidden rounded">
-								<img src={article.cover} alt="" className="aspect-[16/9] w-full object-cover" />
-								<button
-									type="button"
-									onClick={() => setCropping(true)}
-									className="absolute top-2 left-2 flex items-center gap-1 rounded bg-white/90 px-2 py-1 text-xs font-500 text-near-black shadow hover:bg-white"
-								>
-									<CropIcon className="h-3.5 w-3.5" aria-hidden="true" />
-									Recadrer
-								</button>
-								<button
-									type="button"
-									onClick={removeCover}
-									className="absolute top-2 right-2 rounded bg-white/90 p-1.5 text-red-700 shadow hover:bg-white"
-									aria-label="Retirer l'image de couverture"
-								>
-									<Trash2 className="h-4 w-4" aria-hidden="true" />
-								</button>
-							</div>
-						)}
-						{article?.cover && article.cover_source_url && (
-							<p className="break-all text-xs text-gray-500">
-								Copie de{" "}
-								<a
-									href={article.cover_source_url}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="text-primary hover:underline"
-								>
-									{article.cover_source_url}
-								</a>
-							</p>
-						)}
-						<ImageSourcePicker busy={busy === "cover"} onPick={setCover} label="Image" />
-						<Field label="Texte alternatif" hint="Décrit l'image pour les lecteurs d'écran.">
-							{(props) => (
-								<TextInput
-									{...props}
-									value={form.cover_alt}
-									onChange={(e) => update({ cover_alt: e.target.value })}
-								/>
-							)}
-						</Field>
-					</div>
-
-					<Field label="Résumé" hint="Affiché sur les cartes et en tête d'article.">
-						{(props) => (
-							<TextArea
-								{...props}
-								rows={4}
-								value={form.summary}
-								onChange={(e) => update({ summary: e.target.value })}
 							/>
 						)}
 					</Field>
@@ -551,19 +561,6 @@ export function ArticleEditor({ id }: { id: string | null }) {
 					)}
 				</aside>
 			</div>
-
-			{article?.cover_original && (
-				<ImageCropper
-					open={cropping}
-					title="Cadrer l'image de couverture"
-					image={article.cover_original}
-					aspect={16 / 9}
-					initialCrop={article.cover_crop}
-					busy={busy === "cover"}
-					onSave={saveCrop}
-					onClose={() => setCropping(false)}
-				/>
-			)}
 
 			<ConfirmModal
 				open={confirmDelete}

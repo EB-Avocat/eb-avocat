@@ -23,7 +23,7 @@ export interface SlashItem {
 	run: (editor: Editor, range: Range) => void;
 }
 
-/** Blocks offered by the "/" menu. `pickImage` opens the file picker and uploads. */
+/** Blocks offered by the "/" menu. `pickImage` opens the image dialog (file or web link). */
 export function slashItems(pickImage: (editor: Editor) => void): SlashItem[] {
 	const chain = (editor: Editor, range: Range) => editor.chain().focus().deleteRange(range);
 	return [

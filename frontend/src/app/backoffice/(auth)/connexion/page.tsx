@@ -2,12 +2,41 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { type FormEvent, Suspense, useState } from "react";
+import { type FormEvent, Suspense, useEffect, useState } from "react";
 import { AuthCard } from "@/components/backoffice/AuthCard";
 import { useBackofficeBase, useBackofficeHref } from "@/components/backoffice/BackofficeContext";
-import { Alert, BoButton, Field, TextInput } from "@/components/backoffice/ui";
+import { Alert, BoButton, Field, FullPageSpinner, TextInput } from "@/components/backoffice/ui";
 import { api } from "@/lib/backoffice/api";
 import { safeNext } from "@/lib/backoffice/routes";
+
+/**
+ * Login page. It first checks for a live session: signed-in users go straight to the
+ * back-office, the others get the form, with a spinner in between.
+ */
+function Login() {
+	const router = useRouter();
+	const params = useSearchParams();
+	const base = useBackofficeBase();
+	const [checking, setChecking] = useState(true);
+
+	useEffect(() => {
+		let active = true;
+		api.me
+			.get()
+			.then(() => active && router.replace(safeNext(base, params.get("suite"))))
+			.catch(() => active && setChecking(false));
+		return () => {
+			active = false;
+		};
+	}, [base, params, router]);
+
+	if (checking) return <FullPageSpinner />;
+	return (
+		<AuthCard title="Connexion">
+			<LoginForm />
+		</AuthCard>
+	);
+}
 
 function LoginForm() {
 	const router = useRouter();
@@ -65,10 +94,8 @@ function LoginForm() {
 
 export default function LoginPage() {
 	return (
-		<AuthCard title="Connexion">
-			<Suspense>
-				<LoginForm />
-			</Suspense>
-		</AuthCard>
+		<Suspense fallback={<FullPageSpinner />}>
+			<Login />
+		</Suspense>
 	);
 }

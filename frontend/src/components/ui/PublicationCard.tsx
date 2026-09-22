@@ -43,8 +43,10 @@ export function PublicationCard({ publication }: { publication: Publication }) {
 					<h3 className="mb-2 text-xl font-700 text-near-black transition-colors group-hover:text-primary">
 						{title}
 					</h3>
+					{/* No flex-1 here: a stretched box would show the lines past the clamp and
+					    cut the text mid-sentence after the "…". The byline is pushed down by mt-auto. */}
 					{summary && (
-						<p className="mb-4 line-clamp-3 flex-1 text-sm font-300 leading-relaxed text-gray-600">
+						<p className="mb-4 line-clamp-3 text-sm font-300 leading-relaxed text-gray-600">
 							{summary}
 						</p>
 					)}

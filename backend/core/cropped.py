@@ -11,7 +11,14 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
 from django.db.models.fields.files import FieldFile
 
-from core.imaging import Crop, Rendition, render
+from core.imaging import Crop, Rendition, content_name, render
+
+
+def _original_name(name: str | None, data: bytes) -> str:
+    """Content-hashed name keeping the upload's extension (``original-<hash>.jpg``)."""
+    base = (name or "").rsplit("/", 1)[-1]
+    extension = f".{base.rsplit('.', 1)[-1].lower()}" if "." in base else ""
+    return content_name("original", data, extension)
 
 
 def _delete(instance: models.Model, name: str) -> None:
@@ -38,7 +45,7 @@ def set_image(
     data = upload.read()
     rendered, applied = render(data, rendition, crop, stem=field)  # fails before touching storage
     replaced = _stored(instance, f"{field}_original", field)
-    getattr(instance, f"{field}_original").save(upload.name or field, ContentFile(data), save=False)
+    getattr(instance, f"{field}_original").save(_original_name(upload.name, data), ContentFile(data), save=False)
     getattr(instance, field).save(rendered.name, rendered, save=False)
     setattr(instance, f"{field}_crop", applied.as_dict() if applied else None)
     instance.save()
@@ -54,7 +61,7 @@ def recrop(instance: models.Model, field: str, crop: Crop | None, rendition: Ren
         data = file.read()
     rendered, applied = render(data, rendition, crop, stem=field)
     if not getattr(instance, f"{field}_original"):
-        getattr(instance, f"{field}_original").save(source.name.rsplit("/", 1)[-1], ContentFile(data), save=False)
+        getattr(instance, f"{field}_original").save(_original_name(source.name, data), ContentFile(data), save=False)
     replaced = _stored(instance, field)
     getattr(instance, field).save(rendered.name, rendered, save=False)
     setattr(instance, f"{field}_crop", applied.as_dict() if applied else None)

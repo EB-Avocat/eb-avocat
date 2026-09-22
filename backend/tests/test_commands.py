@@ -1,3 +1,4 @@
+import re
 from io import StringIO
 
 import pytest
@@ -64,7 +65,7 @@ def test_process_images_converts_legacy_covers_and_avatars() -> None:
     article.refresh_from_db()
     user.refresh_from_db()
     assert (article.cover.name or "").endswith(".webp")
-    assert (article.cover_original.name or "").endswith("old.png")
+    assert re.search(r"/original-[0-9a-f]{12}\.png$", article.cover_original.name or "")
     assert article.cover_crop is not None
     assert (user.avatar.name or "").endswith(".webp")
     assert "0 cover(s) and 0 avatar(s)" in run("process_images")

@@ -9,7 +9,7 @@ import {
 	useBackofficeBase,
 	useBackofficeHref,
 } from "@/components/backoffice/BackofficeContext";
-import { Spinner } from "@/components/backoffice/ui";
+import { FullPageSpinner } from "@/components/backoffice/ui";
 import { Main } from "@/components/ui/Main";
 import { ApiError, api } from "@/lib/backoffice/api";
 import { relativePath } from "@/lib/backoffice/routes";
@@ -41,7 +41,7 @@ export function Shell({ children }: { children: ReactNode }) {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: runs on route change
 	useEffect(() => setMenuOpen(false), [pathname]);
 
-	if (!user) return <Spinner />;
+	if (!user) return <FullPageSpinner label="Ouverture de l'espace de gestion…" />;
 
 	const links = [
 		{ path: "/articles", label: "Articles", icon: FileText },

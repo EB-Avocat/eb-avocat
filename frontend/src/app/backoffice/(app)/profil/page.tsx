@@ -2,21 +2,21 @@
 
 import { Copy, KeyRound, Trash2 } from "lucide-react";
 import { type FormEvent, type ReactNode, useEffect, useMemo, useState } from "react";
-import { Avatar } from "@/components/backoffice/Avatar";
 import { useSession } from "@/components/backoffice/BackofficeContext";
-import { ImageCropper } from "@/components/backoffice/ImageCropper";
-import { type ImageSource, ImageSourcePicker } from "@/components/backoffice/ImageSourcePicker";
+import type { ImageSource } from "@/components/backoffice/ImageDialog";
+import { AvatarField, type StoredImage } from "@/components/backoffice/ImageFields";
 import {
 	Alert,
 	BoButton,
 	ConfirmModal,
 	Field,
+	ListSkeleton,
 	PageHeader,
 	TextInput,
 } from "@/components/backoffice/ui";
 import type { CropRequest } from "@/lib/api/schema";
 import { api } from "@/lib/backoffice/api";
-import { type ApiToken, ROLE_LABELS } from "@/lib/backoffice/types";
+import { type ApiToken, type Profile, ROLE_LABELS } from "@/lib/backoffice/types";
 import { formatPublicationDate } from "@/lib/publications-parse";
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -67,14 +67,13 @@ function IdentitySection() {
 		last_name: user.last_name,
 		email: user.email,
 	});
-	const [busy, setBusy] = useState<null | "save" | "avatar">(null);
-	const [cropping, setCropping] = useState(false);
+	const [busy, setBusy] = useState(false);
 	const { feedback, ok, fail, clear } = useFeedback();
 	const name = [user.first_name, user.last_name].filter(Boolean).join(" ") || user.email;
 
 	async function save(event: FormEvent) {
 		event.preventDefault();
-		setBusy("save");
+		setBusy(true);
 		clear();
 		try {
 			setUser(await api.me.update(form));
@@ -82,42 +81,36 @@ function IdentitySection() {
 		} catch (err) {
 			fail(err);
 		} finally {
-			setBusy(null);
+			setBusy(false);
 		}
 	}
 
-	async function setAvatar(source: ImageSource) {
-		setBusy("avatar");
+	const avatarOf = (profile: Pick<Profile, "avatar" | "avatar_original" | "avatar_crop">) => ({
+		url: profile.avatar,
+		original: profile.avatar_original,
+		crop: profile.avatar_crop,
+	});
+
+	/** Copy the avatar fields returned by the API into the session user. */
+	function keepAvatar(updated: Pick<Profile, "avatar" | "avatar_original" | "avatar_crop">) {
+		const { avatar, avatar_original, avatar_crop } = updated;
+		setUser({ ...user, avatar, avatar_original, avatar_crop });
+	}
+
+	async function uploadAvatar(source: ImageSource): Promise<StoredImage> {
 		clear();
-		try {
-			setUser(await api.me.setAvatar(source));
-			setCropping(true); // centered square by default: let the user reframe it right away
-		} catch (err) {
-			fail(err);
-		} finally {
-			setBusy(null);
-		}
+		const updated = await api.me.setAvatar(source);
+		keepAvatar(updated);
+		return avatarOf(updated);
 	}
 
-	async function saveCrop(crop: CropRequest) {
-		setBusy("avatar");
-		try {
-			setUser(await api.me.cropAvatar(crop));
-			setCropping(false);
-		} catch (err) {
-			fail(err);
-		} finally {
-			setBusy(null);
-		}
+	async function cropAvatar(crop: CropRequest) {
+		keepAvatar(await api.me.cropAvatar(crop));
 	}
 
 	async function removeAvatar() {
-		try {
-			await api.me.removeAvatar();
-			setUser({ ...user, avatar: null, avatar_original: null, avatar_crop: null });
-		} catch (err) {
-			fail(err);
-		}
+		await api.me.removeAvatar();
+		setUser({ ...user, avatar: null, avatar_original: null, avatar_crop: null });
 	}
 
 	return (
@@ -127,40 +120,21 @@ function IdentitySection() {
 					<Alert tone={feedback.tone}>{feedback.text}</Alert>
 				</div>
 			)}
-			<div className="mb-6 flex flex-wrap items-start gap-6">
-				<div className="flex flex-col items-center gap-2">
-					<Avatar src={user.avatar} name={name} size={88} />
-					{user.avatar && (
-						<div className="flex gap-3 text-xs">
-							<button
-								type="button"
-								onClick={() => setCropping(true)}
-								className="text-primary hover:underline"
-							>
-								Recadrer
-							</button>
-							<button type="button" onClick={removeAvatar} className="text-red-700 hover:underline">
-								Retirer
-							</button>
-						</div>
-					)}
-				</div>
-				{user.avatar_original && (
-					<ImageCropper
-						open={cropping}
-						title="Cadrer la photo de profil"
-						image={user.avatar_original}
-						aspect={1}
-						round
-						initialCrop={user.avatar_crop}
-						busy={busy === "avatar"}
-						onSave={saveCrop}
-						onClose={() => setCropping(false)}
-					/>
-				)}
-				<div className="min-w-60 flex-1">
-					<p className="mb-2 text-sm font-500">Photo de profil</p>
-					<ImageSourcePicker busy={busy === "avatar"} onPick={setAvatar} label="Photo" />
+			<div className="mb-6 flex flex-wrap items-center gap-6">
+				<AvatarField
+					image={avatarOf(user)}
+					name={name}
+					onUpload={uploadAvatar}
+					onCrop={cropAvatar}
+					onRemove={removeAvatar}
+					onError={(message) => fail(new Error(message))}
+				/>
+				<div className="text-sm text-gray-600">
+					<p className="font-500 text-near-black">Photo de profil</p>
+					<p>
+						Cliquez sur la photo pour en importer une nouvelle, depuis votre ordinateur ou un lien.
+					</p>
+					<p className="text-xs text-gray-500">Affichée à côté de votre nom sur vos articles.</p>
 				</div>
 			</div>
 
@@ -203,7 +177,7 @@ function IdentitySection() {
 					Rôle : <strong className="font-500">{ROLE_LABELS[user.role]}</strong>
 				</p>
 				<div>
-					<BoButton type="submit" busy={busy === "save"}>
+					<BoButton type="submit" busy={busy}>
 						Enregistrer
 					</BoButton>
 				</div>
@@ -292,7 +266,7 @@ function PasswordSection() {
 }
 
 function TokensSection() {
-	const [tokens, setTokens] = useState<ApiToken[]>([]);
+	const [tokens, setTokens] = useState<ApiToken[] | null>(null);
 	const [name, setName] = useState("Claude Code");
 	const [created, setCreated] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
@@ -318,7 +292,7 @@ function TokensSection() {
 		clear();
 		try {
 			const { token, ...meta } = await api.me.createToken(name.trim() || "Jeton");
-			setTokens((list) => [meta, ...list]);
+			setTokens((list) => [meta, ...(list ?? [])]);
 			setCreated(token);
 			setCopied(false);
 		} catch (err) {
@@ -333,7 +307,7 @@ function TokensSection() {
 		setBusy(true);
 		try {
 			await api.me.revokeToken(toRevoke.id);
-			setTokens((list) => list.filter((t) => t.id !== toRevoke.id));
+			setTokens((list) => list?.filter((t) => t.id !== toRevoke.id) ?? null);
 			setToRevoke(null);
 		} catch (err) {
 			fail(err);
@@ -390,7 +364,8 @@ function TokensSection() {
 				</div>
 			)}
 
-			{tokens.length > 0 && (
+			{tokens === null && <ListSkeleton rows={2} />}
+			{tokens && tokens.length > 0 && (
 				<ul className="divide-y divide-gray-100 rounded border border-gray-200">
 					{tokens.map((token) => (
 						<li

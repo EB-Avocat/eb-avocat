@@ -132,11 +132,23 @@ class CoverUploadSerializer(serializers.Serializer[None]):
 
 class ArticleImageSerializer(serializers.ModelSerializer[ArticleImage]):
     url = MediaUrlField(source="image")
-    file = serializers.ImageField(write_only=True)
 
     class Meta:
         model = ArticleImage
-        fields = ("id", "url", "file")
+        fields = ("id", "url", "source_url")
+        read_only_fields = fields
+
+
+class ArticleImageUploadSerializer(serializers.Serializer[None]):
+    """An image for the article body: a file from the computer or a web address."""
+
+    file = serializers.ImageField(required=False)
+    url = serializers.URLField(required=False)
+
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        if bool(attrs.get("file")) == bool(attrs.get("url")):
+            raise serializers.ValidationError("Fournissez soit un fichier, soit une URL.")
+        return attrs
 
 
 class PreviewSerializer(serializers.Serializer[None]):

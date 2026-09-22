@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, X } from "lucide-react";
 import {
 	type ButtonHTMLAttributes,
 	type InputHTMLAttributes,
@@ -10,6 +10,7 @@ import {
 	useEffect,
 	useId,
 	useRef,
+	useState,
 } from "react";
 
 // Small, accessible primitives for the back-office (site tokens, no extra deps).
@@ -148,6 +149,156 @@ export function Spinner({ label = "Chargement…" }: { label?: string }) {
 			<Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
 			{label}
 		</div>
+	);
+}
+
+/** Centered spinner filling the viewport (session check, route loading). */
+export function FullPageSpinner({ label = "Chargement…" }: { label?: string }) {
+	return (
+		<div
+			role="status"
+			className="flex min-h-screen flex-col items-center justify-center gap-3 text-sm text-gray-500"
+		>
+			<Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
+			{label}
+		</div>
+	);
+}
+
+/** Grey placeholder block for skeleton screens. */
+export function Skeleton({ className = "" }: { className?: string }) {
+	return <div aria-hidden="true" className={`animate-pulse rounded bg-gray-200 ${className}`} />;
+}
+
+/** Wraps a skeleton so assistive tech hears "loading" once instead of empty blocks. */
+export function SkeletonGroup({
+	label = "Chargement…",
+	className = "",
+	children,
+}: {
+	label?: string;
+	className?: string;
+	children: ReactNode;
+}) {
+	return (
+		<div role="status" aria-busy="true" className={className}>
+			<span className="sr-only">{label}</span>
+			{children}
+		</div>
+	);
+}
+
+/** `rows` list lines, e.g. while a table or a list loads. */
+export function ListSkeleton({ rows = 6, avatar = false }: { rows?: number; avatar?: boolean }) {
+	return (
+		<SkeletonGroup className="divide-y divide-gray-100 rounded-lg bg-white shadow-sm">
+			{Array.from({ length: rows }, (_, index) => (
+				// biome-ignore lint/suspicious/noArrayIndexKey: static placeholders
+				<div key={index} className="flex items-center gap-4 px-4 py-4">
+					{avatar && <Skeleton className="h-10 w-10 !rounded-full" />}
+					<div className="flex flex-1 flex-col gap-2">
+						<Skeleton className={`h-4 ${index % 2 ? "w-1/2" : "w-2/3"}`} />
+						<Skeleton className="h-3 w-1/4" />
+					</div>
+					<Skeleton className="hidden h-6 w-20 sm:block" />
+					<Skeleton className="h-8 w-16" />
+				</div>
+			))}
+		</SkeletonGroup>
+	);
+}
+
+/**
+ * <img> that shows a pulsing placeholder and a spinner until the file has loaded, so
+ * a freshly processed image never appears as an empty box.
+ */
+export function LoadingImage({
+	src,
+	alt = "",
+	className = "",
+}: {
+	src: string;
+	alt?: string;
+	className?: string;
+}) {
+	const [loaded, setLoaded] = useState<string | null>(null);
+	const ready = loaded === src;
+	return (
+		<span className={`relative block overflow-hidden bg-gray-100 ${className}`}>
+			{!ready && (
+				<span className="absolute inset-0 flex animate-pulse items-center justify-center bg-gray-200">
+					<Loader2 className="h-6 w-6 animate-spin text-gray-400" aria-hidden="true" />
+				</span>
+			)}
+			<img
+				src={src}
+				alt={alt}
+				ref={(img) => {
+					if (img?.complete && img.naturalWidth > 0) setLoaded(img.getAttribute("src"));
+				}}
+				onLoad={() => setLoaded(src)}
+				className={`h-full w-full object-cover transition-opacity duration-300 ${ready ? "opacity-100" : "opacity-0"}`}
+			/>
+		</span>
+	);
+}
+
+/** Page-by-page navigation for back-office lists (hidden with a single page). */
+export function Pager({
+	page,
+	pageCount,
+	onPage,
+}: {
+	page: number;
+	pageCount: number;
+	onPage: (page: number) => void;
+}) {
+	if (pageCount <= 1) return null;
+	// First, last, and a window around the current page, with gaps as "…".
+	const pages = Array.from({ length: pageCount }, (_, i) => i + 1).filter(
+		(p) => p === 1 || p === pageCount || Math.abs(p - page) <= 1,
+	);
+	const button =
+		"flex h-9 min-w-9 items-center justify-center rounded px-2 text-sm font-500 disabled:opacity-40";
+	return (
+		<nav aria-label="Pagination" className="flex items-center gap-1">
+			<button
+				type="button"
+				className={`${button} text-primary hover:bg-primary-light/10`}
+				disabled={page <= 1}
+				onClick={() => onPage(page - 1)}
+				aria-label="Page précédente"
+			>
+				<ChevronLeft className="h-4 w-4" aria-hidden="true" />
+			</button>
+			{pages.map((p, index) => (
+				<span key={p} className="flex items-center gap-1">
+					{index > 0 && p - (pages[index - 1] ?? p) > 1 && (
+						<span className="px-1 text-gray-400" aria-hidden="true">
+							…
+						</span>
+					)}
+					<button
+						type="button"
+						className={`${button} ${p === page ? "bg-primary text-white" : "text-primary hover:bg-primary-light/10"}`}
+						aria-current={p === page ? "page" : undefined}
+						aria-label={`Page ${p}`}
+						onClick={() => onPage(p)}
+					>
+						{p}
+					</button>
+				</span>
+			))}
+			<button
+				type="button"
+				className={`${button} text-primary hover:bg-primary-light/10`}
+				disabled={page >= pageCount}
+				onClick={() => onPage(page + 1)}
+				aria-label="Page suivante"
+			>
+				<ChevronRight className="h-4 w-4" aria-hidden="true" />
+			</button>
+		</nav>
 	);
 }
 

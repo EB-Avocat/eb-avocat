@@ -25,6 +25,9 @@ from articles.serializers import ArticleSerializer, CategorySerializer
 INSTRUCTIONS = """\
 Outils pour gérer les articles (publications) du site d'Eva Biezunski, avocate.
 Le contenu des articles s'écrit en Markdown (titres, listes, liens, tableaux, citations).
+Une image seule sur sa ligne devient une figure : `![texte alternatif](url#w=50 "Légende")`.
+Le titre entre guillemets est la légende (facultative) ; `#w=33`, `#w=50` ou `#w=75` réduit sa
+largeur (en %), sans suffixe elle occupe toute la largeur. Renseignez toujours le texte alternatif.
 Les nouveaux articles sont créés en brouillon par défaut : ne publiez que si l'utilisateur le demande.
 Les catégories se passent par nom ; celles qui n'existent pas sont créées."""
 

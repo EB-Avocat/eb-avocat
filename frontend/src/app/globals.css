@@ -92,3 +92,37 @@ html {
 		scroll-behavior: auto !important;
 	}
 }
+
+/* Article figures (image + optional caption). Widths come from the editor's size
+   presets (`figure-w33|50|75`, see backend/articles/rendering.py); small screens
+   never shrink an image below 18rem. Shared by the public page and the editor. */
+.article-figures figure {
+	margin-inline: auto;
+}
+
+.article-figures figure img {
+	margin-block: 0;
+	width: 100%;
+}
+
+.article-figures figure.figure-w33 {
+	width: max(33%, min(100%, 18rem));
+}
+
+.article-figures figure.figure-w50 {
+	width: max(50%, min(100%, 18rem));
+}
+
+.article-figures figure.figure-w75 {
+	width: max(75%, min(100%, 18rem));
+}
+
+.article-figures figcaption {
+	text-align: center;
+}
+
+/* Editor: the selected figure gets a ring (ProseMirror adds the class). */
+.article-figures figure.ProseMirror-selectednode img {
+	outline: 3px solid var(--color-primary-light);
+	outline-offset: 2px;
+}

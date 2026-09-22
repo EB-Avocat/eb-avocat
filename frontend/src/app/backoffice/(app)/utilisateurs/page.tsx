@@ -10,10 +10,10 @@ import {
 	BoButton,
 	ConfirmModal,
 	Field,
+	ListSkeleton,
 	Modal,
 	PageHeader,
 	Select,
-	Spinner,
 	TextInput,
 } from "@/components/backoffice/ui";
 import { api, messageOf } from "@/lib/backoffice/api";
@@ -104,7 +104,7 @@ export default function UsersPage() {
 			)}
 
 			{users === null ? (
-				<Spinner />
+				<ListSkeleton rows={4} avatar />
 			) : (
 				<ul className="divide-y divide-gray-100 rounded-lg bg-white shadow-sm">
 					{users.map((user) => {

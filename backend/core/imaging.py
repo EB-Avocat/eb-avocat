@@ -8,6 +8,7 @@ resizing and can be re-applied to the kept original at any time.
 
 from __future__ import annotations  # ContentFile[...] is a stub-only generic
 
+import hashlib
 import warnings
 from dataclasses import asdict, dataclass
 from io import BytesIO
@@ -89,10 +90,20 @@ def centered_crop(size: tuple[int, int], aspect: float) -> Crop:
     return Crop(0.0, (1 - fraction) / 2, 1.0, fraction)
 
 
+def content_name(stem: str, data: bytes, extension: str) -> str:
+    """``cover-3f2a9c1b0d4e.webp``: a new image always gets a new URL.
+
+    Browsers, CDNs and the Next.js image optimiser cache images by URL: reusing
+    ``cover.webp`` for a replaced or re-cropped image would keep showing the old one.
+    """
+    return f"{stem}-{hashlib.sha256(data).hexdigest()[:12]}{extension}"
+
+
 def encode_webp(image: Image.Image, stem: str) -> ContentFile[bytes]:
     buffer = BytesIO()
     image.save(buffer, format="WEBP", quality=WEBP_QUALITY, method=6)
-    return ContentFile(buffer.getvalue(), name=f"{stem}.webp")
+    data = buffer.getvalue()
+    return ContentFile(data, name=content_name(stem, data, ".webp"))
 
 
 def render(data: bytes, rendition: Rendition, crop: Crop | None, stem: str) -> tuple[ContentFile[bytes], Crop | None]:

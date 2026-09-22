@@ -552,10 +552,18 @@ export interface components {
 			readonly id: string;
 			/** Format: uri-reference */
 			readonly url: string | null;
+			/**
+			 * Adresse d'origine
+			 * Format: uri
+			 */
+			readonly source_url: string;
 		};
-		ArticleImageRequest: {
+		/** @description An image for the article body: a file from the computer or a web address. */
+		ArticleImageUploadRequest: {
 			/** Format: binary */
-			file: string;
+			file?: string;
+			/** Format: uri */
+			url?: string;
 		};
 		/** @description Back-office / MCP read-write representation. */
 		ArticleRequest: {
@@ -1013,7 +1021,7 @@ export type ApiTokenCreated = components["schemas"]["ApiTokenCreated"];
 export type ApiTokenRequest = components["schemas"]["ApiTokenRequest"];
 export type Article = components["schemas"]["Article"];
 export type ArticleImage = components["schemas"]["ArticleImage"];
-export type ArticleImageRequest = components["schemas"]["ArticleImageRequest"];
+export type ArticleImageUploadRequest = components["schemas"]["ArticleImageUploadRequest"];
 export type ArticleRequest = components["schemas"]["ArticleRequest"];
 export type Author = components["schemas"]["Author"];
 export type Category = components["schemas"]["Category"];
@@ -1487,10 +1495,10 @@ export interface operations {
 			path?: never;
 			cookie?: never;
 		};
-		requestBody: {
+		requestBody?: {
 			content: {
-				"multipart/form-data": components["schemas"]["ArticleImageRequest"];
-				"application/x-www-form-urlencoded": components["schemas"]["ArticleImageRequest"];
+				"multipart/form-data": components["schemas"]["ArticleImageUploadRequest"];
+				"application/x-www-form-urlencoded": components["schemas"]["ArticleImageUploadRequest"];
 			};
 		};
 		responses: {

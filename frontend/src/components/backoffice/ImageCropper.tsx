@@ -1,9 +1,8 @@
 "use client";
 
-import { ZoomIn, ZoomOut } from "lucide-react";
-import { useEffect, useId, useState } from "react";
+import { Loader2, ZoomIn, ZoomOut } from "lucide-react";
+import { useId, useState } from "react";
 import Cropper, { type Area, type Point } from "react-easy-crop";
-import { BoButton, Modal } from "@/components/backoffice/ui";
 import type { Crop } from "@/lib/api/schema";
 
 const MIN_ZOOM = 1;
@@ -28,64 +27,59 @@ export function toCropperArea(crop: Crop): Area {
  * Notion-style reframing: drag to move the image inside a fixed-ratio frame and zoom
  * with the slider, the wheel or a pinch. Works on the kept original, so the saved
  * crop can be changed at any time; the server renders the final image.
+ *
+ * Mount it only once its container is visible: react-easy-crop measures the frame
+ * when the image loads and ignores the first resize, so a cropper mounted inside a
+ * closed <dialog> stays at 0×0 and shows an empty background.
  */
-export function ImageCropper({
-	open,
-	title,
+export function CropArea({
 	image,
 	aspect,
 	round = false,
 	initialCrop,
-	busy,
-	onSave,
-	onClose,
+	onChange,
 }: {
-	open: boolean;
-	title: string;
 	image: string;
 	aspect: number;
 	round?: boolean;
 	initialCrop: Crop | null;
-	busy: boolean;
-	onSave: (crop: Crop) => void;
-	onClose: () => void;
+	onChange: (crop: Crop) => void;
 }) {
 	const zoomId = useId();
 	const [position, setPosition] = useState<Point>({ x: 0, y: 0 });
 	const [zoom, setZoom] = useState(MIN_ZOOM);
-	const [area, setArea] = useState<Area | null>(null);
-
-	// Reset the view each time the dialog opens on an image.
-	useEffect(() => {
-		if (!open) return;
-		setPosition({ x: 0, y: 0 });
-		setZoom(MIN_ZOOM);
-		setArea(null);
-	}, [open]);
+	const [loaded, setLoaded] = useState(false);
 
 	return (
-		<Modal open={open} title={title} onClose={onClose} wide>
+		<>
 			<p className="mb-3 text-sm text-gray-600">
 				Faites glisser l'image pour la positionner, zoomez avec le curseur, la molette ou deux
 				doigts.
 			</p>
-			<div className="relative h-80 w-full overflow-hidden rounded bg-near-black sm:h-96">
-				{open && (
-					<Cropper
-						key={image}
-						image={image}
-						aspect={aspect}
-						cropShape={round ? "round" : "rect"}
-						crop={position}
-						zoom={zoom}
-						minZoom={MIN_ZOOM}
-						maxZoom={MAX_ZOOM}
-						initialCroppedAreaPercentages={initialCrop ? toCropperArea(initialCrop) : undefined}
-						onCropChange={setPosition}
-						onZoomChange={setZoom}
-						onCropComplete={(croppedArea) => setArea(croppedArea)}
-						showGrid
-					/>
+			<div className="relative h-72 w-full overflow-hidden rounded bg-near-black sm:h-96">
+				<Cropper
+					image={image}
+					aspect={aspect}
+					cropShape={round ? "round" : "rect"}
+					crop={position}
+					zoom={zoom}
+					minZoom={MIN_ZOOM}
+					maxZoom={MAX_ZOOM}
+					initialCroppedAreaPercentages={initialCrop ? toCropperArea(initialCrop) : undefined}
+					onCropChange={setPosition}
+					onZoomChange={setZoom}
+					onCropComplete={(area) => onChange(toApiCrop(area))}
+					onMediaLoaded={() => setLoaded(true)}
+					showGrid
+				/>
+				{!loaded && (
+					<div
+						role="status"
+						className="absolute inset-0 flex items-center justify-center gap-2 text-sm text-white/80"
+					>
+						<Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+						Chargement de l'image…
+					</div>
 				)}
 			</div>
 			<div className="mt-4 flex items-center gap-3">
@@ -105,14 +99,6 @@ export function ImageCropper({
 				/>
 				<ZoomIn className="h-4 w-4 text-gray-500" aria-hidden="true" />
 			</div>
-			<div className="mt-5 flex justify-end gap-2">
-				<BoButton variant="secondary" onClick={onClose}>
-					Annuler
-				</BoButton>
-				<BoButton busy={busy} disabled={!area} onClick={() => area && onSave(toApiCrop(area))}>
-					Enregistrer le cadrage
-				</BoButton>
-			</div>
-		</Modal>
+		</>
 	);
 }

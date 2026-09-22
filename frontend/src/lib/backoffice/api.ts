@@ -151,11 +151,8 @@ export const api = {
 		removeCover: (id: string) => request<Article>("DELETE", `/admin/articles/${id}/cover/`),
 		preview: (markdown: string) =>
 			post<PreviewResult>("/admin/preview/", { markdown } satisfies PreviewRequest),
-		uploadImage: (file: File) => {
-			const form = new FormData();
-			form.append("file", file);
-			return post<ArticleImage>("/admin/uploads/", form);
-		},
+		uploadImage: (source: { file: File } | { url: string }) =>
+			post<ArticleImage>("/admin/uploads/", imageForm(source)),
 	},
 	categories: {
 		list: () => get<CategoryWithCount[]>("/admin/categories/"),

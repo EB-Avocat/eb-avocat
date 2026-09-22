@@ -1,5 +1,6 @@
 """Image normalisation: covers (16:9), avatars (1:1), article images (width cap)."""
 
+import re
 from io import BytesIO
 
 import pytest
@@ -50,7 +51,8 @@ def test_cover_is_cropped_to_16_9_webp_without_metadata() -> None:
     exif[0x010F] = "PhoneMaker"  # camera make
     rendered, applied = render(image_bytes((3000, 3000), exif=exif), COVER, None, "cover")
     image = decode(rendered.read())
-    assert (rendered.name, image.format, image.size) == ("cover.webp", "WEBP", (1920, 1080))
+    assert re.fullmatch(r"cover-[0-9a-f]{12}\.webp", rendered.name or "")
+    assert (image.format, image.size) == ("WEBP", (1920, 1080))
     assert not image.getexif()
     assert applied == pytest.approx(centered_crop((3000, 3000), 16 / 9))
 
@@ -106,8 +108,8 @@ def test_cover_upload_keeps_original_and_serves_rendition(author: User) -> None:
         .post(f"/api/v1/admin/articles/{article.pk}/cover/", {"file": upload((4000, 3000))}, format="multipart")
         .json()
     )
-    assert data["cover"].endswith(".webp")
-    assert "/original/" in data["cover_original"]
+    assert re.search(r"/cover-[0-9a-f]{12}\.webp$", data["cover"])
+    assert re.search(r"/original/original-[0-9a-f]{12}\.jpg$", data["cover_original"])
     assert data["cover_crop"] == pytest.approx({"x": 0.0, "y": 0.125, "width": 1.0, "height": 0.75})
     article.refresh_from_db()
     with article.cover.open("rb") as f:
@@ -122,7 +124,7 @@ def test_cover_recrop_uses_the_original(author: User) -> None:
     url = f"/api/v1/admin/articles/{article.pk}/cover/"
     client.post(url, {"file": upload((4000, 3000))}, format="multipart")
     article.refresh_from_db()
-    original_name = article.cover_original.name
+    original_name, first_cover = article.cover_original.name, article.cover.name
 
     crop = {"x": 0.25, "y": 0.25, "width": 0.5, "height": 0.375}  # 2000x1125 area → 1920x1080
     data = client.post(f"{url}crop/", crop, format="json").json()
@@ -130,6 +132,9 @@ def test_cover_recrop_uses_the_original(author: User) -> None:
     assert data["cover_crop"] == pytest.approx(crop)
     article.refresh_from_db()
     assert article.cover_original.name == original_name  # the original is untouched
+    # A new image gets a new URL, so no cache (browser, CDN, Next.js) serves the old one.
+    assert article.cover.name != first_cover
+    assert first_cover and not article.cover.storage.exists(first_cover)
     with article.cover.open("rb") as f:
         assert Image.open(f).size == (1920, 1080)
 
@@ -170,7 +175,7 @@ def test_legacy_cover_without_original_is_adopted_on_recrop(author: User) -> Non
     )
     assert response.status_code == 200
     article.refresh_from_db()
-    assert (article.cover_original.name or "").endswith("legacy.jpg")
+    assert re.search(r"/original-[0-9a-f]{12}\.jpg$", article.cover_original.name or "")
     assert (article.cover.name or "").endswith(".webp")
 
 

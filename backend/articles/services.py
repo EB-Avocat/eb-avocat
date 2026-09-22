@@ -65,13 +65,18 @@ def remove_cover(article: Article) -> Article:
     return article
 
 
-def store_inline_image(upload: UploadedFile, user: "User") -> ArticleImage:
+def store_inline_image(upload: UploadedFile, user: "User", *, source_url: str = "") -> ArticleImage:
     """Article body images: capped at 1600 px wide and re-encoded as WebP (no crop)."""
     image = validate_uploaded_image(upload)
     rendered, _ = render(image.read(), INLINE, None, stem=(image.name or "image").rsplit(".", 1)[0])
-    record = ArticleImage(uploaded_by=user)
+    record = ArticleImage(uploaded_by=user, source_url=source_url)
     record.image.save(rendered.name or "image.webp", rendered, save=True)
     return record
+
+
+def store_inline_image_from_url(url: str, user: "User") -> ArticleImage:
+    """Download an image from the web (SSRF-safe) and store it like an upload."""
+    return store_inline_image(fetch_remote_image(url), user, source_url=url)
 
 
 def revalidate_frontend() -> None:

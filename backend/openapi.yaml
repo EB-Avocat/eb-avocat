@@ -509,11 +509,10 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ArticleImageRequest'
+              $ref: '#/components/schemas/ArticleImageUploadRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ArticleImageRequest'
-        required: true
+              $ref: '#/components/schemas/ArticleImageUploadRequest'
       security:
       - apiToken: []
       - cookieAuth: []
@@ -1529,18 +1528,27 @@ components:
           format: uri-reference
           nullable: true
           readOnly: true
+        source_url:
+          type: string
+          format: uri
+          readOnly: true
+          title: Adresse d'origine
       required:
       - id
       - url
-    ArticleImageRequest:
+      - source_url
+    ArticleImageUploadRequest:
       type: object
+      description: 'An image for the article body: a file from the computer or a web
+        address.'
       properties:
         file:
           type: string
           format: binary
-          writeOnly: true
-      required:
-      - file
+        url:
+          type: string
+          format: uri
+          minLength: 1
     ArticleRequest:
       type: object
       description: Back-office / MCP read-write representation.

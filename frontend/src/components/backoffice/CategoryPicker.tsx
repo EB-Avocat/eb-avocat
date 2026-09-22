@@ -93,30 +93,30 @@ export function CategoryPicker({
 			<label htmlFor={inputId} className="text-sm font-500">
 				Catégories
 			</label>
-			{selected.length > 0 && (
-				<ul className="flex flex-wrap gap-1.5">
-					{selected.map((c) => (
-						<li
-							key={c.id}
-							className="inline-flex items-center gap-1 rounded-full bg-primary-light/10 py-0.5 pr-1 pl-2.5 text-xs font-500 text-primary"
-						>
-							{c.is_primary && (
-								<Star className="h-3 w-3 fill-current" aria-label="Catégorie principale" />
-							)}
-							{c.name}
-							<button
-								type="button"
-								onClick={() => onChange(selectedIds.filter((id) => id !== c.id))}
-								className="rounded-full p-0.5 hover:bg-primary-light/20"
-								aria-label={`Retirer ${c.name}`}
+			<div className="relative flex flex-wrap items-center gap-1.5 rounded border border-gray-300 bg-white px-2 py-1.5 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+				{selected.length > 0 && (
+					<ul className="contents">
+						{selected.map((c) => (
+							<li
+								key={c.id}
+								className="inline-flex items-center gap-1 rounded-full bg-primary-light/10 py-0.5 pr-1 pl-2.5 text-xs font-500 text-primary"
 							>
-								<X className="h-3 w-3" aria-hidden="true" />
-							</button>
-						</li>
-					))}
-				</ul>
-			)}
-			<div className="relative">
+								{c.is_primary && (
+									<Star className="h-3 w-3 fill-current" aria-label="Catégorie principale" />
+								)}
+								{c.name}
+								<button
+									type="button"
+									onClick={() => onChange(selectedIds.filter((id) => id !== c.id))}
+									className="rounded-full p-0.5 hover:bg-primary-light/20"
+									aria-label={`Retirer ${c.name}`}
+								>
+									<X className="h-3 w-3" aria-hidden="true" />
+								</button>
+							</li>
+						))}
+					</ul>
+				)}
 				<input
 					id={inputId}
 					type="text"
@@ -126,7 +126,7 @@ export function CategoryPicker({
 					aria-autocomplete="list"
 					aria-activedescendant={open && options[highlight] ? `${listId}-${highlight}` : undefined}
 					value={query}
-					placeholder="Ajouter ou créer…"
+					placeholder={selected.length > 0 ? "Ajouter…" : "Ajouter ou créer une catégorie…"}
 					onChange={(e) => {
 						setQuery(e.target.value);
 						setOpen(true);
@@ -135,13 +135,13 @@ export function CategoryPicker({
 					onFocus={() => setOpen(true)}
 					onBlur={() => setTimeout(() => setOpen(false), 120)}
 					onKeyDown={onKeyDown}
-					className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+					className="min-w-40 flex-1 border-0 bg-transparent px-1 py-0.5 text-sm focus:outline-none"
 				/>
 				{open && options.length > 0 && (
 					<div
 						id={listId}
 						role="listbox"
-						className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded border border-gray-200 bg-white py-1 shadow-lg"
+						className="absolute top-full left-0 z-10 mt-1 max-h-60 w-full overflow-y-auto rounded border border-gray-200 bg-white py-1 shadow-lg"
 					>
 						{options.map((option, index) => (
 							<div

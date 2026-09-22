@@ -6,7 +6,7 @@
 export function ArticleBody({ html }: { html: string }) {
 	return (
 		<div
-			className="prose prose-neutral max-w-none prose-headings:font-museo prose-headings:text-near-black prose-a:text-primary hover:prose-a:text-primary-light prose-img:rounded-lg"
+			className="article-figures prose prose-neutral max-w-none prose-headings:font-museo prose-headings:text-near-black prose-a:text-primary hover:prose-a:text-primary-light prose-img:rounded-lg"
 			dangerouslySetInnerHTML={{ __html: html }}
 		/>
 	);
