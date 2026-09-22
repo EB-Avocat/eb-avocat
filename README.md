@@ -34,11 +34,22 @@ Requires Docker and tox (`uv tool install tox`).
 
 ```sh
 tox -e dev     # Postgres + Django (:8000) + Next.js (:3000), with hot reload
-tox -e seed    # in another terminal: dev admin + demo articles
+tox -e seed    # in another terminal: dev accounts + demo articles
 ```
 
 - Site: http://localhost:3000 — Publications: http://localhost:3000/publications
-- Back-office: http://localhost:3000/admin-dev (`admin@example.com` / `admin-dev-password`)
+- Back-office: http://localhost:3000/admin-dev. Every dev account uses the password
+  `dev-password-123` (`manage.py seed_accounts`, refused unless `DJANGO_DEBUG` is on):
+
+  | Account               | Role           |
+  | --------------------- | -------------- |
+  | `admin@example.com`   | Administrateur |
+  | `editeur@example.com` | Éditeur        |
+  | `auteur@example.com`  | Auteur         |
+  | `ancien@example.com`  | Auteur, désactivé |
+
+  Existing accounts are left untouched. Run `tox -e seed -- --reset` to restore their role and
+  password.
 - `tox -e down` stops the stack; `tox -e lint,type,test` runs ruff, ty and pytest
   (needs `docker compose up -d db`); `tox -e fmt` formats; `tox -e frontend` runs the Bun checks.
 
