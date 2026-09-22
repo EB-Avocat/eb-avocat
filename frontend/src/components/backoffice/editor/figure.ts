@@ -30,7 +30,7 @@ const escapeAlt = (text: string) => text.replace(/([\\[\]])/g, "\\$1");
 const escapeTitle = (text: string) => text.replace(/(["\\])/g, "\\$1").replace(/\s*\n\s*/g, " ");
 
 /** `![alt](src#w=50 "caption")`: the format the backend turns into a <figure>. */
-export function figureMarkdown(attrs: {
+function figureMarkdown(attrs: {
 	src: string;
 	alt?: string | null;
 	title?: string | null;

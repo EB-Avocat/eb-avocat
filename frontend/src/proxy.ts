@@ -1,5 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { BACKOFFICE_INTERNAL_PREFIX, PUBLIC_BACKOFFICE_PAGES } from "@/lib/backoffice/routes";
+import {
+	BACKOFFICE_INTERNAL_PREFIX,
+	isWithin,
+	PUBLIC_BACKOFFICE_PAGES,
+	relativePath,
+} from "@/lib/backoffice/routes";
 
 /**
  * Back-office routing. The screens live under the internal `/backoffice/*` route
@@ -12,22 +17,17 @@ export function proxy(request: NextRequest) {
 	const { pathname, search } = request.nextUrl;
 	const secret = process.env.BACKOFFICE_PATH;
 
-	if (
-		pathname === BACKOFFICE_INTERNAL_PREFIX ||
-		pathname.startsWith(`${BACKOFFICE_INTERNAL_PREFIX}/`)
-	) {
+	if (isWithin(pathname, BACKOFFICE_INTERNAL_PREFIX)) {
 		return NextResponse.rewrite(new URL("/__introuvable", request.url));
 	}
 
 	const prefix = secret ? `/${secret}` : null;
-	if (!prefix || (pathname !== prefix && !pathname.startsWith(`${prefix}/`))) {
+	if (!prefix || !isWithin(pathname, prefix)) {
 		return NextResponse.next();
 	}
 
-	const subpath = pathname.slice(prefix.length) || "/";
-	const isPublicPage = PUBLIC_BACKOFFICE_PAGES.some(
-		(p) => subpath === p || subpath.startsWith(`${p}/`),
-	);
+	const subpath = relativePath(prefix, pathname);
+	const isPublicPage = PUBLIC_BACKOFFICE_PAGES.some((page) => isWithin(subpath, page));
 	if (!isPublicPage && !request.cookies.has("sessionid")) {
 		const login = new URL(`${prefix}/connexion`, request.url);
 		if (subpath !== "/") login.searchParams.set("suite", subpath + search);

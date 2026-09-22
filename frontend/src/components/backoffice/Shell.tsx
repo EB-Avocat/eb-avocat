@@ -3,7 +3,7 @@
 import { ExternalLink, FileText, KeyRound, LogOut, Menu, Tags, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import {
 	SessionProvider,
 	useBackofficeBase,
@@ -12,8 +12,8 @@ import {
 import { FullPageSpinner } from "@/components/backoffice/ui";
 import { Main } from "@/components/ui/Main";
 import { ApiError, api } from "@/lib/backoffice/api";
-import { relativePath } from "@/lib/backoffice/routes";
-import type { Profile } from "@/lib/backoffice/types";
+import { isWithin, relativePath } from "@/lib/backoffice/routes";
+import { displayName, type Profile } from "@/lib/backoffice/types";
 import { Avatar } from "./Avatar";
 
 /** Authenticated back-office frame: loads the session, then renders nav + page. */
@@ -25,17 +25,20 @@ export function Shell({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<Profile | null>(null);
 	const [menuOpen, setMenuOpen] = useState(false);
 
+	// The session is loaded once; later API calls answering 401 are handled where they fail.
+	const pathnameRef = useRef(pathname);
+	pathnameRef.current = pathname;
 	useEffect(() => {
 		api.me
 			.get()
 			.then(setUser)
 			.catch((error: unknown) => {
 				if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
-					const next = relativePath(base, pathname);
+					const next = relativePath(base, pathnameRef.current);
 					router.replace(`${href("/connexion")}?suite=${encodeURIComponent(next)}`);
 				}
 			});
-	}, [base, href, pathname, router]);
+	}, [base, href, router]);
 
 	// Close the mobile menu on navigation.
 	// biome-ignore lint/correctness/useExhaustiveDependencies: runs on route change
@@ -52,7 +55,7 @@ export function Shell({ children }: { children: ReactNode }) {
 			: []),
 	];
 	const current = relativePath(base, pathname);
-	const isActive = (path: string) => current === path || current.startsWith(`${path}/`);
+	const isActive = (path: string) => isWithin(current, path);
 
 	async function logout() {
 		await api.auth.logout().catch(() => undefined);
@@ -133,7 +136,7 @@ export function Shell({ children }: { children: ReactNode }) {
 }
 
 function UserBox({ user, onLogout }: { user: Profile; onLogout: () => void }) {
-	const name = [user.first_name, user.last_name].filter(Boolean).join(" ") || user.email;
+	const name = displayName(user);
 	return (
 		<div className="flex items-center gap-3 border-t border-gray-200 pt-4">
 			<Avatar src={user.avatar} name={name} size={36} />

@@ -2,7 +2,7 @@
 
 import { Plus, Star, X } from "lucide-react";
 import { type KeyboardEvent, useId, useMemo, useState } from "react";
-import { api } from "@/lib/backoffice/api";
+import { api, messageOf } from "@/lib/backoffice/api";
 import type { AdminCategory } from "@/lib/backoffice/types";
 
 /**
@@ -59,7 +59,7 @@ export function CategoryPicker({
 			onCreated(category);
 			pick(category);
 		} catch (err) {
-			onError(err instanceof Error ? err.message : "Création de la catégorie impossible.");
+			onError(messageOf(err, "Création de la catégorie impossible."));
 		}
 	}
 

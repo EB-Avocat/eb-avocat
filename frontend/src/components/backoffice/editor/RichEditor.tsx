@@ -20,8 +20,9 @@ import {
 	Unlink,
 } from "lucide-react";
 import { type FormEvent, useEffect, useId, useMemo, useRef, useState } from "react";
-import { checkImageFile, ImageDialog, type ImageSource } from "@/components/backoffice/ImageDialog";
+import { checkImageFile, ImageDialog } from "@/components/backoffice/ImageDialog";
 import { BoButton, Field, Modal, TextArea, TextInput } from "@/components/backoffice/ui";
+import { type ImageSource, messageOf } from "@/lib/backoffice/api";
 import { articleExtensions } from "./extensions";
 import { FIGURE_WIDTH_LABELS, FIGURE_WIDTHS, type FigureWidth } from "./figure";
 import { SlashCommand } from "./SlashCommand";
@@ -77,19 +78,22 @@ export function RichEditor({ value, onChange, uploadImage, onError, labelledBy }
 	}
 
 	async function insertImages(editor: Editor, files: File[], pos?: number) {
-		for (const file of files) {
+		const valid = files.filter((file) => {
 			const problem = checkImageFile(file);
-			if (problem) {
-				onError(problem);
+			if (problem) onError(problem);
+			return !problem;
+		});
+		// Upload in parallel, insert in the original order.
+		const results = await Promise.allSettled(valid.map((file) => store({ file })));
+		for (const result of results) {
+			if (result.status === "rejected") {
+				onError(messageOf(result.reason, "Import de l'image impossible."));
 				continue;
 			}
-			try {
-				const src = await store({ file });
-				const chain = editor.chain().focus();
-				(pos === undefined ? chain : chain.setTextSelection(pos)).setImage({ src, alt: "" }).run();
-			} catch (err) {
-				onError(err instanceof Error ? err.message : "Import de l'image impossible.");
-			}
+			const chain = editor.chain().focus();
+			(pos === undefined ? chain : chain.setTextSelection(pos))
+				.setImage({ src: result.value, alt: "" })
+				.run();
 		}
 	}
 

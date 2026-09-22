@@ -1,20 +1,11 @@
 "use client";
 
 import { ImageUp, Link2, Loader2, Upload } from "lucide-react";
-import {
-	type ClipboardEvent,
-	type DragEvent,
-	type FormEvent,
-	useEffect,
-	useId,
-	useState,
-} from "react";
+import { type ClipboardEvent, type DragEvent, type FormEvent, useId, useState } from "react";
 import { CropArea } from "@/components/backoffice/ImageCropper";
-import { Alert, BoButton, Modal, TextInput } from "@/components/backoffice/ui";
+import { Alert, BoButton, Modal, Segmented, TextInput } from "@/components/backoffice/ui";
 import type { Crop } from "@/lib/api/schema";
-import { messageOf } from "@/lib/backoffice/api";
-
-export type ImageSource = { file: File } | { url: string };
+import { type ImageSource, messageOf } from "@/lib/backoffice/api";
 
 /** An image the user can reframe: the kept original and its current crop. */
 export interface CropTarget {
@@ -35,6 +26,17 @@ export function checkImageFile(file: File): string | null {
 
 type Step = "pick" | "processing" | "crop";
 
+interface ImageDialogProps {
+	open: boolean;
+	title: string;
+	start?: "pick" | "crop";
+	current?: CropTarget | null;
+	crop?: { aspect: number; round?: boolean; onSave: (crop: Crop) => Promise<void> };
+	/** Stores the image; resolves with what to reframe next, or null when done. */
+	onPick: (source: ImageSource) => Promise<CropTarget | null>;
+	onClose: () => void;
+}
+
 /**
  * One dialog for every image of the back-office (covers, avatars, article images):
  *
@@ -44,42 +46,27 @@ type Step = "pick" | "processing" | "crop";
  *
  * `start="crop"` opens directly on step 3 to reframe the `current` image.
  */
-export function ImageDialog({
-	open,
-	title,
+export function ImageDialog({ open, title, onClose, ...props }: ImageDialogProps) {
+	return (
+		<Modal open={open} title={title} onClose={onClose} wide>
+			{/* Mounted by the Modal on each opening only: the steps always start fresh. */}
+			<ImageDialogBody {...props} onClose={onClose} />
+		</Modal>
+	);
+}
+
+function ImageDialogBody({
 	start = "pick",
 	current = null,
 	crop,
 	onPick,
 	onClose,
-}: {
-	open: boolean;
-	title: string;
-	start?: "pick" | "crop";
-	current?: CropTarget | null;
-	crop?: { aspect: number; round?: boolean; onSave: (crop: Crop) => Promise<void> };
-	/** Stores the image; resolves with what to reframe next, or null when done. */
-	onPick: (source: ImageSource) => Promise<CropTarget | null>;
-	onClose: () => void;
-}) {
-	const [step, setStep] = useState<Step>(start);
+}: Omit<ImageDialogProps, "open" | "title">) {
+	const [step, setStep] = useState<Step>(start === "crop" && current ? "crop" : "pick");
 	const [target, setTarget] = useState<CropTarget | null>(current);
 	const [area, setArea] = useState<Crop | null>(null);
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	// The cropper must mount after the <dialog> is shown (see CropArea); this effect
-	// runs after the Modal's own effect has called showModal().
-	const [shown, setShown] = useState(false);
-
-	// biome-ignore lint/correctness/useExhaustiveDependencies: reset only when (re)opened
-	useEffect(() => {
-		setShown(open);
-		if (!open) return;
-		setStep(start === "crop" && current ? "crop" : "pick");
-		setTarget(current);
-		setArea(null);
-		setError(null);
-	}, [open]);
 
 	async function pick(source: ImageSource) {
 		if ("file" in source) {
@@ -121,7 +108,7 @@ export function ImageDialog({
 	}
 
 	return (
-		<Modal open={open} title={title} onClose={onClose} wide={step === "crop"}>
+		<>
 			{error && (
 				<div className="mb-4">
 					<Alert>{error}</Alert>
@@ -138,7 +125,7 @@ export function ImageDialog({
 				</div>
 			)}
 
-			{step === "crop" && crop && target && shown && (
+			{step === "crop" && crop && target && (
 				<>
 					<CropArea
 						key={target.image}
@@ -158,7 +145,7 @@ export function ImageDialog({
 					</div>
 				</>
 			)}
-		</Modal>
+		</>
 	);
 }
 
@@ -190,32 +177,18 @@ function SourcePicker({ onPick }: { onPick: (source: ImageSource) => void }) {
 		if (url.trim()) onPick({ url: url.trim() });
 	}
 
-	const tabClass = (active: boolean) =>
-		`flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-500 ${active ? "bg-primary text-white" : "text-gray-600 hover:bg-gray-100"}`;
-
 	return (
 		<div onPaste={onPaste}>
-			<div role="tablist" aria-label="Source de l'image" className="mb-4 flex gap-1">
-				<button
-					type="button"
-					role="tab"
-					aria-selected={tab === "file"}
-					className={tabClass(tab === "file")}
-					onClick={() => setTab("file")}
-				>
-					<Upload className="h-4 w-4" aria-hidden="true" />
-					Importer
-				</button>
-				<button
-					type="button"
-					role="tab"
-					aria-selected={tab === "url"}
-					className={tabClass(tab === "url")}
-					onClick={() => setTab("url")}
-				>
-					<Link2 className="h-4 w-4" aria-hidden="true" />
-					Lien web
-				</button>
+			<div className="mb-4">
+				<Segmented
+					label="Source de l'image"
+					value={tab}
+					onChange={setTab}
+					options={[
+						{ id: "file", label: "Importer", icon: Upload },
+						{ id: "url", label: "Lien web", icon: Link2 },
+					]}
+				/>
 			</div>
 
 			{tab === "file" ? (

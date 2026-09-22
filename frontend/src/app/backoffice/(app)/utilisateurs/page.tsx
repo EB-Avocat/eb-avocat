@@ -9,15 +9,17 @@ import {
 	Badge,
 	BoButton,
 	ConfirmModal,
+	FeedbackAlert,
 	Field,
 	ListSkeleton,
 	Modal,
 	PageHeader,
 	Select,
 	TextInput,
+	useFeedback,
 } from "@/components/backoffice/ui";
 import { api, messageOf } from "@/lib/backoffice/api";
-import { type ManagedUser, ROLE_LABELS, type Role } from "@/lib/backoffice/types";
+import { displayName, type ManagedUser, ROLE_LABELS, type Role } from "@/lib/backoffice/types";
 
 const ROLE_HELP: Record<Role, string> = {
 	admin: "Gère les utilisateurs, les rôles, les catégories et tous les articles.",
@@ -31,12 +33,7 @@ export default function UsersPage() {
 	const [inviting, setInviting] = useState(false);
 	const [toDelete, setToDelete] = useState<ManagedUser | null>(null);
 	const [busy, setBusy] = useState(false);
-	const [feedback, setFeedback] = useState<{ tone: "error" | "success"; text: string } | null>(
-		null,
-	);
-
-	const fail = (err: unknown) =>
-		setFeedback({ tone: "error", text: err instanceof Error ? err.message : "Action impossible." });
+	const { feedback, ok, fail, clear } = useFeedback();
 	const replace = (u: ManagedUser) =>
 		setUsers((list) => list?.map((x) => (x.id === u.id ? u : x)) ?? null);
 
@@ -44,13 +41,13 @@ export default function UsersPage() {
 		api.users
 			.list()
 			.then((page) => setUsers(page.results))
-			.catch((err) => setFeedback({ tone: "error", text: messageOf(err) }));
-	}, []);
+			.catch(fail);
+	}, [fail]);
 
 	if (me.role !== "admin") return <Alert>Cette page est réservée aux administrateurs.</Alert>;
 
 	async function change(user: ManagedUser, data: Partial<Pick<ManagedUser, "role" | "is_active">>) {
-		setFeedback(null);
+		clear();
 		try {
 			replace(await api.users.update(user.id, data));
 		} catch (err) {
@@ -60,11 +57,8 @@ export default function UsersPage() {
 
 	async function sendReset(user: ManagedUser) {
 		try {
-			await api.users.sendReset(user.email);
-			setFeedback({
-				tone: "success",
-				text: `Lien de choix du mot de passe envoyé à ${user.email}.`,
-			});
+			await api.auth.requestReset(user.email);
+			ok(`Lien de choix du mot de passe envoyé à ${user.email}.`);
 		} catch (err) {
 			fail(err);
 		}
@@ -97,18 +91,14 @@ export default function UsersPage() {
 				}
 			/>
 
-			{feedback && (
-				<div className="mb-4">
-					<Alert tone={feedback.tone}>{feedback.text}</Alert>
-				</div>
-			)}
+			<FeedbackAlert feedback={feedback} />
 
 			{users === null ? (
 				<ListSkeleton rows={4} avatar />
 			) : (
 				<ul className="divide-y divide-gray-100 rounded-lg bg-white shadow-sm">
 					{users.map((user) => {
-						const name = [user.first_name, user.last_name].filter(Boolean).join(" ") || user.email;
+						const name = displayName(user);
 						const isMe = user.id === me.id;
 						return (
 							<li key={user.id} className="flex flex-wrap items-center gap-4 px-4 py-3">
@@ -177,12 +167,11 @@ export default function UsersPage() {
 				onCreated={(user, invited) => {
 					setUsers((list) => [...(list ?? []), user]);
 					setInviting(false);
-					setFeedback({
-						tone: "success",
-						text: invited
+					ok(
+						invited
 							? `${user.email} a été créé et a reçu un lien pour choisir son mot de passe.`
 							: `${user.email} a été créé.`,
-					});
+					);
 				}}
 			/>
 
@@ -234,11 +223,11 @@ function InviteModal({
 				password: password || undefined,
 			});
 			// Without a password, the new user chooses one from the emailed link.
-			if (!password) await api.users.sendReset(email);
+			if (!password) await api.auth.requestReset(email);
 			formElement.reset();
 			onCreated(user, !password);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Création impossible.");
+			setError(messageOf(err, "Création impossible."));
 		} finally {
 			setBusy(false);
 		}

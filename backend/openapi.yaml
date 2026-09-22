@@ -60,7 +60,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedArticleList'
+                $ref: '#/components/schemas/PaginatedArticleRowList'
           description: ''
     post:
       operationId: admin_articles_create
@@ -509,10 +509,10 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ArticleImageUploadRequest'
+              $ref: '#/components/schemas/ImageSourceRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ArticleImageUploadRequest'
+              $ref: '#/components/schemas/ImageSourceRequest'
       security:
       - apiToken: []
       - cookieAuth: []
@@ -732,13 +732,13 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ImageUploadRequest'
+              $ref: '#/components/schemas/ImageSourceRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ImageUploadRequest'
+              $ref: '#/components/schemas/ImageSourceRequest'
           application/json:
             schema:
-              $ref: '#/components/schemas/ImageUploadRequest'
+              $ref: '#/components/schemas/ImageSourceRequest'
       security:
       - apiToken: []
       - cookieAuth: []
@@ -1045,19 +1045,21 @@ paths:
   /api/v1/me/avatar/:
     post:
       operationId: me_avatar_create
+      description: The signed-in user's photo. Answers with the whole profile, ready
+        to replace the session copy.
       tags:
       - me
       requestBody:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ImageUploadRequest'
+              $ref: '#/components/schemas/ImageSourceRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ImageUploadRequest'
+              $ref: '#/components/schemas/ImageSourceRequest'
           application/json:
             schema:
-              $ref: '#/components/schemas/ImageUploadRequest'
+              $ref: '#/components/schemas/ImageSourceRequest'
       security:
       - apiToken: []
       - cookieAuth: []
@@ -1066,10 +1068,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Profile'
           description: ''
     delete:
       operationId: me_avatar_destroy
+      description: The signed-in user's photo. Answers with the whole profile, ready
+        to replace the session copy.
       tags:
       - me
       security:
@@ -1103,7 +1107,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Profile'
           description: ''
   /api/v1/me/password/:
     post:
@@ -1537,18 +1541,6 @@ components:
       - id
       - url
       - source_url
-    ArticleImageUploadRequest:
-      type: object
-      description: 'An image for the article body: a file from the computer or a web
-        address.'
-      properties:
-        file:
-          type: string
-          format: binary
-        url:
-          type: string
-          format: uri
-          minLength: 1
     ArticleRequest:
       type: object
       description: Back-office / MCP read-write representation.
@@ -1599,6 +1591,54 @@ components:
           description: Catégories par nom ; les catégories absentes sont créées.
       required:
       - title
+    ArticleRow:
+      type: object
+      description: 'Back-office list rows: no bodies or image details.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+          title: Titre
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        published_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Date de publication
+        author:
+          allOf:
+          - $ref: '#/components/schemas/Author'
+          readOnly: true
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - title
+      - slug
+      - status
+      - published_at
+      - author
+      - categories
+      - updated_at
     Author:
       type: object
       properties:
@@ -1742,6 +1782,8 @@ components:
       - name
     CoverUploadRequest:
       type: object
+      description: An image from the computer (``file``) or from the web (``url``,
+        downloaded by the server).
       properties:
         file:
           type: string
@@ -1811,8 +1853,10 @@ components:
       - width
       - x
       - y
-    ImageUploadRequest:
+    ImageSourceRequest:
       type: object
+      description: An image from the computer (``file``) or from the web (``url``,
+        downloaded by the server).
       properties:
         file:
           type: string
@@ -1860,7 +1904,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ApiToken'
-    PaginatedArticleList:
+    PaginatedArticleRowList:
       type: object
       required:
       - count
@@ -1884,7 +1928,7 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/Article'
+            $ref: '#/components/schemas/ArticleRow'
     PaginatedPublicArticleList:
       type: object
       required:

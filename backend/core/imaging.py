@@ -101,7 +101,7 @@ def content_name(stem: str, data: bytes, extension: str) -> str:
 
 def encode_webp(image: Image.Image, stem: str) -> ContentFile[bytes]:
     buffer = BytesIO()
-    image.save(buffer, format="WEBP", quality=WEBP_QUALITY, method=6)
+    image.save(buffer, format="WEBP", quality=WEBP_QUALITY)  # default effort: method=6 is ~2x slower for ~2%
     data = buffer.getvalue()
     return ContentFile(data, name=content_name(stem, data, ".webp"))
 

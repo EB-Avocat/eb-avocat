@@ -5,7 +5,7 @@ import { type FormEvent, useState } from "react";
 import { AuthCard } from "@/components/backoffice/AuthCard";
 import { useBackofficeHref } from "@/components/backoffice/BackofficeContext";
 import { Alert, BoButton, Field, TextInput } from "@/components/backoffice/ui";
-import { api } from "@/lib/backoffice/api";
+import { api, messageOf } from "@/lib/backoffice/api";
 
 export default function PasswordResetRequestPage() {
 	const href = useBackofficeHref();
@@ -21,7 +21,7 @@ export default function PasswordResetRequestPage() {
 			await api.auth.requestReset(String(new FormData(event.currentTarget).get("email")));
 			setSent(true);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Envoi impossible.");
+			setError(messageOf(err, "Envoi impossible."));
 		} finally {
 			setBusy(false);
 		}

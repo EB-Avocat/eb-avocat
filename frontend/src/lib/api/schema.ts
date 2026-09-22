@@ -387,7 +387,9 @@ export interface paths {
 		};
 		get?: never;
 		put?: never;
+		/** @description The signed-in user's photo. Answers with the whole profile, ready to replace the session copy. */
 		post: operations["me_avatar_create"];
+		/** @description The signed-in user's photo. Answers with the whole profile, ready to replace the session copy. */
 		delete: operations["me_avatar_destroy"];
 		options?: never;
 		head?: never;
@@ -558,13 +560,6 @@ export interface components {
 			 */
 			readonly source_url: string;
 		};
-		/** @description An image for the article body: a file from the computer or a web address. */
-		ArticleImageUploadRequest: {
-			/** Format: binary */
-			file?: string;
-			/** Format: uri */
-			url?: string;
-		};
 		/** @description Back-office / MCP read-write representation. */
 		ArticleRequest: {
 			/** Titre */
@@ -585,6 +580,24 @@ export interface components {
 			category_ids?: string[];
 			/** @description Catégories par nom ; les catégories absentes sont créées. */
 			category_names?: string[];
+		};
+		/** @description Back-office list rows: no bodies or image details. */
+		ArticleRow: {
+			/** Format: uuid */
+			readonly id: string;
+			/** Titre */
+			readonly title: string;
+			readonly slug: string;
+			readonly status: components["schemas"]["StatusEnum"];
+			/**
+			 * Date de publication
+			 * Format: date-time
+			 */
+			readonly published_at: string | null;
+			readonly author: components["schemas"]["Author"];
+			readonly categories: components["schemas"]["Category"][];
+			/** Format: date-time */
+			readonly updated_at: string;
 		};
 		Author: {
 			/** Format: uuid */
@@ -644,6 +657,7 @@ export interface components {
 			is_primary?: boolean;
 			order?: number;
 		};
+		/** @description An image from the computer (``file``) or from the web (``url``, downloaded by the server). */
 		CoverUploadRequest: {
 			/** Format: binary */
 			file?: string;
@@ -673,7 +687,8 @@ export interface components {
 			/** Format: double */
 			height: number;
 		};
-		ImageUploadRequest: {
+		/** @description An image from the computer (``file``) or from the web (``url``, downloaded by the server). */
+		ImageSourceRequest: {
 			/** Format: binary */
 			file?: string;
 			/** Format: uri */
@@ -699,7 +714,7 @@ export interface components {
 			previous: string | null;
 			results: components["schemas"]["ApiToken"][];
 		};
-		PaginatedArticleList: {
+		PaginatedArticleRowList: {
 			/** @example 123 */
 			count: number;
 			/**
@@ -712,7 +727,7 @@ export interface components {
 			 * @example http://api.example.org/accounts/?page=2
 			 */
 			previous: string | null;
-			results: components["schemas"]["Article"][];
+			results: components["schemas"]["ArticleRow"][];
 		};
 		PaginatedPublicArticleList: {
 			/** @example 123 */
@@ -1021,8 +1036,8 @@ export type ApiTokenCreated = components["schemas"]["ApiTokenCreated"];
 export type ApiTokenRequest = components["schemas"]["ApiTokenRequest"];
 export type Article = components["schemas"]["Article"];
 export type ArticleImage = components["schemas"]["ArticleImage"];
-export type ArticleImageUploadRequest = components["schemas"]["ArticleImageUploadRequest"];
 export type ArticleRequest = components["schemas"]["ArticleRequest"];
+export type ArticleRow = components["schemas"]["ArticleRow"];
 export type Author = components["schemas"]["Author"];
 export type Category = components["schemas"]["Category"];
 export type CategoryRequest = components["schemas"]["CategoryRequest"];
@@ -1031,10 +1046,10 @@ export type CategoryWithCountRequest = components["schemas"]["CategoryWithCountR
 export type CoverUploadRequest = components["schemas"]["CoverUploadRequest"];
 export type Crop = components["schemas"]["Crop"];
 export type CropRequest = components["schemas"]["CropRequest"];
-export type ImageUploadRequest = components["schemas"]["ImageUploadRequest"];
+export type ImageSourceRequest = components["schemas"]["ImageSourceRequest"];
 export type LoginRequest = components["schemas"]["LoginRequest"];
 export type PaginatedApiTokenList = components["schemas"]["PaginatedApiTokenList"];
-export type PaginatedArticleList = components["schemas"]["PaginatedArticleList"];
+export type PaginatedArticleRowList = components["schemas"]["PaginatedArticleRowList"];
 export type PaginatedPublicArticleList = components["schemas"]["PaginatedPublicArticleList"];
 export type PaginatedUserList = components["schemas"]["PaginatedUserList"];
 export type PasswordChangeRequest = components["schemas"]["PasswordChangeRequest"];
@@ -1090,7 +1105,7 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content: {
-					"application/json": components["schemas"]["PaginatedArticleList"];
+					"application/json": components["schemas"]["PaginatedArticleRowList"];
 				};
 			};
 		};
@@ -1497,8 +1512,8 @@ export interface operations {
 		};
 		requestBody?: {
 			content: {
-				"multipart/form-data": components["schemas"]["ArticleImageUploadRequest"];
-				"application/x-www-form-urlencoded": components["schemas"]["ArticleImageUploadRequest"];
+				"multipart/form-data": components["schemas"]["ImageSourceRequest"];
+				"application/x-www-form-urlencoded": components["schemas"]["ImageSourceRequest"];
 			};
 		};
 		responses: {
@@ -1679,9 +1694,9 @@ export interface operations {
 		};
 		requestBody?: {
 			content: {
-				"multipart/form-data": components["schemas"]["ImageUploadRequest"];
-				"application/x-www-form-urlencoded": components["schemas"]["ImageUploadRequest"];
-				"application/json": components["schemas"]["ImageUploadRequest"];
+				"multipart/form-data": components["schemas"]["ImageSourceRequest"];
+				"application/x-www-form-urlencoded": components["schemas"]["ImageSourceRequest"];
+				"application/json": components["schemas"]["ImageSourceRequest"];
 			};
 		};
 		responses: {
@@ -1996,9 +2011,9 @@ export interface operations {
 		};
 		requestBody?: {
 			content: {
-				"multipart/form-data": components["schemas"]["ImageUploadRequest"];
-				"application/x-www-form-urlencoded": components["schemas"]["ImageUploadRequest"];
-				"application/json": components["schemas"]["ImageUploadRequest"];
+				"multipart/form-data": components["schemas"]["ImageSourceRequest"];
+				"application/x-www-form-urlencoded": components["schemas"]["ImageSourceRequest"];
+				"application/json": components["schemas"]["ImageSourceRequest"];
 			};
 		};
 		responses: {
@@ -2007,7 +2022,7 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content: {
-					"application/json": components["schemas"]["User"];
+					"application/json": components["schemas"]["Profile"];
 				};
 			};
 		};
@@ -2050,7 +2065,7 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content: {
-					"application/json": components["schemas"]["User"];
+					"application/json": components["schemas"]["Profile"];
 				};
 			};
 		};

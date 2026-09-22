@@ -1,19 +1,14 @@
 "use client";
 
-import { createContext, type ReactNode, useCallback, useContext, useMemo } from "react";
+import { createContext, type ReactNode, useCallback, useContext } from "react";
 import { backofficeHref } from "@/lib/backoffice/routes";
 import type { Profile } from "@/lib/backoffice/types";
 
-interface BackofficeBase {
-	/** Secret public prefix, e.g. "/admin-xyz". */
-	base: string;
-}
-
-const BaseContext = createContext<BackofficeBase | null>(null);
+/** Secret public prefix, e.g. "/admin-xyz". */
+const BaseContext = createContext<string | null>(null);
 
 export function BackofficeBaseProvider({ base, children }: { base: string; children: ReactNode }) {
-	const value = useMemo(() => ({ base }), [base]);
-	return <BaseContext.Provider value={value}>{children}</BaseContext.Provider>;
+	return <BaseContext.Provider value={base}>{children}</BaseContext.Provider>;
 }
 
 /** `href("/articles")` → "/admin-xyz/articles". */
@@ -24,9 +19,10 @@ export function useBackofficeHref(): (path?: string) => string {
 }
 
 export function useBackofficeBase(): string {
-	const ctx = useContext(BaseContext);
-	if (!ctx) throw new Error("useBackofficeBase must be used inside BackofficeBaseProvider");
-	return ctx.base;
+	const base = useContext(BaseContext);
+	if (base === null)
+		throw new Error("useBackofficeBase must be used inside BackofficeBaseProvider");
+	return base;
 }
 
 interface SessionValue {

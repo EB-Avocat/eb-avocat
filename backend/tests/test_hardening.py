@@ -114,7 +114,7 @@ def test_create_article_reports_the_article_when_the_cover_is_refused() -> None:
     _, raw = ApiToken.issue(UserFactory.create(role=User.Role.EDITOR), "claude")
     with (
         TestClient(create_application()) as client,
-        mock.patch("articles.services.fetch_remote_image", side_effect=ValidationError("Adresse interdite")),
+        mock.patch("articles.mcp.fetch_remote_image", side_effect=ValidationError("Adresse interdite")),
     ):
         result = call(client, raw, "create_article", title="Sans image", markdown="x", cover_url="https://e.com/a")
 

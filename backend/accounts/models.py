@@ -1,6 +1,7 @@
 import hashlib
 import secrets
 import uuid
+from datetime import timedelta
 from typing import Any, ClassVar
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
@@ -82,6 +83,9 @@ def hash_token(raw: str) -> str:
     return hashlib.sha256(raw.encode()).hexdigest()
 
 
+LAST_USED_RESOLUTION = timedelta(minutes=5)
+
+
 class ApiToken(UUIDModel):
     """Personal access token, used by the MCP endpoint and scripts. Stored hashed."""
 
@@ -112,5 +116,8 @@ class ApiToken(UUIDModel):
         token = cls.objects.select_related("user").filter(key_hash=hash_token(raw)).first()
         if token is None or not token.user.is_active:
             return None
-        cls.objects.filter(pk=token.pk).update(last_used_at=timezone.now())
+        now = timezone.now()
+        # A write per request is wasted work (an MCP call authenticates twice): minutes are enough.
+        if token.last_used_at is None or now - token.last_used_at > LAST_USED_RESOLUTION:
+            cls.objects.filter(pk=token.pk).update(last_used_at=now)
         return token.user

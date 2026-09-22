@@ -71,15 +71,15 @@ def test_password_reset_confirm_rejects_bad_token_and_weak_password(api: APIClie
 
 def test_avatar_from_url_and_errors(author: User) -> None:
     client = client_for(author)
-    with mock.patch("accounts.views.fetch_remote_image", return_value=png_upload("web.png")):
+    with mock.patch("core.serializers.fetch_remote_image", return_value=png_upload("web.png")):
         assert client.post("/api/v1/me/avatar/", {"url": "https://example.com/a.png"}, format="json").status_code == 200
-    with mock.patch("accounts.views.fetch_remote_image", side_effect=ValidationError("Refusée")):
+    with mock.patch("core.serializers.fetch_remote_image", side_effect=ValidationError("Refusée")):
         assert client.post("/api/v1/me/avatar/", {"url": "https://example.com/a.png"}, format="json").status_code == 400
     assert client.post("/api/v1/me/avatar/", {}, format="json").status_code == 400
 
     # Replacing an avatar deletes the previous file; DELETE clears it.
     client.post("/api/v1/me/avatar/", {"file": png_upload()}, format="multipart")
-    assert client.delete("/api/v1/me/avatar/").status_code == 204
+    assert client.delete("/api/v1/me/avatar/").status_code == 200
     author.refresh_from_db()
     assert not author.avatar
 

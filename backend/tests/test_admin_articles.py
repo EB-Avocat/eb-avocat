@@ -7,6 +7,7 @@ from rest_framework.test import APIClient
 from accounts.models import User
 from articles import services
 from articles.models import Article, Category
+from core.images import validate_uploaded_image
 from tests.conftest import ArticleFactory, CategoryFactory, client_for, png_upload
 
 pytestmark = pytest.mark.django_db
@@ -103,7 +104,7 @@ def test_cover_rejects_non_images(author: User) -> None:
 
 def test_cover_from_url_uses_safe_fetcher(author: User) -> None:
     article = ArticleFactory.create(author=author)
-    with mock.patch("articles.services.fetch_remote_image", return_value=png_upload("remote.png")) as fetch:
+    with mock.patch("core.serializers.fetch_remote_image", return_value=png_upload("remote.png")) as fetch:
         response = client_for(author).post(
             f"/api/v1/admin/articles/{article.pk}/cover/", {"url": "https://example.com/a.png"}, format="json"
         )
@@ -113,7 +114,7 @@ def test_cover_from_url_uses_safe_fetcher(author: User) -> None:
 
 def test_cover_from_url_error_is_400(author: User) -> None:
     article = ArticleFactory.create(author=author)
-    with mock.patch("articles.services.fetch_remote_image", side_effect=ValidationError("Adresse interdite")):
+    with mock.patch("core.serializers.fetch_remote_image", side_effect=ValidationError("Adresse interdite")):
         response = client_for(author).post(
             f"/api/v1/admin/articles/{article.pk}/cover/", {"url": "http://127.0.0.1/x.png"}, format="json"
         )
@@ -141,8 +142,28 @@ def test_revalidation_is_triggered_on_commit(author: User, settings, django_capt
         "http://frontend:3000/api/revalidate",
         headers={"authorization": "Bearer s3cret"},
         json={"tag": "articles"},
-        timeout=5,
+        timeout=2,
     )
+
+
+def test_draft_changes_do_not_revalidate_the_site(author: User) -> None:
+    category = CategoryFactory.create()
+    client = client_for(author)
+    draft = ArticleFactory.create(author=author, status=Article.Status.DRAFT)
+    published = ArticleFactory.create(author=author)
+    with mock.patch("articles.signals.schedule_revalidation") as schedule:
+        client.patch(f"/api/v1/admin/articles/{draft.pk}/", {"title": "x", "category_ids": [str(category.pk)]})
+        assert not schedule.called  # never public: nothing to refresh
+        client.patch(f"/api/v1/admin/articles/{published.pk}/", {"status": "draft"})
+        assert schedule.called  # unpublishing removes it from the site
+
+
+def test_revalidation_runs_once_per_transaction(django_capture_on_commit_callbacks) -> None:
+    # Saving an article fires a signal for the row, then one per category change.
+    with django_capture_on_commit_callbacks() as callbacks:
+        for _ in range(3):
+            services.schedule_revalidation()
+    assert callbacks == [services.revalidate_frontend]
 
 
 def test_cover_from_url_is_copied_to_storage_and_source_kept(author: User) -> None:
@@ -150,7 +171,7 @@ def test_cover_from_url_is_copied_to_storage_and_source_kept(author: User) -> No
     client = client_for(author)
     source = "https://images.example.com/photos/cabinet.png"
     url = f"/api/v1/admin/articles/{article.pk}/cover/"
-    with mock.patch("articles.services.fetch_remote_image", return_value=png_upload("cabinet.png")):
+    with mock.patch("core.serializers.fetch_remote_image", return_value=png_upload("cabinet.png")):
         data = client.post(url, {"url": source}, format="json").json()
 
     # Served from our own storage (Vercel Blob in production), not hotlinked; the origin is kept.
@@ -162,7 +183,7 @@ def test_cover_from_url_is_copied_to_storage_and_source_kept(author: User) -> No
 
     # A file upload replaces the source; removing the cover clears it.
     assert client.post(url, {"file": png_upload()}, format="multipart").json()["cover_source_url"] == ""
-    with mock.patch("articles.services.fetch_remote_image", return_value=png_upload("again.png")):
+    with mock.patch("core.serializers.fetch_remote_image", return_value=png_upload("again.png")):
         client.post(url, {"url": source}, format="json")
     data = client.delete(url).json()
     assert data["cover"] is None
@@ -193,9 +214,7 @@ def test_cover_upload_does_not_overwrite_concurrent_edits(author: User) -> None:
     stale = Article.objects.get(pk=article.pk)
     # Saved from the editor while the (slow) cover upload was in flight.
     Article.objects.filter(pk=article.pk).update(title="Après", body_markdown="après", body_html="<p>après</p>")
-    services.set_cover_from_upload(stale, png_upload())
-    stale.cover_alt = "Alt"
-    stale.save(update_fields=["cover_alt"])
+    services.set_cover(stale, validate_uploaded_image(png_upload()), alt="Alt")
     article.refresh_from_db()
     assert (article.title, article.body_markdown, article.body_html) == ("Après", "après", "<p>après</p>")
     assert article.cover

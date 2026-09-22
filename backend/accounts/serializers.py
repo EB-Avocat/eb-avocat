@@ -106,16 +106,6 @@ class ApiTokenSerializer(serializers.ModelSerializer[ApiToken]):
         read_only_fields = ("id", "prefix", "created_at", "last_used_at")
 
 
-class ImageUploadSerializer(serializers.Serializer[None]):
-    file = serializers.ImageField(required=False)
-    url = serializers.URLField(required=False)
-
-    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
-        if bool(attrs.get("file")) == bool(attrs.get("url")):
-            raise serializers.ValidationError("Fournissez soit un fichier, soit une URL.")
-        return attrs
-
-
 class ApiTokenCreatedSerializer(ApiTokenSerializer):
     """Returned once, at creation: includes the raw token."""
 

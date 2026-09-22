@@ -13,7 +13,8 @@ const nextConfig: NextConfig = {
 	// Adjust the subnet if your LAN uses a different range.
 	allowedDevOrigins: ["192.168.1.*", "*.local"],
 	// Django routes end with "/": keep Next from stripping it before proxying /api/v1.
-	skipTrailingSlashRedirect: true,
+	// Only when Next proxies the API itself; otherwise public URLs keep one canonical form.
+	skipTrailingSlashRedirect: Boolean(backendUrl),
 	images: {
 		// Covers and avatars live on Vercel Blob in production.
 		remotePatterns: [{ protocol: "https", hostname: "**.public.blob.vercel-storage.com" }],

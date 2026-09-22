@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useImageLoaded } from "@/components/backoffice/ui";
 
 /**
  * User avatar. The initials on the brand colour stay underneath until the photo has
@@ -15,7 +15,7 @@ export function Avatar({
 	name: string;
 	size?: number;
 }) {
-	const [loaded, setLoaded] = useState<string | null>(null);
+	const { ready, ref, onLoad } = useImageLoaded(src);
 	const initials = name
 		.split(/[\s@.]+/)
 		.filter(Boolean)
@@ -34,11 +34,9 @@ export function Avatar({
 				<img
 					src={src}
 					alt=""
-					ref={(img) => {
-						if (img?.complete && img.naturalWidth > 0) setLoaded(img.getAttribute("src"));
-					}}
-					onLoad={() => setLoaded(src)}
-					className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${loaded === src ? "opacity-100" : "opacity-0"}`}
+					ref={ref}
+					onLoad={onLoad}
+					className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${ready ? "opacity-100" : "opacity-0"}`}
 				/>
 			)}
 		</span>

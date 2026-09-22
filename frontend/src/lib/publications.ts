@@ -95,8 +95,9 @@ export async function getPublicationBySlug(slug: string): Promise<PublicationDet
 /** Every published slug (walks the paginated list); [] when the backend is unavailable. */
 export async function getPublicationSlugs(): Promise<string[]> {
 	const slugs: string[] = [];
+	// The largest page the API allows (100): a few requests even for a big archive.
 	for (let page = 1; page <= 50; page++) {
-		const list = await getJson<ApiArticlePage>(`/api/v1/articles/?page=${page}`);
+		const list = await getJson<ApiArticlePage>(`/api/v1/articles/?page=${page}&page_size=100`);
 		if (!list) break;
 		slugs.push(...list.results.map((a) => a.slug));
 		if (!list.next) break;

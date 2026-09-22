@@ -10,6 +10,7 @@ import {
 	ListSkeleton,
 	PageHeader,
 	Pager,
+	Segmented,
 	TextInput,
 } from "@/components/backoffice/ui";
 import { api, messageOf } from "@/lib/backoffice/api";
@@ -42,8 +43,7 @@ export default function CategoriesPage() {
 	const [filter, setFilter] = useState<Filter>("all");
 	const [page, setPage] = useState(1);
 
-	const fail = (err: unknown) =>
-		setError(err instanceof Error ? err.message : "Action impossible.");
+	const fail = (err: unknown) => setError(messageOf(err));
 	const replace = (c: AdminCategory) =>
 		setCategories((list) =>
 			list ? primaryFirst(list.map((x) => (x.id === c.id ? { ...x, ...c } : x))) : null,
@@ -165,32 +165,25 @@ export default function CategoriesPage() {
 						Ajouter
 					</BoButton>
 				</form>
-				<fieldset className="flex gap-1 rounded-lg bg-white p-1 shadow-sm">
-					<legend className="sr-only">Filtrer les catégories</legend>
-					{FILTERS.map(({ id, label }) => (
-						<button
-							key={id}
-							type="button"
-							aria-pressed={filter === id}
-							onClick={() => {
-								setFilter(id);
-								setPage(1);
-							}}
-							className={`flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-500 ${filter === id ? "bg-primary text-white" : "text-gray-600 hover:bg-gray-100"}`}
-						>
-							{id === "primary" && (
-								<Star
-									className={`h-3.5 w-3.5 ${filter === id ? "fill-white" : "fill-primary text-primary"}`}
-									aria-hidden="true"
-								/>
-							)}
-							{label}
-							<span className={`text-xs ${filter === id ? "text-white/80" : "text-gray-400"}`}>
-								{counts[id]}
-							</span>
-						</button>
-					))}
-				</fieldset>
+				<Segmented
+					kind="filter"
+					label="Filtrer les catégories"
+					value={filter}
+					onChange={(id) => {
+						setFilter(id);
+						setPage(1);
+					}}
+					options={FILTERS.map(({ id, label }) => ({
+						id,
+						label: (
+							<>
+								{label}
+								<span className="text-xs opacity-70">{counts[id]}</span>
+							</>
+						),
+						icon: id === "primary" ? Star : undefined,
+					}))}
+				/>
 			</div>
 
 			{categories === null ? (

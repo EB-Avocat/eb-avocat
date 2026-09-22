@@ -1,4 +1,4 @@
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, Self
 
 from django.conf import settings
 from django.db import models
@@ -7,6 +7,9 @@ from django.utils.text import slugify
 
 from articles.rendering import render_markdown
 from core.models import TimestampedModel
+
+if TYPE_CHECKING:
+    from accounts.models import User
 
 
 def unique_slug(model: type[models.Model], value: str, instance_pk: Any = None, max_length: int = 200) -> str:
@@ -83,25 +86,45 @@ class Article(TimestampedModel):
     def __str__(self) -> str:
         return self.title
 
+    @classmethod
+    def from_db(cls, *args: Any, **kwargs: Any) -> Self:
+        article = super().from_db(*args, **kwargs)
+        article.was_published = article.__dict__.get("status") == cls.Status.PUBLISHED
+        return article
+
+    @property
+    def is_or_was_published(self) -> bool:
+        """Whether a change to this article can show on the public site."""
+        return self.status == self.Status.PUBLISHED or getattr(self, "was_published", False)
+
     def save(self, *args: Any, **kwargs: Any) -> None:
-        if not self.slug:
-            self.slug = unique_slug(Article, self.title, self.pk)
-        self.body_html = render_markdown(self.body_markdown)
-        if self.status == self.Status.PUBLISHED and self.published_at is None:
-            self.published_at = timezone.now()
         update_fields = kwargs.get("update_fields")
+
+        # A partial save writes only the derived columns whose sources it writes: the
+        # other in-memory values may be stale (e.g. during a long cover upload).
+        def writes(name: str) -> bool:
+            return update_fields is None or name in update_fields
+
+        derived = set()
+        if writes("title") and not self.slug:
+            self.slug = unique_slug(Article, self.title, self.pk)
+            derived.add("slug")
+        if writes("body_markdown"):
+            self.body_html = render_markdown(self.body_markdown)
+            derived.add("body_html")
+        if writes("status") and self.status == self.Status.PUBLISHED and self.published_at is None:
+            self.published_at = timezone.now()
+            derived.add("published_at")
         if update_fields is not None:
-            # Only write derived columns whose sources are written too: the in-memory
-            # values of the other fields may be stale (e.g. a long cover upload).
-            fields = set(update_fields)
-            if "body_markdown" in fields:
-                fields.add("body_html")
-            if "status" in fields:
-                fields.add("published_at")
-            if "title" in fields:
-                fields.add("slug")
-            kwargs["update_fields"] = fields
-        super().save(*args, **kwargs)
+            kwargs["update_fields"] = {*update_fields, *derived}
+        super().save(*args, **kwargs)  # post_save handlers still see the previous `was_published`
+        self.was_published = self.status == self.Status.PUBLISHED
+
+
+def editable_articles(user: "User") -> models.QuerySet["Article"]:
+    """Articles ``user`` may edit: all of them for editors and admins, their own for authors."""
+    queryset = Article.objects.select_related("author").prefetch_related("categories")
+    return queryset if user.can_edit_all_articles else queryset.filter(author=user)
 
 
 def published_articles() -> models.QuerySet[Article]:

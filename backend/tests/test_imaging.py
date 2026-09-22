@@ -208,7 +208,9 @@ def test_avatar_is_a_512_square_and_can_be_recropped(author: User) -> None:
     crop = {"x": 0, "y": 0, "width": 0.5, "height": 0.75}  # 600x600 → 512x512
     assert client.post("/api/v1/me/avatar/crop/", crop, format="json").json()["avatar_crop"] == pytest.approx(crop)
 
-    assert client.delete("/api/v1/me/avatar/").status_code == 204
+    removed = client.delete("/api/v1/me/avatar/")
+    assert removed.status_code == 200
+    assert removed.json()["avatar"] is None  # the profile comes back, ready for the session
     author.refresh_from_db()
     assert not author.avatar
     assert not author.avatar_original

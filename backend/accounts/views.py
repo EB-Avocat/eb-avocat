@@ -27,7 +27,6 @@ from accounts.permissions import IsAdminRole
 from accounts.serializers import (
     ApiTokenCreatedSerializer,
     ApiTokenSerializer,
-    ImageUploadSerializer,
     LoginSerializer,
     PasswordChangeSerializer,
     PasswordResetConfirmSerializer,
@@ -38,13 +37,7 @@ from accounts.serializers import (
 )
 from articles.models import Article
 from core.auth import request_user
-from core.images import validate_uploaded_image
-from core.remote import fetch_remote_image
-from core.serializers import CropSerializer
-
-
-def django_errors(exc: DjangoValidationError) -> ValidationError:
-    return ValidationError({"detail": exc.messages})
+from core.serializers import CropSerializer, ImageSourceSerializer
 
 
 class CsrfView(APIView):
@@ -152,47 +145,44 @@ class MePasswordView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-def store_avatar(user: User, request: Request) -> Response:
-    serializer = ImageUploadSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    try:
-        if file := serializer.validated_data.get("file"):
-            image = validate_uploaded_image(file)
-        else:
-            image = fetch_remote_image(serializer.validated_data["url"])
-        services.set_avatar(user, image)
-    except DjangoValidationError as exc:
-        raise django_errors(exc) from exc
-    return Response(UserSerializer(user, context={"request": request}).data)
+AvatarOwnerSerializer = type[ProfileSerializer] | type[UserSerializer]
 
 
-def crop_avatar(user: User, request: Request) -> Response:
+def store_avatar(user: User, request: Request, serializer_class: AvatarOwnerSerializer) -> Response:
+    source = ImageSourceSerializer(data=request.data)
+    source.is_valid(raise_exception=True)
+    image, _ = source.load()
+    services.set_avatar(user, image)
+    return Response(serializer_class(user, context={"request": request}).data)
+
+
+def crop_avatar(user: User, request: Request, serializer_class: AvatarOwnerSerializer) -> Response:
     serializer = CropSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    try:
-        services.recrop_avatar(user, serializer.to_crop())
-    except DjangoValidationError as exc:
-        raise django_errors(exc) from exc
-    return Response(UserSerializer(user, context={"request": request}).data)
+    services.recrop_avatar(user, serializer.to_crop())
+    return Response(serializer_class(user, context={"request": request}).data)
 
 
 class MeAvatarView(APIView):
+    """The signed-in user's photo. Answers with the whole profile, ready to replace the session copy."""
+
     parser_classes = (MultiPartParser, FormParser, JSONParser)
 
-    @extend_schema(request=ImageUploadSerializer, responses=UserSerializer)
+    @extend_schema(request=ImageSourceSerializer, responses=ProfileSerializer)
     def post(self, request: Request) -> Response:
-        return store_avatar(request_user(request), request)
+        return store_avatar(request_user(request), request, ProfileSerializer)
 
-    @extend_schema(responses={204: None})
+    @extend_schema(responses=ProfileSerializer)
     def delete(self, request: Request) -> Response:
-        services.remove_avatar(request_user(request))
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        user = request_user(request)
+        services.remove_avatar(user)
+        return Response(ProfileSerializer(user, context={"request": request}).data)
 
 
 class MeAvatarCropView(APIView):
-    @extend_schema(request=CropSerializer, responses=UserSerializer)
+    @extend_schema(request=CropSerializer, responses=ProfileSerializer)
     def post(self, request: Request) -> Response:
-        return crop_avatar(request_user(request), request)
+        return crop_avatar(request_user(request), request, ProfileSerializer)
 
 
 class ApiTokenViewSet(
@@ -247,7 +237,7 @@ class UserViewSet(viewsets.ModelViewSet[User]):
             )
         instance.delete()
 
-    @extend_schema(methods=["POST"], request=ImageUploadSerializer, responses=UserSerializer)
+    @extend_schema(methods=["POST"], request=ImageSourceSerializer, responses=UserSerializer)
     @extend_schema(methods=["DELETE"], request=None, responses={204: None})
     @action(detail=True, methods=["post", "delete"], parser_classes=(MultiPartParser, FormParser, JSONParser))
     def avatar(self, request: Request, pk: str | None = None) -> Response:
@@ -255,9 +245,9 @@ class UserViewSet(viewsets.ModelViewSet[User]):
         if request.method == "DELETE":
             services.remove_avatar(user)
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return store_avatar(user, request)
+        return store_avatar(user, request, UserSerializer)
 
     @extend_schema(request=CropSerializer, responses=UserSerializer)
     @action(detail=True, methods=["post"], url_path="avatar/crop")
     def avatar_crop(self, request: Request, pk: str | None = None) -> Response:
-        return crop_avatar(self.get_object(), request)
+        return crop_avatar(self.get_object(), request, UserSerializer)

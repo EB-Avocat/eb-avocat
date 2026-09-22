@@ -6,7 +6,7 @@ import { type FormEvent, Suspense, useState } from "react";
 import { AuthCard } from "@/components/backoffice/AuthCard";
 import { useBackofficeHref } from "@/components/backoffice/BackofficeContext";
 import { Alert, BoButton, Field, TextInput } from "@/components/backoffice/ui";
-import { api } from "@/lib/backoffice/api";
+import { api, messageOf } from "@/lib/backoffice/api";
 
 function NewPasswordForm() {
 	const params = useSearchParams();
@@ -29,7 +29,7 @@ function NewPasswordForm() {
 			await api.auth.confirmReset(params.get("uid") ?? "", params.get("token") ?? "", password);
 			setDone(true);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Réinitialisation impossible.");
+			setError(messageOf(err, "Réinitialisation impossible."));
 		} finally {
 			setBusy(false);
 		}

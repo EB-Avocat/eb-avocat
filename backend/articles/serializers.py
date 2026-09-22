@@ -1,12 +1,13 @@
 from typing import Any
 
+from django.db import transaction
 from rest_framework import serializers
 
 from accounts.models import User
-from articles.models import Article, ArticleImage, Category, unique_slug
+from articles.models import Article, ArticleImage, Category
 from articles.services import categories_from_names
 from core.fields import MediaUrlField
-from core.serializers import CropSerializer
+from core.serializers import CropSerializer, ImageSourceSerializer
 
 
 class CategorySerializer(serializers.ModelSerializer[Category]):
@@ -100,15 +101,15 @@ class ArticleSerializer(serializers.ModelSerializer[Article]):
         combined = list(categories or []) + categories_from_names(names or [])
         article.categories.set({c.pk: c for c in combined}.values())
 
+    @transaction.atomic  # the row and its categories together (and one revalidation, see signals)
     def create(self, validated_data: dict[str, Any]) -> Article:
         categories = validated_data.pop("categories", None)
         names = validated_data.pop("category_names", None)
-        if not validated_data.get("slug"):
-            validated_data["slug"] = unique_slug(Article, validated_data["title"])
         article = Article.objects.create(**validated_data)
         self._apply_categories(article, categories, names)
         return article
 
+    @transaction.atomic
     def update(self, instance: Article, validated_data: dict[str, Any]) -> Article:
         categories = validated_data.pop("categories", None)
         names = validated_data.pop("category_names", None)
@@ -119,15 +120,20 @@ class ArticleSerializer(serializers.ModelSerializer[Article]):
         return article
 
 
-class CoverUploadSerializer(serializers.Serializer[None]):
-    file = serializers.ImageField(required=False)
-    url = serializers.URLField(required=False)
-    alt = serializers.CharField(required=False, allow_blank=True, max_length=200)
+class ArticleRowSerializer(serializers.ModelSerializer[Article]):
+    """Back-office list rows: no bodies or image details."""
 
-    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
-        if bool(attrs.get("file")) == bool(attrs.get("url")):
-            raise serializers.ValidationError("Fournissez soit un fichier, soit une URL.")
-        return attrs
+    categories = CategorySerializer(many=True, read_only=True)
+    author = AuthorSerializer(read_only=True)
+
+    class Meta:
+        model = Article
+        fields = ("id", "title", "slug", "status", "published_at", "author", "categories", "updated_at")
+        read_only_fields = fields
+
+
+class CoverUploadSerializer(ImageSourceSerializer):
+    alt = serializers.CharField(required=False, allow_blank=True, max_length=200)
 
 
 class ArticleImageSerializer(serializers.ModelSerializer[ArticleImage]):
@@ -137,18 +143,6 @@ class ArticleImageSerializer(serializers.ModelSerializer[ArticleImage]):
         model = ArticleImage
         fields = ("id", "url", "source_url")
         read_only_fields = fields
-
-
-class ArticleImageUploadSerializer(serializers.Serializer[None]):
-    """An image for the article body: a file from the computer or a web address."""
-
-    file = serializers.ImageField(required=False)
-    url = serializers.URLField(required=False)
-
-    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
-        if bool(attrs.get("file")) == bool(attrs.get("url")):
-            raise serializers.ValidationError("Fournissez soit un fichier, soit une URL.")
-        return attrs
 
 
 class PreviewSerializer(serializers.Serializer[None]):

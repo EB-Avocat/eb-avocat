@@ -1,22 +1,21 @@
 "use client";
 
 import { Copy, KeyRound, Trash2 } from "lucide-react";
-import { type FormEvent, type ReactNode, useEffect, useMemo, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useState } from "react";
 import { useSession } from "@/components/backoffice/BackofficeContext";
-import type { ImageSource } from "@/components/backoffice/ImageDialog";
-import { AvatarField, type StoredImage } from "@/components/backoffice/ImageFields";
+import { AvatarField, storedImage } from "@/components/backoffice/ImageFields";
 import {
-	Alert,
 	BoButton,
 	ConfirmModal,
+	FeedbackAlert,
 	Field,
 	ListSkeleton,
 	PageHeader,
 	TextInput,
+	useFeedback,
 } from "@/components/backoffice/ui";
-import type { CropRequest } from "@/lib/api/schema";
-import { api } from "@/lib/backoffice/api";
-import { type ApiToken, type Profile, ROLE_LABELS } from "@/lib/backoffice/types";
+import { api, type ImageSource } from "@/lib/backoffice/api";
+import { type ApiToken, displayName, ROLE_LABELS } from "@/lib/backoffice/types";
 import { formatPublicationDate } from "@/lib/publications-parse";
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -26,25 +25,6 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 			{children}
 		</section>
 	);
-}
-
-type Feedback = { tone: "error" | "success"; text: string } | null;
-
-function useFeedback() {
-	const [feedback, setFeedback] = useState<Feedback>(null);
-	const actions = useMemo(
-		() => ({
-			ok: (text: string) => setFeedback({ tone: "success", text }),
-			fail: (err: unknown) =>
-				setFeedback({
-					tone: "error",
-					text: err instanceof Error ? err.message : "Action impossible.",
-				}),
-			clear: () => setFeedback(null),
-		}),
-		[],
-	);
-	return { feedback, ...actions };
 }
 
 export default function ProfilePage() {
@@ -69,7 +49,7 @@ function IdentitySection() {
 	});
 	const [busy, setBusy] = useState(false);
 	const { feedback, ok, fail, clear } = useFeedback();
-	const name = [user.first_name, user.last_name].filter(Boolean).join(" ") || user.email;
+	const name = displayName(user);
 
 	async function save(event: FormEvent) {
 		event.preventDefault();
@@ -85,49 +65,25 @@ function IdentitySection() {
 		}
 	}
 
-	const avatarOf = (profile: Pick<Profile, "avatar" | "avatar_original" | "avatar_crop">) => ({
-		url: profile.avatar,
-		original: profile.avatar_original,
-		crop: profile.avatar_crop,
-	});
-
-	/** Copy the avatar fields returned by the API into the session user. */
-	function keepAvatar(updated: Pick<Profile, "avatar" | "avatar_original" | "avatar_crop">) {
-		const { avatar, avatar_original, avatar_crop } = updated;
-		setUser({ ...user, avatar, avatar_original, avatar_crop });
-	}
-
-	async function uploadAvatar(source: ImageSource): Promise<StoredImage> {
+	// The avatar endpoints answer with the whole profile.
+	async function uploadAvatar(source: ImageSource) {
 		clear();
-		const updated = await api.me.setAvatar(source);
-		keepAvatar(updated);
-		return avatarOf(updated);
-	}
-
-	async function cropAvatar(crop: CropRequest) {
-		keepAvatar(await api.me.cropAvatar(crop));
-	}
-
-	async function removeAvatar() {
-		await api.me.removeAvatar();
-		setUser({ ...user, avatar: null, avatar_original: null, avatar_crop: null });
+		const profile = await api.me.setAvatar(source);
+		setUser(profile);
+		return storedImage(profile, "avatar");
 	}
 
 	return (
 		<Section title="Informations">
-			{feedback && (
-				<div className="mb-4">
-					<Alert tone={feedback.tone}>{feedback.text}</Alert>
-				</div>
-			)}
+			<FeedbackAlert feedback={feedback} />
 			<div className="mb-6 flex flex-wrap items-center gap-6">
 				<AvatarField
-					image={avatarOf(user)}
+					image={storedImage(user, "avatar")}
 					name={name}
 					onUpload={uploadAvatar}
-					onCrop={cropAvatar}
-					onRemove={removeAvatar}
-					onError={(message) => fail(new Error(message))}
+					onCrop={async (crop) => setUser(await api.me.cropAvatar(crop))}
+					onRemove={async () => setUser(await api.me.removeAvatar())}
+					onError={fail}
 				/>
 				<div className="text-sm text-gray-600">
 					<p className="font-500 text-near-black">Photo de profil</p>
@@ -195,7 +151,7 @@ function PasswordSection() {
 		const formElement = event.currentTarget;
 		const form = new FormData(formElement);
 		if (form.get("new") !== form.get("confirm")) {
-			fail(new Error("Les deux nouveaux mots de passe ne correspondent pas."));
+			fail("Les deux nouveaux mots de passe ne correspondent pas.");
 			return;
 		}
 		setBusy(true);
@@ -213,11 +169,7 @@ function PasswordSection() {
 
 	return (
 		<Section title="Mot de passe">
-			{feedback && (
-				<div className="mb-4">
-					<Alert tone={feedback.tone}>{feedback.text}</Alert>
-				</div>
-			)}
+			<FeedbackAlert feedback={feedback} />
 			<form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
 				<div className="sm:col-span-2">
 					<Field label="Mot de passe actuel">
@@ -327,11 +279,7 @@ function TokensSection() {
 				Un jeton permet à Claude Code de lister, rédiger et publier des articles en votre nom, avec
 				les mêmes droits que votre compte. Créez-en un par ordinateur ; révoquez-le à tout moment.
 			</p>
-			{feedback && (
-				<div className="mb-4">
-					<Alert tone={feedback.tone}>{feedback.text}</Alert>
-				</div>
-			)}
+			<FeedbackAlert feedback={feedback} />
 
 			<form onSubmit={create} className="mb-4 flex max-w-md gap-2">
 				<label htmlFor="token-name" className="sr-only">

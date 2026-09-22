@@ -1,12 +1,11 @@
 from typing import Any
 
 import django_filters
-from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import transaction
 from django.db.models import Count, Q, QuerySet
 from drf_spectacular.utils import extend_schema
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.request import Request
@@ -16,11 +15,11 @@ from rest_framework.views import APIView
 
 from accounts.permissions import CanEditArticle
 from articles import services
-from articles.models import Article, Category, published_articles
+from articles.models import Article, Category, editable_articles, published_articles
 from articles.rendering import render_markdown
 from articles.serializers import (
     ArticleImageSerializer,
-    ArticleImageUploadSerializer,
+    ArticleRowSerializer,
     ArticleSerializer,
     CategoryWithCountSerializer,
     CoverUploadSerializer,
@@ -31,7 +30,7 @@ from articles.serializers import (
     ReorderSerializer,
 )
 from core.auth import optional_user, request_user
-from core.serializers import CropSerializer
+from core.serializers import CropSerializer, ImageSourceSerializer
 
 
 class ArticleFilter(django_filters.FilterSet):
@@ -51,13 +50,11 @@ class PublicArticleViewSet(viewsets.ReadOnlyModelViewSet[Article]):
     filterset_class = ArticleFilter
 
     def get_queryset(self) -> QuerySet[Article]:
-        return (
-            published_articles()
-            .select_related("author")
-            .prefetch_related("categories")
-            .distinct()
-            .order_by("-published_at")
-        )
+        # No .distinct(): the only join (a category slug) matches at most one row per article.
+        queryset = published_articles().select_related("author").prefetch_related("categories")
+        if self.action == "list":  # cards only: skip the article bodies
+            queryset = queryset.defer("body_markdown", "body_html")
+        return queryset.order_by("-published_at")
 
     def get_serializer_class(self) -> type[PublicArticleSerializer]:
         return PublicArticleDetailSerializer if self.action == "retrieve" else PublicArticleSerializer
@@ -94,13 +91,15 @@ class ArticleViewSet(viewsets.ModelViewSet[Article]):
     ordering = ("-updated_at",)
 
     def get_queryset(self) -> QuerySet[Article]:
-        queryset = Article.objects.select_related("author").prefetch_related("categories").distinct()
         if getattr(self, "swagger_fake_view", False):  # schema generation
-            return queryset.none()
-        user = request_user(self.request)
-        if not user.can_edit_all_articles:
-            queryset = queryset.filter(author=user)
+            return Article.objects.none()
+        queryset = editable_articles(request_user(self.request))
+        if self.action == "list":
+            queryset = queryset.defer("body_markdown", "body_html")
         return queryset
+
+    def get_serializer_class(self) -> type[ArticleSerializer | ArticleRowSerializer]:
+        return ArticleRowSerializer if self.action == "list" else ArticleSerializer
 
     def perform_create(self, serializer: BaseSerializer[Article]) -> None:
         serializer.save(author=request_user(self.request))
@@ -115,17 +114,8 @@ class ArticleViewSet(viewsets.ModelViewSet[Article]):
             return Response(self.get_serializer(article).data)
         serializer = CoverUploadSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        data = serializer.validated_data
-        try:
-            if file := data.get("file"):
-                services.set_cover_from_upload(article, file)
-            else:
-                services.set_cover_from_url(article, data["url"])
-        except DjangoValidationError as exc:
-            raise ValidationError({"detail": exc.messages}) from exc
-        if "alt" in data:
-            article.cover_alt = data["alt"]
-            article.save(update_fields=["cover_alt"])
+        image, source_url = serializer.load()
+        services.set_cover(article, image, source_url=source_url, alt=serializer.validated_data.get("alt"))
         return Response(self.get_serializer(article).data)
 
     @extend_schema(request=CropSerializer, responses=ArticleSerializer)
@@ -135,10 +125,7 @@ class ArticleViewSet(viewsets.ModelViewSet[Article]):
         article = self.get_object()
         serializer = CropSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        try:
-            services.recrop_cover(article, serializer.to_crop())
-        except DjangoValidationError as exc:
-            raise ValidationError({"detail": exc.messages}) from exc
+        services.recrop_cover(article, serializer.to_crop())
         return Response(self.get_serializer(article).data)
 
 
@@ -176,26 +163,25 @@ class CategoryViewSet(viewsets.ModelViewSet[Category]):
     def reorder(self, request: Request) -> Response:
         serializer = ReorderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        for index, pk in enumerate(serializer.validated_data["ids"]):
-            Category.objects.filter(pk=pk).update(order=index)
+        order = {pk: index for index, pk in enumerate(serializer.validated_data["ids"])}
+        categories = list(Category.objects.filter(pk__in=order))
+        for category in categories:
+            category.order = order[category.pk]
+        with transaction.atomic():
+            Category.objects.bulk_update(categories, ["order"])
+            services.schedule_revalidation()  # bulk_update sends no signal
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ArticleImageUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
-    @extend_schema(request=ArticleImageUploadSerializer, responses={201: ArticleImageSerializer})
+    @extend_schema(request=ImageSourceSerializer, responses={201: ArticleImageSerializer})
     def post(self, request: Request) -> Response:
-        serializer = ArticleImageUploadSerializer(data=request.data)
+        serializer = ImageSourceSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user, data = request_user(request), serializer.validated_data
-        try:
-            if data.get("url"):
-                record = services.store_inline_image_from_url(data["url"], user)
-            else:
-                record = services.store_inline_image(data["file"], user)
-        except DjangoValidationError as exc:
-            raise ValidationError({"detail": exc.messages}) from exc
+        image, source_url = serializer.load()
+        record = services.store_inline_image(image, request_user(request), source_url=source_url)
         return Response(ArticleImageSerializer(record).data, status=status.HTTP_201_CREATED)
 
 

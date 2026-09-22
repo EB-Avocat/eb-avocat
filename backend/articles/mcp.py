@@ -11,7 +11,6 @@ from typing import Any
 
 from asgiref.sync import sync_to_async
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.db.models import QuerySet
 from mcp.server.mcpserver import Context, MCPServer
 from mcp.server.mcpserver.exceptions import ToolError as SDKToolError
 from rest_framework.exceptions import ValidationError as DRFValidationError
@@ -19,8 +18,10 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 from accounts.authentication import user_from_authorization
 from accounts.models import User
 from articles import services
-from articles.models import Article, Category
+from articles.models import Article, Category, editable_articles
 from articles.serializers import ArticleSerializer, CategorySerializer
+from core.images import validate_image_bytes
+from core.remote import fetch_remote_image
 
 INSTRUCTIONS = """\
 Outils pour gérer les articles (publications) du site d'Eva Biezunski, avocate.
@@ -46,14 +47,9 @@ def _user(ctx: Context) -> User:
     return user
 
 
-def _articles_for(user: User) -> QuerySet[Article]:
-    queryset = Article.objects.select_related("author").prefetch_related("categories")
-    return queryset if user.can_edit_all_articles else queryset.filter(author=user)
-
-
 def _get_article(user: User, article_id: str) -> Article:
     """Look an article up by UUID or slug, within what ``user`` may edit."""
-    queryset = _articles_for(user)
+    queryset = editable_articles(user)
     try:
         return queryset.get(pk=article_id)
     except (Article.DoesNotExist, DjangoValidationError, ValueError):
@@ -94,7 +90,7 @@ def _clean(**fields: Any) -> dict[str, Any]:
 
 
 def _list_articles(user: User, status: str | None, category: str | None, search: str | None) -> list[dict[str, Any]]:
-    queryset = _articles_for(user).order_by("-updated_at")
+    queryset = editable_articles(user).defer("body_markdown", "body_html").order_by("-updated_at")
     if status:
         queryset = queryset.filter(status=status)
     if category:
@@ -106,18 +102,16 @@ def _list_articles(user: User, status: str | None, category: str | None, search:
 
 def _set_cover(user: User, article_id: str, url: str | None, data: str | None, filename: str, alt: str | None) -> dict:
     article = _get_article(user, article_id)
+    if not url and not data:
+        raise ToolError("Fournissez `url` ou `base64_data`.")
     try:
         if url:
-            services.set_cover_from_url(article, url)
-        elif data:
-            services.set_cover_from_bytes(article, base64.b64decode(data, validate=True), filename)
+            image = fetch_remote_image(url)
         else:
-            raise ToolError("Fournissez `url` ou `base64_data`.")
+            image = validate_image_bytes(base64.b64decode(data or "", validate=True), filename)
+        services.set_cover(article, image, source_url=url or "", alt=alt)
     except (DjangoValidationError, binascii.Error) as exc:
         raise ToolError(f"Image refusée : {exc}") from exc
-    if alt is not None:
-        article.cover_alt = alt
-        article.save(update_fields=["cover_alt"])
     return dict(ArticleSerializer(article).data)
 
 

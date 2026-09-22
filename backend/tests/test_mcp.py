@@ -161,7 +161,7 @@ def test_set_cover_from_base64_and_url(client: TestClient, editor_token: tuple[U
     assert result["cover_original"].endswith(".png")
     assert result["cover_alt"] == "Alt"
 
-    with mock.patch("articles.services.fetch_remote_image", return_value=png_upload("web.png")) as fetch:
+    with mock.patch("articles.mcp.fetch_remote_image", return_value=png_upload("web.png")) as fetch:
         result = payload(
             call(client, raw, "set_article_cover", article_id=article.slug, url="https://example.com/web.png")
         )
@@ -179,7 +179,7 @@ def test_create_article_with_cover_url(client: TestClient, editor_token: tuple[U
     from tests.conftest import png_upload
 
     _, raw = editor_token
-    with mock.patch("articles.services.fetch_remote_image", return_value=png_upload("web.png")):
+    with mock.patch("articles.mcp.fetch_remote_image", return_value=png_upload("web.png")):
         created = payload(
             call(client, raw, "create_article", title="Avec image", markdown="x", cover_url="https://example.com/a.png")
         )

@@ -11,7 +11,7 @@ import type {
 	CropRequest,
 	LoginRequest,
 	PaginatedApiTokenList,
-	PaginatedArticleList,
+	PaginatedArticleRowList,
 	PaginatedUserList,
 	PasswordChangeRequest,
 	PasswordResetConfirmRequest,
@@ -46,7 +46,7 @@ export function messageOf(err: unknown, fallback = "Action impossible."): string
 }
 
 /** Flatten a DRF error payload into a readable French message. */
-export function errorMessage(body: unknown): string | null {
+function errorMessage(body: unknown): string | null {
 	if (!body || typeof body !== "object") return null;
 	const messages: string[] = [];
 	for (const [field, value] of Object.entries(body as Record<string, unknown>)) {
@@ -97,7 +97,10 @@ const post = <T>(path: string, body?: unknown) => request<T>("POST", path, body)
 const patch = <T>(path: string, body: unknown) => request<T>("PATCH", path, body);
 const del = (path: string) => request<void>("DELETE", path);
 
-function imageForm(source: { file: File } | { url: string }, extra: Record<string, string> = {}) {
+/** An image from the computer, or a web address the server downloads. */
+export type ImageSource = { file: File } | { url: string };
+
+function imageForm(source: ImageSource, extra: Record<string, string> = {}) {
 	const form = new FormData();
 	if ("file" in source) form.append("file", source.file);
 	else form.append("url", source.url);
@@ -127,10 +130,10 @@ export const api = {
 				current_password,
 				new_password,
 			} satisfies PasswordChangeRequest),
-		setAvatar: (source: { file: File } | { url: string }) =>
-			post<User>("/me/avatar/", imageForm(source)),
-		cropAvatar: (crop: CropRequest) => post<User>("/me/avatar/crop/", crop),
-		removeAvatar: () => del("/me/avatar/"),
+		// The avatar endpoints answer with the whole profile, ready for the session.
+		setAvatar: (source: ImageSource) => post<Profile>("/me/avatar/", imageForm(source)),
+		cropAvatar: (crop: CropRequest) => post<Profile>("/me/avatar/crop/", crop),
+		removeAvatar: () => request<Profile>("DELETE", "/me/avatar/"),
 		tokens: () => get<PaginatedApiTokenList>("/me/tokens/"),
 		createToken: (name: string) =>
 			post<ApiTokenCreated>("/me/tokens/", { name } satisfies ApiTokenRequest),
@@ -138,21 +141,20 @@ export const api = {
 	},
 	articles: {
 		list: (params: Record<string, string> = {}) =>
-			get<PaginatedArticleList>(`/admin/articles/?${new URLSearchParams(params)}`),
+			get<PaginatedArticleRowList>(`/admin/articles/?${new URLSearchParams(params)}`),
 		get: (id: string) => get<Article>(`/admin/articles/${id}/`),
 		create: (data: PatchedArticleRequest) => post<Article>("/admin/articles/", data),
 		update: (id: string, data: PatchedArticleRequest) =>
 			patch<Article>(`/admin/articles/${id}/`, data),
 		remove: (id: string) => del(`/admin/articles/${id}/`),
-		setCover: (id: string, source: { file: File } | { url: string }, alt: string) =>
+		setCover: (id: string, source: ImageSource, alt: string) =>
 			post<Article>(`/admin/articles/${id}/cover/`, imageForm(source, { alt })),
 		cropCover: (id: string, crop: CropRequest) =>
 			post<Article>(`/admin/articles/${id}/cover/crop/`, crop),
 		removeCover: (id: string) => request<Article>("DELETE", `/admin/articles/${id}/cover/`),
 		preview: (markdown: string) =>
 			post<PreviewResult>("/admin/preview/", { markdown } satisfies PreviewRequest),
-		uploadImage: (source: { file: File } | { url: string }) =>
-			post<ArticleImage>("/admin/uploads/", imageForm(source)),
+		uploadImage: (source: ImageSource) => post<ArticleImage>("/admin/uploads/", imageForm(source)),
 	},
 	categories: {
 		list: () => get<CategoryWithCount[]>("/admin/categories/"),
@@ -169,11 +171,9 @@ export const api = {
 		create: (data: UserCreateRequest) => post<UserCreate>("/admin/users/", data),
 		update: (id: string, data: PatchedUserRequest) => patch<User>(`/admin/users/${id}/`, data),
 		remove: (id: string) => del(`/admin/users/${id}/`),
-		setAvatar: (id: string, source: { file: File } | { url: string }) =>
+		setAvatar: (id: string, source: ImageSource) =>
 			post<User>(`/admin/users/${id}/avatar/`, imageForm(source)),
 		cropAvatar: (id: string, crop: CropRequest) =>
 			post<User>(`/admin/users/${id}/avatar/crop/`, crop),
-		sendReset: (email: string) =>
-			post<void>("/auth/password-reset/", { email } satisfies PasswordResetRequestRequest),
 	},
 };

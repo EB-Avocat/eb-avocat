@@ -6,7 +6,7 @@ import { type FormEvent, Suspense, useEffect, useState } from "react";
 import { AuthCard } from "@/components/backoffice/AuthCard";
 import { useBackofficeBase, useBackofficeHref } from "@/components/backoffice/BackofficeContext";
 import { Alert, BoButton, Field, FullPageSpinner, TextInput } from "@/components/backoffice/ui";
-import { api } from "@/lib/backoffice/api";
+import { api, messageOf } from "@/lib/backoffice/api";
 import { safeNext } from "@/lib/backoffice/routes";
 
 /**
@@ -55,7 +55,7 @@ function LoginForm() {
 			await api.auth.login(String(form.get("email")), String(form.get("password")));
 			router.replace(safeNext(base, params.get("suite")));
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Connexion impossible.");
+			setError(messageOf(err, "Connexion impossible."));
 			setBusy(false);
 		}
 	}

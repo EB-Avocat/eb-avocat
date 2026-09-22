@@ -3,6 +3,7 @@
 
 import type {
 	Article,
+	ArticleRow,
 	CategoryWithCount,
 	PatchedArticleRequest,
 	RoleEnum,
@@ -10,22 +11,13 @@ import type {
 	User,
 } from "@/lib/api/schema";
 
-export type {
-	ApiToken,
-	ApiTokenCreated,
-	Category,
-	PaginatedApiTokenList,
-	PaginatedArticleList,
-	PaginatedUserList,
-	PatchedProfileRequest,
-	PatchedUserRequest,
-	Profile,
-	UserCreateRequest,
-} from "@/lib/api/schema";
+export type { ApiToken, Profile } from "@/lib/api/schema";
 
 export type Role = RoleEnum;
 export type ArticleStatus = StatusEnum;
 export type AdminArticle = Article;
+/** A row of the articles list (no bodies). */
+export type AdminArticleRow = ArticleRow;
 export type AdminCategory = CategoryWithCount;
 export type ManagedUser = User;
 /** Editable article fields, as sent by the editor. */
@@ -36,6 +28,11 @@ export type ArticleInput = Required<
 	>
 > &
 	Pick<PatchedArticleRequest, "slug">;
+
+/** "Prénom Nom", or the e-mail address when both names are empty. */
+export function displayName(user: Pick<User, "first_name" | "last_name" | "email">): string {
+	return [user.first_name, user.last_name].filter(Boolean).join(" ") || user.email;
+}
 
 export const ROLE_LABELS: Record<Role, string> = {
 	admin: "Administrateur",

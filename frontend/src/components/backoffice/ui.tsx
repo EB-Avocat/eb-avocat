@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Loader2, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, type LucideIcon, X } from "lucide-react";
 import {
 	type ButtonHTMLAttributes,
 	type InputHTMLAttributes,
@@ -9,9 +9,11 @@ import {
 	type TextareaHTMLAttributes,
 	useEffect,
 	useId,
+	useMemo,
 	useRef,
 	useState,
 } from "react";
+import { messageOf } from "@/lib/backoffice/api";
 
 // Small, accessible primitives for the back-office (site tokens, no extra deps).
 
@@ -143,13 +145,90 @@ export function Badge({
 	);
 }
 
-export function Spinner({ label = "Chargement…" }: { label?: string }) {
+/**
+ * One-of-several choice styled as a segmented control: `tabs` for switching views
+ * (role="tab"), `filter` for toggle buttons (aria-pressed).
+ */
+export function Segmented<T extends string>({
+	label,
+	options,
+	value,
+	onChange,
+	kind = "tabs",
+}: {
+	label: string;
+	options: { id: T; label: ReactNode; icon?: LucideIcon }[];
+	value: T;
+	onChange: (id: T) => void;
+	kind?: "tabs" | "filter";
+}) {
+	const buttons = options.map(({ id, label: text, icon: Icon }) => (
+		<button
+			key={id}
+			type="button"
+			{...(kind === "tabs"
+				? { role: "tab", "aria-selected": value === id }
+				: { "aria-pressed": value === id })}
+			onClick={() => onChange(id)}
+			className={`flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-500 ${value === id ? "bg-primary text-white" : "text-gray-600 hover:bg-gray-100"}`}
+		>
+			{Icon && <Icon className="h-4 w-4" aria-hidden="true" />}
+			{text}
+		</button>
+	));
+	const box = "flex gap-1 self-start rounded-lg bg-white p-1 shadow-sm";
+	return kind === "tabs" ? (
+		<div role="tablist" aria-label={label} className={box}>
+			{buttons}
+		</div>
+	) : (
+		<fieldset className={box}>
+			<legend className="sr-only">{label}</legend>
+			{buttons}
+		</fieldset>
+	);
+}
+
+export type Feedback = { tone: "error" | "success"; text: string } | null;
+
+/** Success / error message of a form or a page, shown with <FeedbackAlert>. */
+export function useFeedback() {
+	const [feedback, setFeedback] = useState<Feedback>(null);
+	const actions = useMemo(
+		() => ({
+			ok: (text: string) => setFeedback({ tone: "success", text }),
+			/** An error, or a message to show as one. */
+			fail: (err: unknown) =>
+				setFeedback({ tone: "error", text: typeof err === "string" ? err : messageOf(err) }),
+			clear: () => setFeedback(null),
+		}),
+		[],
+	);
+	return { feedback, ...actions };
+}
+
+export function FeedbackAlert({ feedback }: { feedback: Feedback }) {
+	if (!feedback) return null;
 	return (
-		<div role="status" className="flex items-center gap-2 py-8 text-sm text-gray-500">
-			<Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-			{label}
+		<div className="mb-4">
+			<Alert tone={feedback.tone}>{feedback.text}</Alert>
 		</div>
 	);
+}
+
+/**
+ * Tracks whether the <img> showing `src` has loaded, including an image that was
+ * already complete (cached) before React attached `onLoad`.
+ */
+export function useImageLoaded(src: string | null) {
+	const [loaded, setLoaded] = useState<string | null>(null);
+	return {
+		ready: src !== null && loaded === src,
+		ref: (img: HTMLImageElement | null) => {
+			if (img?.complete && img.naturalWidth > 0) setLoaded(img.getAttribute("src"));
+		},
+		onLoad: () => setLoaded(src),
+	};
 }
 
 /** Centered spinner filling the viewport (session check, route loading). */
@@ -221,8 +300,7 @@ export function LoadingImage({
 	alt?: string;
 	className?: string;
 }) {
-	const [loaded, setLoaded] = useState<string | null>(null);
-	const ready = loaded === src;
+	const { ready, ref, onLoad } = useImageLoaded(src);
 	return (
 		<span className={`relative block overflow-hidden bg-gray-100 ${className}`}>
 			{!ready && (
@@ -233,10 +311,8 @@ export function LoadingImage({
 			<img
 				src={src}
 				alt={alt}
-				ref={(img) => {
-					if (img?.complete && img.naturalWidth > 0) setLoaded(img.getAttribute("src"));
-				}}
-				onLoad={() => setLoaded(src)}
+				ref={ref}
+				onLoad={onLoad}
 				className={`h-full w-full object-cover transition-opacity duration-300 ${ready ? "opacity-100" : "opacity-0"}`}
 			/>
 		</span>
@@ -318,12 +394,17 @@ export function Modal({
 }) {
 	const ref = useRef<HTMLDialogElement>(null);
 	const titleId = useId();
+	// The content mounts once the dialog is showing and unmounts when it closes: it
+	// starts fresh on every opening, and anything measuring itself (the image cropper)
+	// never measures a hidden box.
+	const [showing, setShowing] = useState(false);
 
 	useEffect(() => {
 		const dialog = ref.current;
 		if (!dialog) return;
 		if (open && !dialog.open) dialog.showModal();
 		if (!open && dialog.open) dialog.close();
+		setShowing(open);
 	}, [open]);
 
 	return (
@@ -346,7 +427,7 @@ export function Modal({
 					<X className="h-4 w-4" aria-hidden="true" />
 				</button>
 			</div>
-			<div className="px-5 py-4">{children}</div>
+			<div className="px-5 py-4">{showing && children}</div>
 		</dialog>
 	);
 }

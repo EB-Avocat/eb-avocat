@@ -150,6 +150,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "core.pagination.PageNumberWithSizePagination",
     "DEFAULT_THROTTLE_RATES": {"auth": "10/min"},
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "EXCEPTION_HANDLER": "core.exceptions.exception_handler",
 }
 
 SPECTACULAR_SETTINGS = {

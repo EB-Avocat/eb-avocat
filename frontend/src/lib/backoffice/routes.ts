@@ -4,6 +4,11 @@ export const BACKOFFICE_INTERNAL_PREFIX = "/backoffice";
 /** Back-office pages reachable without a session. */
 export const PUBLIC_BACKOFFICE_PAGES = ["/connexion", "/mot-de-passe"] as const;
 
+/** `pathname` is `prefix` itself or a path below it (not "/admin-xyzabc" for "/admin-xyz"). */
+export function isWithin(pathname: string, prefix: string): boolean {
+	return pathname === prefix || pathname.startsWith(`${prefix}/`);
+}
+
 /** Build a back-office URL under the secret public prefix (`base` is e.g. "/admin-xyz"). */
 export function backofficeHref(base: string, path = ""): string {
 	if (!path || path === "/") return base;
@@ -16,8 +21,7 @@ export function backofficeHref(base: string, path = ""): string {
  */
 export function relativePath(base: string, pathname: string): string {
 	for (const prefix of [base, BACKOFFICE_INTERNAL_PREFIX]) {
-		if (pathname === prefix) return "/";
-		if (pathname.startsWith(`${prefix}/`)) return pathname.slice(prefix.length);
+		if (isWithin(pathname, prefix)) return pathname.slice(prefix.length) || "/";
 	}
 	return pathname;
 }

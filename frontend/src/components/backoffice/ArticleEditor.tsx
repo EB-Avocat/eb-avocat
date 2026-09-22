@@ -1,19 +1,19 @@
 "use client";
 
-import { ArrowLeft, Eye, FileCode2, PenLine, Trash2 } from "lucide-react";
+import { ArrowLeft, Eye, FileCode2, type LucideIcon, PenLine, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useBackofficeHref, useSession } from "@/components/backoffice/BackofficeContext";
 import { CategoryPicker } from "@/components/backoffice/CategoryPicker";
 import { RichEditor } from "@/components/backoffice/editor/RichEditor";
-import type { ImageSource } from "@/components/backoffice/ImageDialog";
-import { CoverField, type StoredImage } from "@/components/backoffice/ImageFields";
+import { CoverField, type StoredImage, storedImage } from "@/components/backoffice/ImageFields";
 import {
 	Alert,
 	BoButton,
 	ConfirmModal,
 	Field,
+	Segmented,
 	Select,
 	Skeleton,
 	SkeletonGroup,
@@ -22,18 +22,19 @@ import {
 } from "@/components/backoffice/ui";
 import { ArticleView } from "@/components/publications/ArticleView";
 import type { CropRequest } from "@/lib/api/schema";
-import { api, messageOf } from "@/lib/backoffice/api";
+import { api, type ImageSource, messageOf } from "@/lib/backoffice/api";
 import {
 	type AdminArticle,
 	type AdminCategory,
 	type ArticleInput,
 	type ArticleStatus,
+	displayName,
 	STATUS_LABELS,
 } from "@/lib/backoffice/types";
 
 type Mode = "visual" | "markdown" | "preview";
 
-const MODES: { id: Mode; label: string; icon: typeof Eye }[] = [
+const MODES: { id: Mode; label: string; icon: LucideIcon }[] = [
 	{ id: "visual", label: "Visuel", icon: PenLine },
 	{ id: "markdown", label: "Markdown", icon: FileCode2 },
 	{ id: "preview", label: "Aperçu", icon: Eye },
@@ -63,13 +64,7 @@ function toInput(article: AdminArticle): ArticleInput {
 	};
 }
 
-function coverOf(article: AdminArticle | null): StoredImage {
-	return {
-		url: article?.cover ?? null,
-		original: article?.cover_original ?? null,
-		crop: article?.cover_crop ?? null,
-	};
-}
+const NO_IMAGE: StoredImage = { url: null, original: null, crop: null };
 
 /** `datetime-local` value (local time) ↔ ISO string. */
 function toLocalInput(iso: string | null): string {
@@ -80,7 +75,7 @@ function toLocalInput(iso: string | null): string {
 }
 
 /** Placeholder with the editor's layout while the article loads. */
-export function ArticleEditorSkeleton() {
+function ArticleEditorSkeleton() {
 	return (
 		<SkeletonGroup label="Chargement de l'article…">
 			<div className="mb-6 flex items-center justify-between">
@@ -162,22 +157,9 @@ export function ArticleEditor({ id }: { id: string | null }) {
 	// Guards against concurrent saves (e.g. Ctrl+S pressed twice on a new article would
 	// otherwise POST twice and create a duplicate).
 	const saving = useRef(false);
-	// A new article lives at ".../articles/nouveau" until it is saved; moving to its
-	// own URL remounts the editor (keyed by id), so it happens once, when nothing is pending.
-	const needsRoute = useRef(id === null);
-	const goToSavedArticle = useCallback(
-		(articleId: string) => {
-			needsRoute.current = false;
-			router.replace(href(`/articles/${articleId}`));
-		},
-		[href, router],
-	);
 
 	const save = useCallback(
-		async (
-			overrides: Partial<ArticleInput> = {},
-			{ navigate = true }: { navigate?: boolean } = {},
-		): Promise<AdminArticle | null> => {
+		async (overrides: Partial<ArticleInput> = {}): Promise<AdminArticle | null> => {
 			if (saving.current) return null;
 			const sent = form;
 			const data = { ...sent, ...overrides };
@@ -209,7 +191,9 @@ export function ArticleEditor({ id }: { id: string | null }) {
 				setNotice(
 					result.status === "published" ? "Article enregistré et publié." : "Brouillon enregistré.",
 				);
-				if (navigate && needsRoute.current) goToSavedArticle(result.id);
+				// A new article lives at ".../articles/nouveau": give it its own address in
+				// place (no navigation), so the editor and any open dialog stay as they are.
+				if (!article) window.history.replaceState(null, "", href(`/articles/${result.id}`));
 				return result;
 			} catch (err) {
 				setError(messageOf(err, "Enregistrement impossible."));
@@ -219,7 +203,7 @@ export function ArticleEditor({ id }: { id: string | null }) {
 				setBusy(null);
 			}
 		},
-		[article, form, goToSavedArticle],
+		[article, form, href],
 	);
 
 	// Ctrl/Cmd + S saves.
@@ -258,13 +242,12 @@ export function ArticleEditor({ id }: { id: string | null }) {
 	}
 
 	async function uploadCover(source: ImageSource): Promise<StoredImage> {
-		// A cover needs an article id: save the draft first if needed. The move to the
-		// new article's URL waits until the image dialog is closed (it remounts the editor).
-		const target = article ?? (await save({}, { navigate: false }));
+		// A cover needs an article id: save the draft first if needed.
+		const target = article ?? (await save());
 		if (!target) throw new Error("Donnez un titre à l'article avant d'ajouter une image.");
 		const result = await api.articles.setCover(target.id, source, form.cover_alt);
 		setArticle(result);
-		return coverOf(result);
+		return storedImage(result, "cover");
 	}
 
 	async function cropCover(crop: CropRequest) {
@@ -296,9 +279,7 @@ export function ArticleEditor({ id }: { id: string | null }) {
 	const selectedCategories = form.category_ids
 		.map((cid) => categories.find((c) => c.id === cid))
 		.filter((c): c is AdminCategory => !!c);
-	const authorName =
-		article?.author.name ??
-		([user.first_name, user.last_name].filter(Boolean).join(" ") || user.email);
+	const authorName = article?.author.name ?? displayName(user);
 
 	return (
 		<>
@@ -314,23 +295,13 @@ export function ArticleEditor({ id }: { id: string | null }) {
 					<span className="text-xs text-gray-500" aria-live="polite">
 						{dirty ? "Modifications non enregistrées" : article ? "Enregistré" : ""}
 					</span>
-					{form.status === "published" ? (
-						<BoButton
-							variant="secondary"
-							busy={busy === "save"}
-							onClick={() => save({ status: "draft" })}
-						>
-							Repasser en brouillon
-						</BoButton>
-					) : (
-						<BoButton
-							variant="secondary"
-							busy={busy === "save"}
-							onClick={() => save({ status: "published" })}
-						>
-							Publier
-						</BoButton>
-					)}
+					<BoButton
+						variant="secondary"
+						busy={busy === "save"}
+						onClick={() => save({ status: form.status === "published" ? "draft" : "published" })}
+					>
+						{form.status === "published" ? "Repasser en brouillon" : "Publier"}
+					</BoButton>
 					<BoButton busy={busy === "save"} onClick={() => save()} title="Ctrl/⌘ + S">
 						Enregistrer
 					</BoButton>
@@ -380,14 +351,11 @@ export function ArticleEditor({ id }: { id: string | null }) {
 
 					<section aria-label="Image de couverture" className="flex flex-col gap-2">
 						<CoverField
-							image={coverOf(article)}
+							image={article ? storedImage(article, "cover") : NO_IMAGE}
 							onUpload={uploadCover}
 							onCrop={cropCover}
 							onRemove={removeCover}
 							onError={setError}
-							onDialogClosed={() => {
-								if (needsRoute.current && article) goToSavedArticle(article.id);
-							}}
 						/>
 						{article?.cover && (
 							<>
@@ -420,25 +388,7 @@ export function ArticleEditor({ id }: { id: string | null }) {
 						)}
 					</section>
 
-					<div
-						role="tablist"
-						aria-label="Mode d'édition"
-						className="flex gap-1 self-start rounded-lg bg-white p-1 shadow-sm"
-					>
-						{MODES.map(({ id: modeId, label, icon: Icon }) => (
-							<button
-								key={modeId}
-								type="button"
-								role="tab"
-								aria-selected={mode === modeId}
-								onClick={() => setMode(modeId)}
-								className={`flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-500 ${mode === modeId ? "bg-primary text-white" : "text-gray-600 hover:bg-gray-100"}`}
-							>
-								<Icon className="h-4 w-4" aria-hidden="true" />
-								{label}
-							</button>
-						))}
-					</div>
+					<Segmented label="Mode d'édition" value={mode} onChange={setMode} options={MODES} />
 
 					<span id={bodyLabelId} className="sr-only">
 						Contenu de l'article

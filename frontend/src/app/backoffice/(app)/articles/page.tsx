@@ -17,7 +17,7 @@ import {
 	TextInput,
 } from "@/components/backoffice/ui";
 import { ApiError, api, messageOf } from "@/lib/backoffice/api";
-import { type AdminArticle, type AdminCategory, STATUS_LABELS } from "@/lib/backoffice/types";
+import { type AdminArticleRow, type AdminCategory, STATUS_LABELS } from "@/lib/backoffice/types";
 import { formatPublicationDate } from "@/lib/publications-parse";
 
 const PAGE_SIZES = [20, 50, 100] as const;
@@ -88,11 +88,11 @@ function ArticlesList() {
 	const href = useBackofficeHref();
 	const [params, setParams] = useListParams();
 	const [search, setSearch] = useState(params.search);
-	const [data, setData] = useState<{ articles: AdminArticle[]; count: number } | null>(null);
+	const [data, setData] = useState<{ articles: AdminArticleRow[]; count: number } | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [categories, setCategories] = useState<AdminCategory[]>([]);
 	const [error, setError] = useState<string | null>(null);
-	const [toDelete, setToDelete] = useState<AdminArticle | null>(null);
+	const [toDelete, setToDelete] = useState<AdminArticleRow | null>(null);
 	const [deleting, setDeleting] = useState(false);
 	const { status, category, page, pageSize } = params;
 	const pageSizeId = useId();
