@@ -52,6 +52,23 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	"/api/v1/admin/articles/{id}/cover/crop/": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/** @description Re-crop the cover from its kept original. */
+		post: operations["admin_articles_cover_crop_create"];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	"/api/v1/admin/categories/": {
 		parameters: {
 			query?: never;
@@ -191,6 +208,23 @@ export interface paths {
 		post: operations["admin_users_avatar_create"];
 		/** @description User management, admin only. The last active admin cannot be demoted or disabled. */
 		delete: operations["admin_users_avatar_destroy"];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/api/v1/admin/users/{id}/avatar/crop/": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/** @description User management, admin only. The last active admin cannot be demoted or disabled. */
+		post: operations["admin_users_avatar_crop_create"];
+		delete?: never;
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -360,6 +394,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	"/api/v1/me/avatar/crop/": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations["me_avatar_crop_create"];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	"/api/v1/me/password/": {
 		parameters: {
 			query?: never;
@@ -473,6 +523,9 @@ export interface components {
 			readonly body_html: string;
 			/** Format: uri-reference */
 			readonly cover: string | null;
+			/** Format: uri-reference */
+			readonly cover_original: string | null;
+			readonly cover_crop: components["schemas"]["Crop"] | null;
 			/** Texte alternatif de la couverture */
 			cover_alt: string;
 			/**
@@ -589,6 +642,28 @@ export interface components {
 			/** Format: uri */
 			url?: string;
 			alt?: string;
+		};
+		/** @description Crop rectangle as fractions (0-1) of the original image. */
+		Crop: {
+			/** Format: double */
+			x: number;
+			/** Format: double */
+			y: number;
+			/** Format: double */
+			width: number;
+			/** Format: double */
+			height: number;
+		};
+		/** @description Crop rectangle as fractions (0-1) of the original image. */
+		CropRequest: {
+			/** Format: double */
+			x: number;
+			/** Format: double */
+			y: number;
+			/** Format: double */
+			width: number;
+			/** Format: double */
+			height: number;
 		};
 		ImageUploadRequest: {
 			/** Format: binary */
@@ -756,8 +831,11 @@ export interface components {
 			/** Nom */
 			last_name: string;
 			readonly role: components["schemas"]["RoleEnum"];
-			/** Format: uri */
+			/** Format: uri-reference */
 			readonly avatar: string | null;
+			/** Format: uri-reference */
+			readonly avatar_original: string | null;
+			readonly avatar_crop: components["schemas"]["Crop"] | null;
 		};
 		/** @description The current user's own profile; role and activation are not self-editable. */
 		ProfileRequest: {
@@ -843,8 +921,11 @@ export interface components {
 			/** Nom */
 			last_name: string;
 			role: components["schemas"]["RoleEnum"];
-			/** Format: uri */
+			/** Format: uri-reference */
 			readonly avatar: string | null;
+			/** Format: uri-reference */
+			readonly avatar_original: string | null;
+			readonly avatar_crop: components["schemas"]["Crop"] | null;
 			/**
 			 * Actif
 			 * @description Précise si l’utilisateur doit être considéré comme actif. Décochez ceci plutôt que de supprimer le compte.
@@ -869,8 +950,11 @@ export interface components {
 			/** Nom */
 			last_name: string;
 			role: components["schemas"]["RoleEnum"];
-			/** Format: uri */
+			/** Format: uri-reference */
 			readonly avatar: string | null;
+			/** Format: uri-reference */
+			readonly avatar_original: string | null;
+			readonly avatar_crop: components["schemas"]["Crop"] | null;
 			/**
 			 * Actif
 			 * @description Précise si l’utilisateur doit être considéré comme actif. Décochez ceci plutôt que de supprimer le compte.
@@ -937,6 +1021,8 @@ export type CategoryRequest = components["schemas"]["CategoryRequest"];
 export type CategoryWithCount = components["schemas"]["CategoryWithCount"];
 export type CategoryWithCountRequest = components["schemas"]["CategoryWithCountRequest"];
 export type CoverUploadRequest = components["schemas"]["CoverUploadRequest"];
+export type Crop = components["schemas"]["Crop"];
+export type CropRequest = components["schemas"]["CropRequest"];
 export type ImageUploadRequest = components["schemas"]["ImageUploadRequest"];
 export type LoginRequest = components["schemas"]["LoginRequest"];
 export type PaginatedApiTokenList = components["schemas"]["PaginatedApiTokenList"];
@@ -1171,6 +1257,34 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content?: never;
+			};
+		};
+	};
+	admin_articles_cover_crop_create: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description Un(une) Chaîne UUID identifiant ce(cette) article. */
+				id: string;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				"application/json": components["schemas"]["CropRequest"];
+				"application/x-www-form-urlencoded": components["schemas"]["CropRequest"];
+				"multipart/form-data": components["schemas"]["CropRequest"];
+			};
+		};
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["Article"];
+				};
 			};
 		};
 	};
@@ -1594,6 +1708,34 @@ export interface operations {
 			};
 		};
 	};
+	admin_users_avatar_crop_create: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description Un(une) Chaîne UUID identifiant ce(cette) user. */
+				id: string;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				"application/json": components["schemas"]["CropRequest"];
+				"application/x-www-form-urlencoded": components["schemas"]["CropRequest"];
+				"multipart/form-data": components["schemas"]["CropRequest"];
+			};
+		};
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["User"];
+				};
+			};
+		};
+	};
 	articles_list: {
 		parameters: {
 			query?: {
@@ -1877,6 +2019,31 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content?: never;
+			};
+		};
+	};
+	me_avatar_crop_create: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				"application/json": components["schemas"]["CropRequest"];
+				"application/x-www-form-urlencoded": components["schemas"]["CropRequest"];
+				"multipart/form-data": components["schemas"]["CropRequest"];
+			};
+		};
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["User"];
+				};
 			};
 		};
 	};

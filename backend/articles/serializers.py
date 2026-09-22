@@ -6,6 +6,7 @@ from accounts.models import User
 from articles.models import Article, ArticleImage, Category, unique_slug
 from articles.services import categories_from_names
 from core.fields import MediaUrlField
+from core.serializers import CropSerializer
 
 
 class CategorySerializer(serializers.ModelSerializer[Category]):
@@ -69,15 +70,20 @@ class ArticleSerializer(serializers.ModelSerializer[Article]):
     )  # fmt: skip
     author = AuthorSerializer(read_only=True)
     cover = MediaUrlField()
+    cover_original = MediaUrlField()
+    cover_crop = CropSerializer(read_only=True, allow_null=True)
 
     class Meta:
         model = Article
         fields = (
-            "id", "title", "slug", "summary", "body_markdown", "body_html", "cover", "cover_alt",
-            "cover_source_url", "status", "published_at", "author", "categories", "category_ids", "category_names",
+            "id", "title", "slug", "summary", "body_markdown", "body_html", "cover", "cover_original",
+            "cover_crop", "cover_alt", "cover_source_url", "status", "published_at", "author", "categories",
+            "category_ids", "category_names", "created_at", "updated_at",
+        )  # fmt: skip
+        read_only_fields = (
+            "id", "body_html", "cover", "cover_original", "cover_crop", "cover_source_url", "author",
             "created_at", "updated_at",
         )  # fmt: skip
-        read_only_fields = ("id", "body_html", "cover", "cover_source_url", "author", "created_at", "updated_at")
         extra_kwargs = {"slug": {"required": False, "allow_blank": True}}  # noqa: RUF012
 
     def validate_slug(self, value: str) -> str:

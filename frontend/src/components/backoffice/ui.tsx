@@ -157,11 +157,13 @@ export function Modal({
 	title,
 	onClose,
 	children,
+	wide = false,
 }: {
 	open: boolean;
 	title: string;
 	onClose: () => void;
 	children: ReactNode;
+	wide?: boolean;
 }) {
 	const ref = useRef<HTMLDialogElement>(null);
 	const titleId = useId();
@@ -178,7 +180,7 @@ export function Modal({
 			ref={ref}
 			aria-labelledby={titleId}
 			onClose={onClose}
-			className="m-auto w-full max-w-md rounded-lg p-0 shadow-xl backdrop:bg-near-black/40"
+			className={`m-auto w-full ${wide ? "max-w-3xl" : "max-w-md"} rounded-lg p-0 shadow-xl backdrop:bg-near-black/40`}
 		>
 			<div className="flex items-center justify-between border-b border-gray-200 px-5 py-3">
 				<h2 id={titleId} className="font-700 text-near-black">

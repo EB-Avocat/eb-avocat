@@ -157,7 +157,8 @@ def test_set_cover_from_base64_and_url(client: TestClient, editor_token: tuple[U
     result = payload(
         call(client, raw, "set_article_cover", article_id=article.slug, base64_data=data, filename="c.png", alt="Alt")
     )
-    assert result["cover"].endswith(".png")
+    assert result["cover"].endswith(".webp")
+    assert result["cover_original"].endswith(".png")
     assert result["cover_alt"] == "Alt"
 
     with mock.patch("articles.services.fetch_remote_image", return_value=png_upload("web.png")) as fetch:

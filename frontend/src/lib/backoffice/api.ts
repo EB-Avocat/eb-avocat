@@ -8,6 +8,7 @@ import type {
 	ArticleImage,
 	CategoryWithCount,
 	CategoryWithCountRequest,
+	CropRequest,
 	LoginRequest,
 	PaginatedApiTokenList,
 	PaginatedArticleList,
@@ -128,6 +129,7 @@ export const api = {
 			} satisfies PasswordChangeRequest),
 		setAvatar: (source: { file: File } | { url: string }) =>
 			post<User>("/me/avatar/", imageForm(source)),
+		cropAvatar: (crop: CropRequest) => post<User>("/me/avatar/crop/", crop),
 		removeAvatar: () => del("/me/avatar/"),
 		tokens: () => get<PaginatedApiTokenList>("/me/tokens/"),
 		createToken: (name: string) =>
@@ -144,6 +146,8 @@ export const api = {
 		remove: (id: string) => del(`/admin/articles/${id}/`),
 		setCover: (id: string, source: { file: File } | { url: string }, alt: string) =>
 			post<Article>(`/admin/articles/${id}/cover/`, imageForm(source, { alt })),
+		cropCover: (id: string, crop: CropRequest) =>
+			post<Article>(`/admin/articles/${id}/cover/crop/`, crop),
 		removeCover: (id: string) => request<Article>("DELETE", `/admin/articles/${id}/cover/`),
 		preview: (markdown: string) =>
 			post<PreviewResult>("/admin/preview/", { markdown } satisfies PreviewRequest),
@@ -170,6 +174,8 @@ export const api = {
 		remove: (id: string) => del(`/admin/users/${id}/`),
 		setAvatar: (id: string, source: { file: File } | { url: string }) =>
 			post<User>(`/admin/users/${id}/avatar/`, imageForm(source)),
+		cropAvatar: (id: string, crop: CropRequest) =>
+			post<User>(`/admin/users/${id}/avatar/crop/`, crop),
 		sendReset: (email: string) =>
 			post<void>("/auth/password-reset/", { email } satisfies PasswordResetRequestRequest),
 	},

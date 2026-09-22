@@ -32,6 +32,7 @@ api = [
     path("me/", accounts.MeView.as_view(), name="me"),
     path("me/password/", accounts.MePasswordView.as_view(), name="me-password"),
     path("me/avatar/", accounts.MeAvatarView.as_view(), name="me-avatar"),
+    path("me/avatar/crop/", accounts.MeAvatarCropView.as_view(), name="me-avatar-crop"),
     path("me/", include(me.urls)),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
 ]

@@ -4,6 +4,7 @@ import { Copy, KeyRound, Trash2 } from "lucide-react";
 import { type FormEvent, type ReactNode, useEffect, useMemo, useState } from "react";
 import { Avatar } from "@/components/backoffice/Avatar";
 import { useSession } from "@/components/backoffice/BackofficeContext";
+import { ImageCropper } from "@/components/backoffice/ImageCropper";
 import { type ImageSource, ImageSourcePicker } from "@/components/backoffice/ImageSourcePicker";
 import {
 	Alert,
@@ -13,6 +14,7 @@ import {
 	PageHeader,
 	TextInput,
 } from "@/components/backoffice/ui";
+import type { CropRequest } from "@/lib/api/schema";
 import { api } from "@/lib/backoffice/api";
 import { type ApiToken, ROLE_LABELS } from "@/lib/backoffice/types";
 import { formatPublicationDate } from "@/lib/publications-parse";
@@ -66,6 +68,7 @@ function IdentitySection() {
 		email: user.email,
 	});
 	const [busy, setBusy] = useState<null | "save" | "avatar">(null);
+	const [cropping, setCropping] = useState(false);
 	const { feedback, ok, fail, clear } = useFeedback();
 	const name = [user.first_name, user.last_name].filter(Boolean).join(" ") || user.email;
 
@@ -88,6 +91,19 @@ function IdentitySection() {
 		clear();
 		try {
 			setUser(await api.me.setAvatar(source));
+			setCropping(true); // centered square by default: let the user reframe it right away
+		} catch (err) {
+			fail(err);
+		} finally {
+			setBusy(null);
+		}
+	}
+
+	async function saveCrop(crop: CropRequest) {
+		setBusy("avatar");
+		try {
+			setUser(await api.me.cropAvatar(crop));
+			setCropping(false);
 		} catch (err) {
 			fail(err);
 		} finally {
@@ -98,7 +114,7 @@ function IdentitySection() {
 	async function removeAvatar() {
 		try {
 			await api.me.removeAvatar();
-			setUser({ ...user, avatar: null });
+			setUser({ ...user, avatar: null, avatar_original: null, avatar_crop: null });
 		} catch (err) {
 			fail(err);
 		}
@@ -115,15 +131,33 @@ function IdentitySection() {
 				<div className="flex flex-col items-center gap-2">
 					<Avatar src={user.avatar} name={name} size={88} />
 					{user.avatar && (
-						<button
-							type="button"
-							onClick={removeAvatar}
-							className="text-xs text-red-700 hover:underline"
-						>
-							Retirer
-						</button>
+						<div className="flex gap-3 text-xs">
+							<button
+								type="button"
+								onClick={() => setCropping(true)}
+								className="text-primary hover:underline"
+							>
+								Recadrer
+							</button>
+							<button type="button" onClick={removeAvatar} className="text-red-700 hover:underline">
+								Retirer
+							</button>
+						</div>
 					)}
 				</div>
+				{user.avatar_original && (
+					<ImageCropper
+						open={cropping}
+						title="Cadrer la photo de profil"
+						image={user.avatar_original}
+						aspect={1}
+						round
+						initialCrop={user.avatar_crop}
+						busy={busy === "avatar"}
+						onSave={saveCrop}
+						onClose={() => setCropping(false)}
+					/>
+				)}
 				<div className="min-w-60 flex-1">
 					<p className="mb-2 text-sm font-500">Photo de profil</p>
 					<ImageSourcePicker busy={busy === "avatar"} onPick={setAvatar} label="Photo" />

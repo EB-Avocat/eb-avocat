@@ -4,6 +4,8 @@ from django.contrib.auth import password_validation
 from rest_framework import serializers
 
 from accounts.models import ApiToken, User
+from core.fields import MediaUrlField
+from core.serializers import CropSerializer
 
 
 class NormalizedEmailMixin:
@@ -21,24 +23,30 @@ class NormalizedEmailMixin:
         return email
 
 
-class UserSerializer(NormalizedEmailMixin, serializers.ModelSerializer[User]):
-    avatar = serializers.ImageField(read_only=True)
+class AvatarFieldsMixin(serializers.Serializer[User]):
+    # Square WebP rendition, the kept original and the crop between them (re-cropping).
+    avatar = MediaUrlField()
+    avatar_original = MediaUrlField()
+    avatar_crop = CropSerializer(read_only=True, allow_null=True)
 
+
+AVATAR_FIELDS = ("avatar", "avatar_original", "avatar_crop")
+
+
+class UserSerializer(NormalizedEmailMixin, AvatarFieldsMixin, serializers.ModelSerializer[User]):
     class Meta:
         model = User
-        fields = ("id", "email", "first_name", "last_name", "role", "avatar", "is_active", "date_joined")
-        read_only_fields = ("id", "avatar", "date_joined")
+        fields = ("id", "email", "first_name", "last_name", "role", *AVATAR_FIELDS, "is_active", "date_joined")
+        read_only_fields = ("id", *AVATAR_FIELDS, "date_joined")
 
 
-class ProfileSerializer(NormalizedEmailMixin, serializers.ModelSerializer[User]):
+class ProfileSerializer(NormalizedEmailMixin, AvatarFieldsMixin, serializers.ModelSerializer[User]):
     """The current user's own profile; role and activation are not self-editable."""
 
-    avatar = serializers.ImageField(read_only=True)
-
     class Meta:
         model = User
-        fields = ("id", "email", "first_name", "last_name", "role", "avatar")
-        read_only_fields = ("id", "role", "avatar")
+        fields = ("id", "email", "first_name", "last_name", "role", *AVATAR_FIELDS)
+        read_only_fields = ("id", "role", *AVATAR_FIELDS)
 
 
 class UserCreateSerializer(UserSerializer):

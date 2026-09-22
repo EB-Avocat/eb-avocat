@@ -1,12 +1,13 @@
 "use client";
 
-import { ArrowLeft, Eye, FileCode2, PenLine, Trash2 } from "lucide-react";
+import { ArrowLeft, Crop as CropIcon, Eye, FileCode2, PenLine, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useBackofficeHref, useSession } from "@/components/backoffice/BackofficeContext";
 import { CategoryPicker } from "@/components/backoffice/CategoryPicker";
 import { RichEditor } from "@/components/backoffice/editor/RichEditor";
+import { ImageCropper } from "@/components/backoffice/ImageCropper";
 import { type ImageSource, ImageSourcePicker } from "@/components/backoffice/ImageSourcePicker";
 import {
 	Alert,
@@ -19,6 +20,7 @@ import {
 	TextInput,
 } from "@/components/backoffice/ui";
 import { ArticleView } from "@/components/publications/ArticleView";
+import type { CropRequest } from "@/lib/api/schema";
 import { api, messageOf } from "@/lib/backoffice/api";
 import {
 	type AdminArticle,
@@ -86,6 +88,7 @@ export function ArticleEditor({ id }: { id: string | null }) {
 	const [error, setError] = useState<string | null>(null);
 	const [notice, setNotice] = useState<string | null>(null);
 	const [confirmDelete, setConfirmDelete] = useState(false);
+	const [cropping, setCropping] = useState(false);
 
 	const dirty = JSON.stringify(form) !== JSON.stringify(saved);
 	const update = (patch: Partial<ArticleInput>) => setForm((f) => ({ ...f, ...patch }));
@@ -191,8 +194,22 @@ export function ArticleEditor({ id }: { id: string | null }) {
 		try {
 			const result = await api.articles.setCover(target.id, source, form.cover_alt);
 			setArticle(result);
+			setCropping(true); // centered 16:9 by default: let the author reframe it right away
 		} catch (err) {
 			fail(err, "Image refusée.");
+		} finally {
+			setBusy(null);
+		}
+	}
+
+	async function saveCrop(crop: CropRequest) {
+		if (!article) return;
+		setBusy("cover");
+		try {
+			setArticle(await api.articles.cropCover(article.id, crop));
+			setCropping(false);
+		} catch (err) {
+			fail(err, "Recadrage impossible.");
 		} finally {
 			setBusy(null);
 		}
@@ -409,6 +426,14 @@ export function ArticleEditor({ id }: { id: string | null }) {
 								<img src={article.cover} alt="" className="aspect-[16/9] w-full object-cover" />
 								<button
 									type="button"
+									onClick={() => setCropping(true)}
+									className="absolute top-2 left-2 flex items-center gap-1 rounded bg-white/90 px-2 py-1 text-xs font-500 text-near-black shadow hover:bg-white"
+								>
+									<CropIcon className="h-3.5 w-3.5" aria-hidden="true" />
+									Recadrer
+								</button>
+								<button
+									type="button"
 									onClick={removeCover}
 									className="absolute top-2 right-2 rounded bg-white/90 p-1.5 text-red-700 shadow hover:bg-white"
 									aria-label="Retirer l'image de couverture"
@@ -488,6 +513,19 @@ export function ArticleEditor({ id }: { id: string | null }) {
 					)}
 				</aside>
 			</div>
+
+			{article?.cover_original && (
+				<ImageCropper
+					open={cropping}
+					title="Cadrer l'image de couverture"
+					image={article.cover_original}
+					aspect={16 / 9}
+					initialCrop={article.cover_crop}
+					busy={busy === "cover"}
+					onSave={saveCrop}
+					onClose={() => setCropping(false)}
+				/>
+			)}
 
 			<ConfirmModal
 				open={confirmDelete}

@@ -44,3 +44,27 @@ def test_seed_demo_loads_content_once() -> None:
         "Professionnels de santé",
         "Sociétés",
     }
+
+
+def test_process_images_converts_legacy_covers_and_avatars() -> None:
+    from django.core.files.uploadedfile import SimpleUploadedFile
+
+    from tests.conftest import ArticleFactory, UserFactory, png_bytes
+
+    article = ArticleFactory.create()
+    article.cover.save("old.png", SimpleUploadedFile("old.png", png_bytes((1600, 1600))), save=True)
+    user = UserFactory.create()
+    user.avatar.save("me.png", SimpleUploadedFile("me.png", png_bytes((300, 200))), save=True)
+
+    assert "1 cover(s) and 1 avatar(s)" in run("process_images", "--dry-run")
+    article.refresh_from_db()
+    assert not article.cover_original
+
+    run("process_images")
+    article.refresh_from_db()
+    user.refresh_from_db()
+    assert (article.cover.name or "").endswith(".webp")
+    assert (article.cover_original.name or "").endswith("old.png")
+    assert article.cover_crop is not None
+    assert (user.avatar.name or "").endswith(".webp")
+    assert "0 cover(s) and 0 avatar(s)" in run("process_images")

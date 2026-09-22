@@ -31,6 +31,10 @@ def avatar_upload_to(instance: "User", filename: str) -> str:
     return f"avatars/{instance.pk}/{filename}"
 
 
+def avatar_original_upload_to(instance: "User", filename: str) -> str:
+    return f"avatars/{instance.pk}/original/{filename}"
+
+
 class User(AbstractUser):
     class Role(models.TextChoices):
         ADMIN = "admin", "Administrateur"
@@ -41,7 +45,10 @@ class User(AbstractUser):
     username = None
     email = models.EmailField("adresse e-mail", unique=True)
     role = models.CharField(max_length=16, choices=Role.choices, default=Role.AUTHOR)
+    # Processed square WebP; the upload is kept to allow re-cropping.
     avatar = models.ImageField(upload_to=avatar_upload_to, max_length=500, blank=True)
+    avatar_original = models.ImageField(upload_to=avatar_original_upload_to, max_length=500, blank=True)
+    avatar_crop = models.JSONField("recadrage de la photo", null=True, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS: ClassVar[list[str]] = []

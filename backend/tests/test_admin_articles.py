@@ -83,7 +83,8 @@ def test_cover_upload_file(author: User) -> None:
     )
     assert response.status_code == 200, response.json()
     article.refresh_from_db()
-    assert (article.cover.name or "").endswith(".png")
+    assert (article.cover.name or "").endswith(".webp")
+    assert (article.cover_original.name or "").endswith(".png")
     assert article.cover_alt == "Un cabinet"
     assert response.json()["cover"].startswith("/api/v1/media/covers/")
 

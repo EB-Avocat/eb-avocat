@@ -248,6 +248,42 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/admin/articles/{id}/cover/crop/:
+    post:
+      operationId: admin_articles_cover_crop_create
+      description: Re-crop the cover from its kept original.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) article.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CropRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CropRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CropRequest'
+        required: true
+      security:
+      - apiToken: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+          description: ''
   /api/v1/admin/categories/:
     get:
       operationId: admin_categories_list
@@ -734,6 +770,43 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/admin/users/{id}/avatar/crop/:
+    post:
+      operationId: admin_users_avatar_crop_create
+      description: User management, admin only. The last active admin cannot be demoted
+        or disabled.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) user.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CropRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CropRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CropRequest'
+        required: true
+      security:
+      - apiToken: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
   /api/v1/articles/:
     get:
       operationId: articles_list
@@ -1006,6 +1079,33 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/me/avatar/crop/:
+    post:
+      operationId: me_avatar_crop_create
+      tags:
+      - me
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CropRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CropRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CropRequest'
+        required: true
+      security:
+      - apiToken: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
   /api/v1/me/password/:
     post:
       operationId: me_password_create
@@ -1354,6 +1454,16 @@ components:
           format: uri-reference
           nullable: true
           readOnly: true
+        cover_original:
+          type: string
+          format: uri-reference
+          nullable: true
+          readOnly: true
+        cover_crop:
+          allOf:
+          - $ref: '#/components/schemas/Crop'
+          readOnly: true
+          nullable: true
         cover_alt:
           type: string
           title: Texte alternatif de la couverture
@@ -1397,6 +1507,8 @@ components:
       - body_markdown
       - body_html
       - cover
+      - cover_original
+      - cover_crop
       - cover_alt
       - cover_source_url
       - status
@@ -1633,6 +1745,64 @@ components:
         alt:
           type: string
           maxLength: 200
+    Crop:
+      type: object
+      description: Crop rectangle as fractions (0-1) of the original image.
+      properties:
+        x:
+          type: number
+          format: double
+          maximum: 1
+          minimum: 0
+        y:
+          type: number
+          format: double
+          maximum: 1
+          minimum: 0
+        width:
+          type: number
+          format: double
+          maximum: 1
+          minimum: 0.01
+        height:
+          type: number
+          format: double
+          maximum: 1
+          minimum: 0.01
+      required:
+      - x
+      - y
+      - width
+      - height
+    CropRequest:
+      type: object
+      description: Crop rectangle as fractions (0-1) of the original image.
+      properties:
+        x:
+          type: number
+          format: double
+          maximum: 1
+          minimum: 0
+        y:
+          type: number
+          format: double
+          maximum: 1
+          minimum: 0
+        width:
+          type: number
+          format: double
+          maximum: 1
+          minimum: 0.01
+        height:
+          type: number
+          format: double
+          maximum: 1
+          minimum: 0.01
+      required:
+      - height
+      - width
+      - x
+      - y
     ImageUploadRequest:
       type: object
       properties:
@@ -1953,9 +2123,19 @@ components:
           readOnly: true
         avatar:
           type: string
-          format: uri
+          format: uri-reference
           nullable: true
           readOnly: true
+        avatar_original:
+          type: string
+          format: uri-reference
+          nullable: true
+          readOnly: true
+        avatar_crop:
+          allOf:
+          - $ref: '#/components/schemas/Crop'
+          readOnly: true
+          nullable: true
       required:
       - id
       - email
@@ -1963,6 +2143,8 @@ components:
       - last_name
       - role
       - avatar
+      - avatar_original
+      - avatar_crop
     ProfileRequest:
       type: object
       description: The current user's own profile; role and activation are not self-editable.
@@ -2152,9 +2334,19 @@ components:
           $ref: '#/components/schemas/RoleEnum'
         avatar:
           type: string
-          format: uri
+          format: uri-reference
           nullable: true
           readOnly: true
+        avatar_original:
+          type: string
+          format: uri-reference
+          nullable: true
+          readOnly: true
+        avatar_crop:
+          allOf:
+          - $ref: '#/components/schemas/Crop'
+          readOnly: true
+          nullable: true
         is_active:
           type: boolean
           title: Actif
@@ -2172,6 +2364,8 @@ components:
       - last_name
       - role
       - avatar
+      - avatar_original
+      - avatar_crop
       - is_active
       - date_joined
     UserCreate:
@@ -2198,9 +2392,19 @@ components:
           $ref: '#/components/schemas/RoleEnum'
         avatar:
           type: string
-          format: uri
+          format: uri-reference
           nullable: true
           readOnly: true
+        avatar_original:
+          type: string
+          format: uri-reference
+          nullable: true
+          readOnly: true
+        avatar_crop:
+          allOf:
+          - $ref: '#/components/schemas/Crop'
+          readOnly: true
+          nullable: true
         is_active:
           type: boolean
           title: Actif
@@ -2218,6 +2422,8 @@ components:
       - last_name
       - role
       - avatar
+      - avatar_original
+      - avatar_crop
       - is_active
       - date_joined
     UserCreateRequest:

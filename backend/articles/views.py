@@ -30,6 +30,7 @@ from articles.serializers import (
     ReorderSerializer,
 )
 from core.auth import optional_user, request_user
+from core.serializers import CropSerializer
 
 
 class ArticleFilter(django_filters.FilterSet):
@@ -124,6 +125,19 @@ class ArticleViewSet(viewsets.ModelViewSet[Article]):
         if "alt" in data:
             article.cover_alt = data["alt"]
             article.save(update_fields=["cover_alt"])
+        return Response(self.get_serializer(article).data)
+
+    @extend_schema(request=CropSerializer, responses=ArticleSerializer)
+    @action(detail=True, methods=["post"], url_path="cover/crop")
+    def cover_crop(self, request: Request, pk: str | None = None) -> Response:
+        """Re-crop the cover from its kept original."""
+        article = self.get_object()
+        serializer = CropSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            services.recrop_cover(article, serializer.to_crop())
+        except DjangoValidationError as exc:
+            raise ValidationError({"detail": exc.messages}) from exc
         return Response(self.get_serializer(article).data)
 
 

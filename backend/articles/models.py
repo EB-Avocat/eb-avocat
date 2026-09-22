@@ -42,6 +42,10 @@ def cover_upload_to(instance: "Article", filename: str) -> str:
     return f"covers/{instance.pk}/{filename}"
 
 
+def cover_original_upload_to(instance: "Article", filename: str) -> str:
+    return f"covers/{instance.pk}/original/{filename}"
+
+
 def inline_upload_to(instance: "ArticleImage", filename: str) -> str:
     return f"articles/{instance.pk}/{filename}"
 
@@ -56,7 +60,10 @@ class Article(TimestampedModel):
     summary = models.TextField("résumé", blank=True)
     body_markdown = models.TextField("contenu (Markdown)", blank=True)
     body_html = models.TextField(editable=False, blank=True)
+    # Processed 16:9 WebP served on the site; the upload is kept to allow re-cropping.
     cover = models.ImageField(upload_to=cover_upload_to, max_length=500, blank=True)
+    cover_original = models.ImageField(upload_to=cover_original_upload_to, max_length=500, blank=True)
+    cover_crop = models.JSONField("recadrage de la couverture", null=True, blank=True)
     cover_alt = models.CharField("texte alternatif de la couverture", max_length=200, blank=True)
     cover_source_url = models.URLField(
         "URL d'origine de la couverture",

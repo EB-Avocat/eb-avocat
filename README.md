@@ -63,7 +63,17 @@ internal `/backoffice` routes, which are not reachable directly. Pages are `noin
   drop images), with **Visuel / Markdown / Aperçu** tabs. The Aperçu tab renders the article with
   the public page's own component. Markdown is the source of truth; the backend renders and
   sanitises it. Articles are drafts until published; a future date schedules them.
-- **Cover image** — upload from the computer or give a web URL (the server downloads it).
+- **Images** — every upload is straightened (phone orientation), stripped of its metadata and
+  re-encoded as WebP:
+  - **covers**: fixed 16:9, 1920×1080;
+  - **avatars**: square, 512×512;
+  - **article images**: capped at 1600 px wide.
+
+  For covers and avatars the original is kept, along with the crop. A Notion-style crop dialog
+  (drag + zoom) opens after each upload, and **Recadrer** reframes from the original at any time.
+  Covers can come from the computer or from a web URL: the server downloads the image and stores
+  it (Vercel Blob in production), keeping the source URL for history. `manage.py process_images`
+  converts covers and avatars stored before this processing existed.
 - **Categories** — free-form, created from the editor or the Categories page. The star marks a
   **primary** category: primary categories are the main filters on `/publications`.
 - **Roles** — *Administrateur* (users and roles + everything), *Éditeur* (all articles and
