@@ -9,7 +9,15 @@ from config import settings as settings_module
 
 @pytest.fixture
 def reload_settings(monkeypatch: pytest.MonkeyPatch) -> Iterator[ModuleType]:
-    for name in ("ALLOWED_HOSTS", "CSRF_TRUSTED_ORIGINS", "SITE_URL", "VERCEL_URL", "VERCEL_BRANCH_URL"):
+    for name in (
+        "ALLOWED_HOSTS",
+        "CSRF_TRUSTED_ORIGINS",
+        "SITE_URL",
+        "VERCEL_URL",
+        "VERCEL_BRANCH_URL",
+        "VERCEL",
+        "FRONTEND_INTERNAL_URL",
+    ):
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setenv("SECRET_KEY", "test-secret")
     yield settings_module
@@ -42,3 +50,14 @@ def test_local_defaults_without_vercel(reload_settings: ModuleType) -> None:
     assert settings.ALLOWED_HOSTS == ["localhost", "127.0.0.1", "backend"]
     assert settings.CSRF_TRUSTED_ORIGINS == ["http://localhost:3000"]
     assert settings.SITE_URL == "http://localhost:3000"
+    assert settings.FRONTEND_INTERNAL_URL == ""
+
+
+def test_revalidation_goes_through_the_site_url_on_vercel(
+    reload_settings: ModuleType, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.setenv("SITE_URL", "https://www.biezunski-avocat.fr")
+    settings = importlib.reload(reload_settings)
+
+    assert settings.FRONTEND_INTERNAL_URL == "https://www.biezunski-avocat.fr"

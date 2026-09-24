@@ -79,10 +79,13 @@ def revalidate_frontend() -> None:
     """Ask Next.js to drop its cached article pages (tag "articles")."""
     if not settings.FRONTEND_INTERNAL_URL or not settings.REVALIDATE_SECRET:
         return
+    headers = {"authorization": f"Bearer {settings.REVALIDATE_SECRET}"}
+    if settings.VERCEL_AUTOMATION_BYPASS_SECRET:
+        headers["x-vercel-protection-bypass"] = settings.VERCEL_AUTOMATION_BYPASS_SECRET
     try:
         httpx.post(
             f"{settings.FRONTEND_INTERNAL_URL.rstrip('/')}/api/revalidate",
-            headers={"authorization": f"Bearer {settings.REVALIDATE_SECRET}"},
+            headers=headers,
             json={"tag": "articles"},
             timeout=2,  # runs in the request: never hold it up for long
         ).raise_for_status()

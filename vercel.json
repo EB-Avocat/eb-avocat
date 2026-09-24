@@ -12,10 +12,7 @@
 		"backend": {
 			"root": "backend",
 			"entrypoint": "config/asgi.py",
-			"buildCommand": "python manage.py migrate --noinput && python manage.py collectstatic --noinput",
-			"bindings": [
-				{ "type": "service", "service": "frontend", "format": "url", "env": "FRONTEND_INTERNAL_URL" }
-			]
+			"buildCommand": "python manage.py migrate --noinput && python manage.py collectstatic --noinput"
 		}
 	},
 	"rewrites": [

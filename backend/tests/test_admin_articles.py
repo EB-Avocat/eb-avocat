@@ -146,6 +146,18 @@ def test_revalidation_is_triggered_on_commit(author: User, settings, django_capt
     )
 
 
+def test_revalidation_bypasses_vercel_deployment_protection(settings) -> None:
+    settings.FRONTEND_INTERNAL_URL = "https://eb-avocat-git-feat-x-team.vercel.app"
+    settings.REVALIDATE_SECRET = "s3cret"
+    settings.VERCEL_AUTOMATION_BYPASS_SECRET = "bypass"
+    with mock.patch("articles.services.httpx.post") as post:
+        services.revalidate_frontend()
+    assert post.call_args.kwargs["headers"] == {
+        "authorization": "Bearer s3cret",
+        "x-vercel-protection-bypass": "bypass",
+    }
+
+
 def test_draft_changes_do_not_revalidate_the_site(author: User) -> None:
     category = CategoryFactory.create()
     client = client_for(author)

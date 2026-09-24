@@ -179,9 +179,11 @@ runs `tox -e lint,type,test` against a Postgres service.
 ## Deployment (Vercel)
 
 One Vercel project deploys both apps through **Vercel Services** ([`vercel.json`](vercel.json)):
-`/api/v1/*` and `/mcp` go to Django and everything else goes to Next.js. The services reach each
-other through bindings (`BACKEND_INTERNAL_URL`, `FRONTEND_INTERNAL_URL`). The project's Root
-Directory must be the repo root.
+`/api/v1/*` and `/mcp` go to Django and everything else goes to Next.js. Next.js reaches Django
+through a service binding (`BACKEND_INTERNAL_URL`). Bindings can't be circular, so Django calls
+Next.js's `/api/revalidate` through the public `SITE_URL`; enable **Protection Bypass for
+Automation** (Deployment Protection settings) so that call gets through on protected previews.
+The project's Root Directory must be the repo root.
 
 Database: Neon Postgres from the Marketplace (`DATABASE_URL`). Media: a Vercel Blob store
 (`BLOB_READ_WRITE_TOKEN`, `STORAGE_BACKEND=vercel_blob`). Also set `SECRET_KEY`,

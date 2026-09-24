@@ -110,13 +110,17 @@ STORAGES = {
 BLOB_READ_WRITE_TOKEN = os.environ.get("BLOB_READ_WRITE_TOKEN", "")
 MAX_IMAGE_UPLOAD_BYTES = 8 * 1024 * 1024
 
-# Frontend on-demand revalidation (Next.js /api/revalidate).
-FRONTEND_INTERNAL_URL = os.environ.get("FRONTEND_INTERNAL_URL", "")
-REVALIDATE_SECRET = os.environ.get("REVALIDATE_SECRET", "")
 # Public origin of the site, used in password-reset links. Set it for Production only:
 # previews fall back to their stable branch URL.
 _branch_url = os.environ.get("VERCEL_BRANCH_URL")
 SITE_URL = os.environ.get("SITE_URL") or (f"https://{_branch_url}" if _branch_url else "http://localhost:3000")
+# Frontend on-demand revalidation (Next.js /api/revalidate). On Vercel a backend -> frontend
+# service binding would be circular, so the call goes through the public site URL instead.
+FRONTEND_INTERNAL_URL = os.environ.get("FRONTEND_INTERNAL_URL") or (SITE_URL if os.environ.get("VERCEL") else "")
+REVALIDATE_SECRET = os.environ.get("REVALIDATE_SECRET", "")
+# Set by Vercel when "Protection Bypass for Automation" is on: lets that call through
+# Deployment Protection on preview URLs.
+VERCEL_AUTOMATION_BYPASS_SECRET = os.environ.get("VERCEL_AUTOMATION_BYPASS_SECRET", "")
 # Secret back-office path, used to build links in emails (password reset).
 BACKOFFICE_PATH = os.environ.get("BACKOFFICE_PATH", "admin-dev")
 
