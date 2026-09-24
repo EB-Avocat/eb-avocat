@@ -1,0 +1,23 @@
+{
+	"$schema": "https://openapi.vercel.sh/vercel.json",
+	"services": {
+		"frontend": {
+			"root": "frontend",
+			"framework": "nextjs",
+			"installCommand": "bun install --frozen-lockfile",
+			"bindings": [
+				{ "type": "service", "service": "backend", "format": "url", "env": "BACKEND_INTERNAL_URL" }
+			]
+		},
+		"backend": {
+			"root": "backend",
+			"entrypoint": "config/asgi.py",
+			"buildCommand": "python manage.py migrate --noinput && python manage.py collectstatic --noinput"
+		}
+	},
+	"rewrites": [
+		{ "source": "/api/v1/(.*)", "destination": { "service": "backend" } },
+		{ "source": "/mcp", "destination": { "service": "backend" } },
+		{ "source": "/(.*)", "destination": { "service": "frontend" } }
+	]
+}

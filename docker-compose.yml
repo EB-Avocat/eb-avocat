@@ -1,0 +1,53 @@
+# Local development stack: `tox -e dev` (or `docker compose up --build`).
+# Site: http://localhost:3000 — back-office: http://localhost:3000/admin-dev
+name: eb-avocat
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: eb_avocat
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports: ["5433:5432"]
+    volumes: [db-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d eb_avocat"]
+      interval: 2s
+      retries: 30
+
+  backend:
+    build: { context: ./backend, target: dev }
+    environment:
+      DJANGO_DEBUG: "1"
+      DATABASE_URL: postgres://postgres:postgres@db:5432/eb_avocat
+      ALLOWED_HOSTS: localhost,127.0.0.1,backend
+      CSRF_TRUSTED_ORIGINS: http://localhost:3000
+      FRONTEND_INTERNAL_URL: http://frontend:3000
+      REVALIDATE_SECRET: dev-revalidate-secret
+      BACKOFFICE_PATH: admin-dev
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: admin-dev-password
+    ports: ["8000:8000"]
+    volumes:
+      - ./backend:/app
+      - /app/.venv
+    depends_on:
+      db: { condition: service_healthy }
+
+  frontend:
+    build: { context: ./frontend, dockerfile: Dockerfile.dev }
+    environment:
+      BACKEND_URL: http://backend:8000
+      BACKEND_INTERNAL_URL: http://backend:8000
+      REVALIDATE_SECRET: dev-revalidate-secret
+      BACKOFFICE_PATH: admin-dev
+    ports: ["3000:3000"]
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on: [backend]
+
+volumes:
+  db-data:

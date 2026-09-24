@@ -30,10 +30,20 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 *.tsbuildinfo
 
 # playwright / a11y audit
-/test-results
-/playwright-report
-/blob-report
-/playwright/.cache
+/frontend/test-results
+/frontend/playwright-report
+/frontend/blob-report
+/frontend/playwright/.cache
+
+# python (backend)
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.tox/
+/backend/media/
+/backend/staticfiles/
 
 # IntelliJ based IDEs
 .idea
@@ -44,3 +54,4 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # Claude Code
 .claude/settings.local.json
 .claude/worktrees/
+.vercel

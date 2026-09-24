@@ -1,0 +1,13 @@
+{
+	"name": "eb-avocat-api-types",
+	"private": true,
+	"description": "Generates src/lib/api/schema.ts from backend/openapi.yaml. Isolated because openapi-typescript needs the TypeScript 5 JS API, while the app uses TypeScript 7.",
+	"type": "module",
+	"scripts": {
+		"generate": "openapi-typescript ../../../backend/openapi.yaml --output ../../src/lib/api/schema.ts --root-types --root-types-no-schema-prefix"
+	},
+	"devDependencies": {
+		"openapi-typescript": "7.13.0",
+		"typescript": "5.9.3"
+	}
+}

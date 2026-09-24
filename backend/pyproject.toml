@@ -1,0 +1,75 @@
+[project]
+name = "eb-avocat-backend"
+version = "0.1.0"
+description = "API, back-office backend and MCP server for the EB Avocat website"
+requires-python = ">=3.13,<3.15"
+dependencies = [
+    "dj-database-url>=3.1.2",
+    "django>=6.1.1",
+    "django-filter>=26.1",
+    "djangorestframework>=3.18.1",
+    "drf-spectacular>=0.30.0",
+    "httpx>=0.28.1",
+    "markdown-it-py>=4.2.0",
+    "mcp>=2.2.0",
+    "mdit-py-plugins>=0.6.1",
+    "nh3>=0.3.7",
+    "pillow>=12.3.0",
+    "psycopg[binary]>=3.3.6",
+    "uvicorn>=0.53.0",
+    "whitenoise>=6.12.0",
+]
+
+[dependency-groups]
+dev = [
+    "django-stubs>=6.1.1",
+    "djangorestframework-stubs>=3.18.1",
+    "factory-boy>=3.3.3",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "pytest-django>=4.14.0",
+    "ruff>=0.16.8",
+    "tox>=4.63.0",
+    "tox-uv>=1.36.0",
+    "ty>=0.0.82",
+]
+
+[tool.vercel]
+# The ASGI app, not Django's WSGI one: it also serves the MCP server at /mcp.
+entrypoint = "config.asgi:application"
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+extend-exclude = ["**/migrations/*.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "DJ", "S", "SIM", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["accounts", "articles", "config", "core"]
+
+[tool.ty.src]
+exclude = ["**/migrations/**", ".venv/**"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py"]
+addopts = "-p no:cacheprovider"
+
+[tool.coverage.run]
+source = ["."]
+branch = true
+omit = ["tests/*", "*/migrations/*", ".venv/*", "manage.py", "config/wsgi.py"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true
+exclude_also = ["if TYPE_CHECKING:"]
