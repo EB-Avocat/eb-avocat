@@ -1,4 +1,4 @@
-"""MCP server exposing article tools to Claude Code (streamable HTTP at ``/mcp``).
+"""MCP server exposing article tools to Claude (streamable HTTP at ``/mcp``).
 
 Authentication: a personal API token (``Authorization: Bearer eba_…``) generated
 from the back-office profile page. Every tool resolves the calling user from that

@@ -8,7 +8,7 @@ The site is a single-page presentation covering her practice areas — company f
 patientèle transfers, professional contracts, legal advice, litigation and compliance — along
 with a digital business card (`/carte`) that exposes a downloadable vCard, and a
 **Publications** section (`/publications` + the 3 latest articles on the home page) managed
-from a private back-office or directly from Claude Code (MCP).
+from a private back-office or directly from Claude (MCP connector).
 
 The repo is a monorepo:
 
@@ -91,9 +91,15 @@ internal `/backoffice` routes, which are not reachable directly. Pages are `noin
   categories), *Auteur* (own articles).
 - **Profile** — name, e-mail, password, avatar, and API tokens.
 
-### Claude Code (MCP)
+### Claude connector (MCP)
 
-Create a token in **Mon profil → Claude Code (MCP)**. The page shows the command to run:
+Create a token in **Mon profil → Connecteur Claude (MCP)**. The page shows the values to paste in
+Claude (Desktop or claude.ai): **Settings → Connectors → Add custom connector**, with
+
+- URL: `https://<domain>/mcp`
+- custom header: `Authorization: Bearer eba_…`
+
+Claude Code users can run the command shown under "Vous utilisez Claude Code ?" instead:
 
 ```sh
 claude mcp add --transport http eb-avocat https://<domain>/mcp --header "Authorization: Bearer eba_…"

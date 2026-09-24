@@ -219,9 +219,8 @@ function PasswordSection() {
 
 function TokensSection() {
 	const [tokens, setTokens] = useState<ApiToken[] | null>(null);
-	const [name, setName] = useState("Claude Code");
+	const [name, setName] = useState("Claude");
 	const [created, setCreated] = useState<string | null>(null);
-	const [copied, setCopied] = useState(false);
 	const [toRevoke, setToRevoke] = useState<ApiToken | null>(null);
 	const [busy, setBusy] = useState(false);
 	const { feedback, fail, clear } = useFeedback();
@@ -234,9 +233,7 @@ function TokensSection() {
 	}, [fail]);
 
 	const origin = typeof window === "undefined" ? "" : window.location.origin;
-	const command = created
-		? `claude mcp add --transport http eb-avocat ${origin}/mcp --header "Authorization: Bearer ${created}"`
-		: "";
+	const serverUrl = `${origin}/mcp`;
 
 	async function create(event: FormEvent) {
 		event.preventDefault();
@@ -246,7 +243,6 @@ function TokensSection() {
 			const { token, ...meta } = await api.me.createToken(name.trim() || "Jeton");
 			setTokens((list) => [meta, ...(list ?? [])]);
 			setCreated(token);
-			setCopied(false);
 		} catch (err) {
 			fail(err);
 		} finally {
@@ -268,16 +264,11 @@ function TokensSection() {
 		}
 	}
 
-	async function copy() {
-		await navigator.clipboard.writeText(command);
-		setCopied(true);
-	}
-
 	return (
-		<Section title="Claude Code (MCP) et jetons d'API">
+		<Section title="Connecteur Claude (MCP) et jetons d'API">
 			<p className="mb-4 text-sm text-gray-600">
-				Un jeton permet à Claude Code de lister, rédiger et publier des articles en votre nom, avec
-				les mêmes droits que votre compte. Créez-en un par ordinateur ; révoquez-le à tout moment.
+				Un jeton permet à Claude de lister, rédiger et publier des articles en votre nom, avec les
+				mêmes droits que votre compte. Créez-en un par appareil ; révoquez-le à tout moment.
 			</p>
 			<FeedbackAlert feedback={feedback} />
 
@@ -299,16 +290,35 @@ function TokensSection() {
 
 			{created && (
 				<div className="mb-6 rounded border border-primary/30 bg-primary-light/5 p-4">
-					<p className="mb-2 text-sm font-500">
-						Copiez cette commande dans votre terminal : le jeton ne sera plus jamais affiché.
+					<p className="mb-3 text-sm font-500">
+						Ajoutez le connecteur dans Claude maintenant : le jeton ne sera plus jamais affiché.
 					</p>
-					<pre className="mb-3 overflow-x-auto whitespace-pre-wrap break-all rounded bg-near-black p-3 text-xs text-white">
-						<code>{command}</code>
-					</pre>
-					<BoButton variant="secondary" onClick={copy}>
-						<Copy className="h-4 w-4" aria-hidden="true" />
-						{copied ? "Copié !" : "Copier la commande"}
-					</BoButton>
+					<ol className="mb-4 list-decimal space-y-1 pl-5 text-sm text-gray-700">
+						<li>
+							Dans Claude, ouvrez <strong>Paramètres → Connecteurs</strong>, puis{" "}
+							<strong>Ajouter un connecteur personnalisé</strong>.
+						</li>
+						<li>Renseignez le nom, l'URL et l'en-tête ci-dessous, puis enregistrez.</li>
+						<li>
+							Dans une conversation, activez le connecteur « EB Avocat » depuis le menu des outils.
+						</li>
+					</ol>
+					<dl className="mb-4 space-y-3">
+						<CopyField label="Nom" value="EB Avocat" />
+						<CopyField label="URL du serveur" value={serverUrl} />
+						<CopyField label="Nom de l'en-tête" value="Authorization" />
+						<CopyField label="Valeur de l'en-tête" value={`Bearer ${created}`} />
+					</dl>
+					<details className="text-sm text-gray-700">
+						<summary className="cursor-pointer">Vous utilisez Claude Code ?</summary>
+						<p className="mt-2 mb-2">Lancez plutôt cette commande dans votre terminal :</p>
+						<dl>
+							<CopyField
+								label="Commande"
+								value={`claude mcp add --transport http eb-avocat ${serverUrl} --header "Authorization: Bearer ${created}"`}
+							/>
+						</dl>
+					</details>
 				</div>
 			)}
 
@@ -352,5 +362,30 @@ function TokensSection() {
 				onClose={() => setToRevoke(null)}
 			/>
 		</Section>
+	);
+}
+
+/** A read-only value with its own copy button (connector settings, commands). */
+function CopyField({ label, value }: { label: string; value: string }) {
+	const [copied, setCopied] = useState(false);
+
+	async function copy() {
+		await navigator.clipboard.writeText(value);
+		setCopied(true);
+	}
+
+	return (
+		<div>
+			<dt className="mb-1 text-xs font-500 text-gray-600">{label}</dt>
+			<dd className="flex items-start gap-2">
+				<code className="min-w-0 flex-1 overflow-x-auto whitespace-pre-wrap break-all rounded bg-near-black px-3 py-2 text-xs text-white">
+					{value}
+				</code>
+				<BoButton variant="secondary" onClick={copy} aria-label={`Copier : ${label}`}>
+					<Copy className="h-4 w-4" aria-hidden="true" />
+					{copied ? "Copié !" : "Copier"}
+				</BoButton>
+			</dd>
+		</div>
 	);
 }
