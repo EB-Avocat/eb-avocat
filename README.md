@@ -188,3 +188,7 @@ Database: Neon Postgres from the Marketplace (`DATABASE_URL`). Media: a Vercel B
 `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `SITE_URL`, `REVALIDATE_SECRET` and `BACKOFFICE_PATH`,
 plus `EMAIL_HOST_USER`/`EMAIL_HOST_PASSWORD` for password-reset e-mails through Brevo SMTP.
 Migrations run in the backend's build step.
+`ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS` and `SITE_URL` only need values for Production: every
+deployment also trusts its own `VERCEL_URL` and `VERCEL_BRANCH_URL`, and previews use the branch URL
+as `SITE_URL`. Give Preview its own database (Neon branch per preview) and Blob store, since the
+build runs migrations against `DATABASE_URL`.

@@ -23,8 +23,13 @@ if not SECRET_KEY:
         raise RuntimeError("SECRET_KEY must be set when DJANGO_DEBUG is off")
     SECRET_KEY = "dev-insecure-secret-key"  # noqa: S105 - local development only
 
-ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1,backend")
-CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", "http://localhost:3000")
+# Vercel sets the deployment and branch hosts on every deploy, so preview URLs
+# (random *.vercel.app subdomains) are trusted without a wildcard.
+VERCEL_HOSTS = [host for host in (os.environ.get("VERCEL_URL"), os.environ.get("VERCEL_BRANCH_URL")) if host]
+ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1,backend") + VERCEL_HOSTS
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", "http://localhost:3000") + [
+    f"https://{host}" for host in VERCEL_HOSTS
+]
 
 INSTALLED_APPS = [
     "django.contrib.auth",
@@ -108,8 +113,10 @@ MAX_IMAGE_UPLOAD_BYTES = 8 * 1024 * 1024
 # Frontend on-demand revalidation (Next.js /api/revalidate).
 FRONTEND_INTERNAL_URL = os.environ.get("FRONTEND_INTERNAL_URL", "")
 REVALIDATE_SECRET = os.environ.get("REVALIDATE_SECRET", "")
-# Public origin of the site, used to build absolute media URLs.
-SITE_URL = os.environ.get("SITE_URL", "http://localhost:3000")
+# Public origin of the site, used in password-reset links. Set it for Production only:
+# previews fall back to their stable branch URL.
+_branch_url = os.environ.get("VERCEL_BRANCH_URL")
+SITE_URL = os.environ.get("SITE_URL") or (f"https://{_branch_url}" if _branch_url else "http://localhost:3000")
 # Secret back-office path, used to build links in emails (password reset).
 BACKOFFICE_PATH = os.environ.get("BACKOFFICE_PATH", "admin-dev")
 
