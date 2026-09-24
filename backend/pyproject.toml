@@ -34,6 +34,10 @@ dev = [
     "ty>=0.0.82",
 ]
 
+[tool.vercel]
+# The ASGI app, not Django's WSGI one: it also serves the MCP server at /mcp.
+entrypoint = "config.asgi:application"
+
 [tool.uv]
 package = false
 

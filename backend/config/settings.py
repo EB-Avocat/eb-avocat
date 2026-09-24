@@ -56,6 +56,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
+# Vercel serves this app: it routes /mcp to the MCP server (the WSGI app is plain Django).
+ASGI_APPLICATION = "config.asgi.application"
 
 TEMPLATES = [
     {

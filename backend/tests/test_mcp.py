@@ -51,6 +51,15 @@ def test_requires_a_valid_token(client: TestClient) -> None:
     assert rpc(client, "eba_nope", "tools/list").status_code == 401
 
 
+def test_works_without_asgi_lifespan() -> None:
+    """Vercel doesn't send lifespan events: each request runs its own session manager."""
+    from config.asgi import create_application
+
+    _, raw = ApiToken.issue(UserFactory.create(), "claude")
+    response = rpc(TestClient(create_application()), raw, "tools/list")
+    assert response.status_code == 200, response.text
+
+
 def test_lists_tools(client: TestClient) -> None:
     _, raw = ApiToken.issue(UserFactory.create(), "claude")
     response = rpc(client, raw, "tools/list")
