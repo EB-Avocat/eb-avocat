@@ -59,8 +59,9 @@ class BrevoEmailBackend(BaseEmailBackend):
                 )
                 response.raise_for_status()
             except httpx.HTTPError as exc:
-                status = exc.response.status_code if isinstance(exc, httpx.HTTPStatusError) else None
-                logger.error("Sending %r through Brevo failed (HTTP status %s).", message.subject, status)
+                # Brevo explains refusals in the body (unknown key, unauthorised IP, unverified sender...).
+                reason = exc.response.text[:500] if isinstance(exc, httpx.HTTPStatusError) else repr(exc)
+                logger.error("Sending %r through Brevo failed: %s", message.subject, reason)
                 if not self.fail_silently:
                     raise
             else:

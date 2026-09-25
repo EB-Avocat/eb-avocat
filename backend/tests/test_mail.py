@@ -8,13 +8,14 @@ from core.mail import BREVO_API_URL, BrevoEmailBackend
 
 
 class FakeBrevo:
-    def __init__(self, status: int = 201) -> None:
+    def __init__(self, status: int = 201, body: str = "") -> None:
         self.status = status
+        self.body = body
         self.calls: list[dict[str, Any]] = []
 
     def __call__(self, url: str, **kwargs: Any) -> httpx.Response:
         self.calls.append({"url": url, **kwargs})
-        return httpx.Response(self.status, request=httpx.Request("POST", url))
+        return httpx.Response(self.status, text=self.body, request=httpx.Request("POST", url))
 
 
 @pytest.fixture
@@ -60,11 +61,15 @@ def test_skips_messages_without_recipients(brevo: FakeBrevo) -> None:
     assert brevo.calls == []
 
 
-def test_raises_when_brevo_refuses(brevo: FakeBrevo) -> None:
+def test_raises_and_logs_why_brevo_refuses(brevo: FakeBrevo, caplog: pytest.LogCaptureFixture) -> None:
     brevo.status = 401
+    brevo.body = '{"code":"unauthorized","message":"Key not found"}'
 
     with pytest.raises(httpx.HTTPStatusError):
-        BrevoEmailBackend(api_key="bad").send_messages([message()])
+        BrevoEmailBackend(api_key="xkeysib-secret").send_messages([message()])
+
+    assert "Key not found" in caplog.text
+    assert "xkeysib-secret" not in caplog.text
 
 
 def test_fail_silently_counts_only_sent_messages(brevo: FakeBrevo) -> None:
