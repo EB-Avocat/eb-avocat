@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 from django.core import mail
 from rest_framework.test import APIClient
@@ -102,6 +104,17 @@ def test_user_created_without_password_receives_an_invitation(admin: User, api: 
     )
     assert confirm.status_code == 204
     assert User.objects.get(email="lea@example.com").check_password("brand-new-password")
+
+
+def test_account_emails_reply_to_the_configured_address(api: APIClient, settings: Any) -> None:
+    UserFactory.create(email="eva@example.com")
+
+    settings.EMAIL_REPLY_TO = ""
+    api.post("/api/v1/auth/password-reset/", {"email": "eva@example.com"}, format="json")
+    settings.EMAIL_REPLY_TO = "eva@biezunski-avocat.fr"
+    api.post("/api/v1/auth/password-reset/", {"email": "eva@example.com"}, format="json")
+
+    assert [message.reply_to for message in mail.outbox] == [[], ["eva@biezunski-avocat.fr"]]
 
 
 def test_user_created_with_password_gets_no_email(admin: User) -> None:

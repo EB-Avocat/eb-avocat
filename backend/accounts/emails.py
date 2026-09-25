@@ -2,7 +2,7 @@
 
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
@@ -37,4 +37,5 @@ def send_password_link(user: User) -> None:
             f"Ce lien est valable {days} jours. Passé ce délai, demandez-en un nouveau à un administrateur "
             f"ou depuis la page « Mot de passe oublié » ({password_page_url()})."
         )
-    send_mail(subject, body, None, [user.email])
+    reply_to = [settings.EMAIL_REPLY_TO] if settings.EMAIL_REPLY_TO else []
+    EmailMessage(subject, body, to=[user.email], reply_to=reply_to).send()
