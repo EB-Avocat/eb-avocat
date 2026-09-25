@@ -43,8 +43,8 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-	// Everything except Next internals, static files and the API proxies.
+	// Everything except Next internals, static files, media and the API proxies.
 	matcher: [
-		"/((?!_next/|api/|mcp|images/|fonts/|favicon|icon|apple-icon|manifest|robots|sitemap).*)",
+		"/((?!_next/|api/|mcp|images/|media/|fonts/|favicon|icon|apple-icon|manifest|robots|sitemap).*)",
 	],
 };

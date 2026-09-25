@@ -20,11 +20,22 @@
 		"qualities": [75],
 		"formats": ["image/webp"],
 		"minimumCacheTTL": 14400,
-		"localPatterns": [{ "pathname": "^/images/.*$", "search": "" }],
+		"localPatterns": [
+			{ "pathname": "^/images/.*$", "search": "" },
+			{ "pathname": "^/media/.*$", "search": "" }
+		],
 		"remotePatterns": [
-			{ "protocol": "https", "hostname": "^(?:[^/]*\\.)?public\\.blob\\.vercel-storage\\.com$" }
+			{ "protocol": "https", "hostname": "^cdn\\.biezunski-avocat\\.fr$", "pathname": "^/media/.*$" }
 		]
 	},
+	"redirects": [
+		{
+			"source": "/((?!media/).*)",
+			"has": [{ "type": "host", "value": "cdn.biezunski-avocat.fr" }],
+			"destination": "https://biezunski-avocat.fr/$1",
+			"permanent": true
+		}
+	],
 	"rewrites": [
 		{ "source": "/api/v1/(.*)", "destination": { "service": "backend" } },
 		{ "source": "/mcp", "destination": { "service": "backend" } },
