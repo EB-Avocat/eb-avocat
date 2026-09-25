@@ -126,11 +126,14 @@ VERCEL_AUTOMATION_BYPASS_SECRET = os.environ.get("VERCEL_AUTOMATION_BYPASS_SECRE
 # Secret back-office path, used to build links in account emails (invitations, password reset).
 BACKOFFICE_PATH = os.environ.get("BACKOFFICE_PATH", "admin-dev")
 
-# Email (invitations, password reset) via the Brevo transactional API when a key is set
+# Email (invitations, password reset) via the Brevo transactional API (django-anymail) when a key is set
 # (same key as the frontend contact form), printed to the console otherwise.
 if os.environ.get("BREVO_API_KEY"):
     MAILERS = {
-        "default": {"BACKEND": "core.mail.BrevoEmailBackend", "OPTIONS": {"api_key": os.environ["BREVO_API_KEY"]}}
+        "default": {
+            "BACKEND": "anymail.backends.brevo.EmailBackend",
+            "OPTIONS": {"api_key": os.environ["BREVO_API_KEY"]},
+        }
     }
 else:
     MAILERS = {"default": {"BACKEND": "django.core.mail.backends.console.EmailBackend"}}

@@ -71,7 +71,7 @@ def test_emails_go_through_brevo_when_a_key_is_set(
     settings = importlib.reload(reload_settings)
 
     assert settings.MAILERS["default"] == {
-        "BACKEND": "core.mail.BrevoEmailBackend",
+        "BACKEND": "anymail.backends.brevo.EmailBackend",
         "OPTIONS": {"api_key": "xkeysib-test"},
     }
 
