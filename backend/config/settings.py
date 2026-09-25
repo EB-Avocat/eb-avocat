@@ -95,10 +95,11 @@ USE_TZ = True
 STATIC_URL = "/api/v1/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Media: local filesystem in dev, Vercel Blob in production.
-MEDIA_URL = os.environ.get("MEDIA_URL", "/api/v1/media/")
-MEDIA_ROOT = BASE_DIR / "media"
+# Media: local filesystem in dev (served by Django), private Vercel Blob in production
+# (served by the frontend's /media route; Production sets MEDIA_URL to the CDN domain).
 STORAGE_BACKEND = os.environ.get("STORAGE_BACKEND", "filesystem")
+MEDIA_URL = os.environ.get("MEDIA_URL") or ("/media/" if STORAGE_BACKEND == "vercel_blob" else "/api/v1/media/")
+MEDIA_ROOT = BASE_DIR / "media"
 STORAGES = {
     "default": {
         "BACKEND": (

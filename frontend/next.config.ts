@@ -18,8 +18,11 @@ const nextConfig: NextConfig = {
 	// Vercel Services don't hoist this to the project: mirror changes in the root vercel.json
 	// `images`, or /_next/image 404s in production.
 	images: {
-		// Covers and avatars live on Vercel Blob in production.
-		remotePatterns: [{ protocol: "https", hostname: "**.public.blob.vercel-storage.com" }],
+		// Covers and avatars live on a private Vercel Blob store in production, served by
+		// the /media route on the CDN domain (previews link them same-origin as /media/...).
+		remotePatterns: [
+			{ protocol: "https", hostname: "cdn.biezunski-avocat.fr", pathname: "/media/**" },
+		],
 	},
 	async rewrites() {
 		if (!backendUrl) return [];
