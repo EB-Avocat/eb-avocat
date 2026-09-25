@@ -123,7 +123,7 @@ REVALIDATE_SECRET = os.environ.get("REVALIDATE_SECRET", "")
 # Set by Vercel when "Protection Bypass for Automation" is on: lets that call through
 # Deployment Protection on preview URLs.
 VERCEL_AUTOMATION_BYPASS_SECRET = os.environ.get("VERCEL_AUTOMATION_BYPASS_SECRET", "")
-# Secret back-office path, used to build links in emails (password reset).
+# Secret back-office path, used to build links in account emails (invitations, password reset).
 BACKOFFICE_PATH = os.environ.get("BACKOFFICE_PATH", "admin-dev")
 
 # Email (invitations, password reset) via the Brevo transactional API when a key is set
@@ -136,8 +136,8 @@ else:
     MAILERS = {"default": {"BACKEND": "django.core.mail.backends.console.EmailBackend"}}
 # Both take a bare address or "Display Name <address>" (the name mail apps show).
 DEFAULT_FROM_EMAIL = os.environ.get("BREVO_SENDER_EMAIL") or "no-reply@localhost"
-# Where replies to back-office emails go (the sender is a shared, unattended address).
-EMAIL_REPLY_TO = os.environ.get("BREVO_REPLY_TO_EMAIL", "")
+# Reply-To of account emails (the sender is a shared, unattended address). Not a Django setting.
+BACKOFFICE_REPLY_TO = [address] if (address := os.environ.get("BREVO_REPLY_TO_EMAIL")) else []
 
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"

@@ -113,9 +113,9 @@ def test_user_created_without_password_receives_an_invitation(admin: User, api: 
 def test_account_emails_reply_to_the_configured_address(api: APIClient, settings: Any) -> None:
     UserFactory.create(email="eva@example.com")
 
-    settings.EMAIL_REPLY_TO = ""
+    settings.BACKOFFICE_REPLY_TO = []
     api.post("/api/v1/auth/password-reset/", {"email": "eva@example.com"}, format="json")
-    settings.EMAIL_REPLY_TO = "eva@biezunski-avocat.fr"
+    settings.BACKOFFICE_REPLY_TO = ["eva@biezunski-avocat.fr"]
     api.post("/api/v1/auth/password-reset/", {"email": "eva@example.com"}, format="json")
 
     assert [message.reply_to for message in mail.outbox] == [[], ["eva@biezunski-avocat.fr"]]
@@ -132,18 +132,59 @@ def test_user_created_with_password_gets_no_email(admin: User) -> None:
     assert mail.outbox == []
 
 
-def test_user_is_not_created_when_the_invitation_fails(admin: User, monkeypatch: pytest.MonkeyPatch) -> None:
+@pytest.fixture
+def mail_down(monkeypatch: pytest.MonkeyPatch) -> None:
     def fail(user: User) -> None:
         raise ConnectionError("Brevo is down")
 
     monkeypatch.setattr("accounts.emails.send_password_link", fail)
-    client = client_for(admin)
-    client.raise_request_exception = False
 
-    response = client.post("/api/v1/admin/users/", {"email": "lea@example.com", "role": "author"}, format="json")
 
-    assert response.status_code == 500
+@pytest.mark.usefixtures("mail_down")
+def test_user_is_not_created_when_the_invitation_fails(admin: User) -> None:
+    response = client_for(admin).post(
+        "/api/v1/admin/users/", {"email": "lea@example.com", "role": "author"}, format="json"
+    )
+
+    assert response.status_code == 502
+    assert "n'a pas pu être envoyé" in response.json()["detail"]
     assert not User.objects.filter(email="lea@example.com").exists()
+
+
+@pytest.mark.usefixtures("mail_down")
+def test_reset_request_answers_the_same_when_sending_fails(api: APIClient) -> None:
+    UserFactory.create(email="eva@example.com")
+
+    assert api.post("/api/v1/auth/password-reset/", {"email": "eva@example.com"}, format="json").status_code == 204
+
+
+def test_admin_sends_the_password_link(admin: User) -> None:
+    user = UserFactory.create(email="lea@example.com")
+
+    assert client_for(admin).post(f"/api/v1/admin/users/{user.pk}/send-link/").status_code == 204
+
+    assert [message.to for message in mail.outbox] == [["lea@example.com"]]
+
+
+def test_admin_send_link_refuses_disabled_accounts(admin: User) -> None:
+    user = UserFactory.create(is_active=False)
+
+    assert client_for(admin).post(f"/api/v1/admin/users/{user.pk}/send-link/").status_code == 400
+    assert mail.outbox == []
+
+
+@pytest.mark.usefixtures("mail_down")
+def test_admin_send_link_reports_a_sending_failure(admin: User) -> None:
+    user = UserFactory.create()
+
+    assert client_for(admin).post(f"/api/v1/admin/users/{user.pk}/send-link/").status_code == 502
+
+
+@pytest.mark.parametrize("role", ["editor", "author"])
+def test_send_link_is_admin_only(role: str) -> None:
+    user, member = UserFactory.create(), UserFactory.create(role=role)
+
+    assert client_for(member).post(f"/api/v1/admin/users/{user.pk}/send-link/").status_code == 403
 
 
 def test_reset_request_resends_the_invitation_to_a_pending_account(api: APIClient) -> None:

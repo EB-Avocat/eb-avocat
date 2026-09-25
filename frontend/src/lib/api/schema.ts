@@ -230,6 +230,23 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	"/api/v1/admin/users/{id}/send-link/": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/** @description Emails the invitation (account without a password yet) or a password reset link. */
+		post: operations["admin_users_send_link_create"];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	"/api/v1/articles/": {
 		parameters: {
 			query?: never;
@@ -1756,6 +1773,27 @@ export interface operations {
 				content: {
 					"application/json": components["schemas"]["User"];
 				};
+			};
+		};
+	};
+	admin_users_send_link_create: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description Un(une) Chaîne UUID identifiant ce(cette) user. */
+				id: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description No response body */
+			204: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
 			};
 		};
 	};

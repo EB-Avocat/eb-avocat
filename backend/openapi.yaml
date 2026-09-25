@@ -806,6 +806,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: ''
+  /api/v1/admin/users/{id}/send-link/:
+    post:
+      operationId: admin_users_send_link_create
+      description: Emails the invitation (account without a password yet) or a password
+        reset link.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) user.
+        required: true
+      tags:
+      - admin
+      security:
+      - apiToken: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/v1/articles/:
     get:
       operationId: articles_list

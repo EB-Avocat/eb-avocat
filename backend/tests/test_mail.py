@@ -56,6 +56,16 @@ def test_posts_the_message_to_brevo(brevo: FakeBrevo) -> None:
     }
 
 
+@pytest.mark.parametrize(
+    "extra",
+    [{"attachments": [("a.txt", "x", "text/plain")]}, {"headers": {"X-Tag": "1"}}, {"reply_to": ["a@x.fr", "b@x.fr"]}],
+)
+def test_refuses_what_it_cannot_send(brevo: FakeBrevo, extra: dict[str, Any]) -> None:
+    with pytest.raises(ValueError, match="BrevoEmailBackend"):
+        BrevoEmailBackend(api_key="k").send_messages([message(**extra)])
+    assert brevo.calls == []
+
+
 def test_skips_messages_without_recipients(brevo: FakeBrevo) -> None:
     assert BrevoEmailBackend(api_key="k").send_messages([EmailMultiAlternatives(subject="Vide")]) == 0
     assert brevo.calls == []

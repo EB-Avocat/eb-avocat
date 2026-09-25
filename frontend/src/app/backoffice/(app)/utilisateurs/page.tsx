@@ -57,7 +57,7 @@ export default function UsersPage() {
 
 	async function sendReset(user: ManagedUser) {
 		try {
-			await api.auth.requestReset(user.email);
+			await api.users.sendLink(user.id);
 			ok(`Lien de choix du mot de passe envoyé à ${user.email}.`);
 		} catch (err) {
 			fail(err);
@@ -221,8 +221,8 @@ function InviteModal({
 				role,
 				password: password || undefined,
 			});
-			// Without a password, the backend emails an invitation to choose one.
 			formElement.reset();
+			// Without a password, the backend emailed an invitation to choose one.
 			onCreated(user, !password);
 		} catch (err) {
 			setError(messageOf(err, "Création impossible."));

@@ -131,7 +131,7 @@ export type SendResult = { ok: true } | { ok: false; error: string };
  * The address in a bare email or a `Display Name <email>` value. BREVO_SENDER_EMAIL is shared with
  * the backend, which shows that name; contact messages keep their own "(site web)" sender name.
  */
-export function mailboxAddress(value: string): string {
+function mailboxAddress(value: string): string {
 	return (value.match(/<([^<>]+)>\s*$/)?.[1] ?? value).trim();
 }
 

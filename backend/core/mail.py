@@ -21,6 +21,9 @@ def _contact(address: str) -> dict[str, str]:
 
 
 def brevo_payload(message: EmailMessage) -> dict[str, Any]:
+    # Refuse what isn't mapped rather than silently sending a partial message.
+    if message.attachments or message.extra_headers or len(message.reply_to) > 1:
+        raise ValueError("BrevoEmailBackend supports neither attachments, extra headers nor several Reply-To.")
     payload: dict[str, Any] = {
         "sender": _contact(message.from_email),
         "to": [_contact(address) for address in message.to],

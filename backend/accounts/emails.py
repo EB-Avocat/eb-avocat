@@ -38,7 +38,7 @@ def send_password_link(user: User) -> None:
         subject,
         render_to_string(f"accounts/emails/{template}.txt", context),
         to=[user.email],
-        reply_to=[settings.EMAIL_REPLY_TO] if settings.EMAIL_REPLY_TO else [],
+        reply_to=settings.BACKOFFICE_REPLY_TO,
     )
     message.attach_alternative(render_to_string(f"accounts/emails/{template}.html", context), "text/html")
     message.send()
