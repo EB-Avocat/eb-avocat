@@ -128,11 +128,11 @@ The contact form posts to `POST /api/contact`, which sends Eva a transactional e
 [Brevo](https://www.brevo.com/) API (with the visitor set as `reply-to`). Configure these
 environment variables — see [`env.example`](frontend/env.example):
 
-| Variable             | Required | Description                                                        |
-| -------------------- | -------- | ------------------------------------------------------------------ |
-| `BREVO_API_KEY`      | yes      | Brevo API key (SMTP & API → API Keys).                             |
-| `BREVO_SENDER_EMAIL` | yes      | Verified sender email/domain in Brevo (the "from" address).        |
-| `BREVO_TO_EMAIL`     | no       | Recipient; defaults to the public contact email in `constants.ts`. |
+| Variable             | Required | Description                                                                        |
+| -------------------- | -------- | ---------------------------------------------------------------------------------- |
+| `BREVO_API_KEY`      | yes      | Brevo API key (SMTP & API → API Keys).                                             |
+| `BREVO_SENDER_EMAIL` | yes      | Verified sender in Brevo; `Name <email>` accepted (name used by back-office mail). |
+| `BREVO_TO_EMAIL`     | no       | Recipient; defaults to the public contact email in `constants.ts`.                 |
 
 Set them in `.env.local` for local dev, and in the Vercel project (Production + Preview) for
 deployment. The sender must be a **verified sender/domain** in your Brevo account. Use a shared

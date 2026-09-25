@@ -134,7 +134,8 @@ if os.environ.get("BREVO_API_KEY"):
     }
 else:
     MAILERS = {"default": {"BACKEND": "django.core.mail.backends.console.EmailBackend"}}
-DEFAULT_FROM_EMAIL = os.environ.get("BREVO_SENDER_EMAIL", "no-reply@localhost")
+# Both take a bare address or "Display Name <address>" (the name mail apps show).
+DEFAULT_FROM_EMAIL = os.environ.get("BREVO_SENDER_EMAIL") or "no-reply@localhost"
 # Where replies to back-office emails go (the sender is a shared, unattended address).
 EMAIL_REPLY_TO = os.environ.get("BREVO_REPLY_TO_EMAIL", "")
 

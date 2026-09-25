@@ -1,0 +1,9 @@
+{% autoescape off %}Bonjour{% if user.first_name %} {{ user.first_name }}{% endif %},
+
+Un compte vient d'être créé pour vous sur le back-office du site d'Eva Biezunski.
+
+Pour l'activer, choisissez votre mot de passe en ouvrant ce lien :
+{{ link }}
+
+Ce lien est valable {{ days }} jours. Passé ce délai, demandez-en un nouveau à un administrateur ou depuis la page « Mot de passe oublié » ({{ password_page_url }}).
+{% endautoescape %}

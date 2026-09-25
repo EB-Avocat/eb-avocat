@@ -134,6 +134,23 @@ describe("sendContactEmail", () => {
 		expect(body.to[0].email).toBe(CONTACT.email);
 	});
 
+	it("sends from the address of a 'Name <email>' sender, keeping its own name", async () => {
+		const fetchMock = vi.fn(async () => new Response(null, { status: 201 }));
+		vi.stubGlobal("fetch", fetchMock);
+
+		await sendContactEmail(valid, {
+			BREVO_API_KEY: "k",
+			BREVO_SENDER_EMAIL: '"Eva Biezunski, avocate" <contact@biezunski-avocat.fr>',
+		});
+		const body = JSON.parse(
+			(fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body as string,
+		);
+		expect(body.sender).toEqual({
+			name: "Eva Biezunski (site web)",
+			email: "contact@biezunski-avocat.fr",
+		});
+	});
+
 	it("returns an error on a non-2xx response", async () => {
 		vi.stubGlobal(
 			"fetch",

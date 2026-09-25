@@ -97,6 +97,10 @@ def test_user_created_without_password_receives_an_invitation(admin: User, api: 
     assert "back-office" in invitation.subject
     assert invitation.body.startswith("Bonjour Léa,")
     query = reset_query(invitation.body)
+    [(html, mimetype)] = getattr(invitation, "alternatives", [])
+    assert mimetype == "text/html"
+    assert "Choisir mon mot de passe" in str(html)
+    assert f'href="http://localhost:3000/admin-dev/mot-de-passe/nouveau?uid={query["uid"]}&amp;token=' in str(html)
     confirm = api.post(
         "/api/v1/auth/password-reset/confirm/",
         {"uid": query["uid"], "token": query["token"], "new_password": "brand-new-password"},

@@ -2,7 +2,8 @@
 
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
@@ -22,20 +23,22 @@ def password_link(user: User) -> str:
 def send_password_link(user: User) -> None:
     """An account that never had a password is still waiting for its invitation; others get a reset."""
     if user.has_usable_password():
-        subject = "Réinitialisation de votre mot de passe"
-        body = (
-            f"Bonjour,\n\nPour choisir un nouveau mot de passe, ouvrez ce lien :\n{password_link(user)}\n\n"
-            "Si vous n'êtes pas à l'origine de cette demande, ignorez ce message."
-        )
+        template, subject = "password_reset", "Réinitialisation de votre mot de passe"
     else:
-        subject = "Votre accès au back-office du site d'Eva Biezunski"
-        greeting = f"Bonjour {user.first_name}," if user.first_name else "Bonjour,"
-        days = settings.PASSWORD_RESET_TIMEOUT // 86400
-        body = (
-            f"{greeting}\n\nUn compte vient d'être créé pour vous sur le back-office du site d'Eva Biezunski.\n\n"
-            f"Pour l'activer, choisissez votre mot de passe en ouvrant ce lien :\n{password_link(user)}\n\n"
-            f"Ce lien est valable {days} jours. Passé ce délai, demandez-en un nouveau à un administrateur "
-            f"ou depuis la page « Mot de passe oublié » ({password_page_url()})."
-        )
-    reply_to = [settings.EMAIL_REPLY_TO] if settings.EMAIL_REPLY_TO else []
-    EmailMessage(subject, body, to=[user.email], reply_to=reply_to).send()
+        template, subject = "invitation", "Votre accès au back-office du site d'Eva Biezunski"
+    context = {
+        "subject": subject,
+        "user": user,
+        "link": password_link(user),
+        "days": settings.PASSWORD_RESET_TIMEOUT // 86400,
+        "password_page_url": password_page_url(),
+        "site_url": settings.SITE_URL,
+    }
+    message = EmailMultiAlternatives(
+        subject,
+        render_to_string(f"accounts/emails/{template}.txt", context),
+        to=[user.email],
+        reply_to=[settings.EMAIL_REPLY_TO] if settings.EMAIL_REPLY_TO else [],
+    )
+    message.attach_alternative(render_to_string(f"accounts/emails/{template}.html", context), "text/html")
+    message.send()
