@@ -1,18 +1,18 @@
+import logging
 from typing import Any
 
-from django.conf import settings
 from django.contrib.auth import authenticate, login, logout, password_validation, update_session_auth_hash
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.core.mail import send_mail
+from django.db import transaction
 from django.db.models import QuerySet
 from django.middleware.csrf import get_token
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
@@ -21,7 +21,7 @@ from rest_framework.serializers import BaseSerializer
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
-from accounts import services
+from accounts import emails, services
 from accounts.models import ApiToken, User
 from accounts.permissions import IsAdminRole
 from accounts.serializers import (
@@ -38,6 +38,22 @@ from accounts.serializers import (
 from articles.models import Article
 from core.auth import request_user
 from core.serializers import CropSerializer, ImageSourceSerializer
+
+logger = logging.getLogger(__name__)
+
+
+class EmailNotSent(APIException):
+    status_code = status.HTTP_502_BAD_GATEWAY
+    default_detail = "L'e-mail n'a pas pu être envoyé. Réessayez dans quelques minutes."
+
+
+def send_password_link_or_raise(user: User) -> None:
+    """For the back-office: a sending failure is reported (details in the logs), not a bare 500."""
+    try:
+        emails.send_password_link(user)
+    except Exception as exc:
+        logger.exception("Password link for user %s could not be sent.", user.pk)
+        raise EmailNotSent from exc
 
 
 class CsrfView(APIView):
@@ -89,17 +105,12 @@ class PasswordResetRequestView(APIView):
         serializer.is_valid(raise_exception=True)
         user = User.objects.filter(email__iexact=serializer.validated_data["email"], is_active=True).first()
         if user is not None:
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = default_token_generator.make_token(user)
-            link = f"{settings.SITE_URL}/{settings.BACKOFFICE_PATH}/mot-de-passe/nouveau?uid={uid}&token={token}"
-            send_mail(
-                "Réinitialisation de votre mot de passe",
-                f"Bonjour,\n\nPour choisir un nouveau mot de passe, ouvrez ce lien :\n{link}\n\n"
-                "Si vous n'êtes pas à l'origine de cette demande, ignorez ce message.",
-                None,
-                [user.email],
-            )
-        # Same answer whether or not the account exists (no user enumeration).
+            try:
+                emails.send_password_link(user)
+            except Exception:
+                # Swallowed: failing only for existing accounts would reveal them.
+                logger.exception("Password link for a reset request could not be sent.")
+        # Same answer whether or not the account exists, or the email went out (no user enumeration).
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -213,6 +224,24 @@ class UserViewSet(viewsets.ModelViewSet[User]):
 
     def get_serializer_class(self) -> type[UserSerializer]:
         return UserCreateSerializer if self.action == "create" else UserSerializer
+
+    # Atomic, so an invitation that can't be sent doesn't leave an unreachable account.
+    @transaction.atomic
+    def perform_create(self, serializer: BaseSerializer[User]) -> None:
+        user = serializer.save()
+        if not user.has_usable_password():
+            # Created without a password: the new user chooses one from the invitation link.
+            send_password_link_or_raise(user)
+
+    @extend_schema(request=None, responses={204: None})
+    @action(detail=True, methods=["post"], url_path="send-link")
+    def send_link(self, request: Request, pk: str | None = None) -> Response:
+        """Emails the invitation (account without a password yet) or a password reset link."""
+        user = self.get_object()
+        if not user.is_active:
+            raise ValidationError({"detail": "Ce compte est désactivé : réactivez-le avant d'envoyer un lien."})
+        send_password_link_or_raise(user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def _is_last_admin(self, user: User) -> bool:
         other_admins = User.objects.filter(role=User.Role.ADMIN, is_active=True).exclude(pk=user.pk)

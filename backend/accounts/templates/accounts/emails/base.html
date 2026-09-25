@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>{{ subject }}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f3f5f4;">
+<div style="display:none;max-height:0;overflow:hidden;">{% block preheader %}{% endblock %}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f3f5f4;">
+<tr><td align="center" style="padding:32px 16px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background-color:#ffffff;border-radius:8px;overflow:hidden;">
+    <tr><td style="background-color:#3f5b57;padding:24px 32px;">
+      <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:20px;color:#ffffff;">Eva Biezunski</p>
+      <p style="margin:4px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;letter-spacing:0.5px;color:#d5e0dd;">Avocate · Back-office du site</p>
+    </td></tr>
+    <tr><td style="padding:32px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#191919;">
+      <h1 style="margin:0 0 16px;font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:normal;color:#264445;">{% block title %}{% endblock %}</h1>
+      <p style="margin:0 0 16px;">Bonjour{% if user.first_name %} {{ user.first_name }}{% endif %},</p>
+      {% block intro %}{% endblock %}
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0;">
+        <tr><td style="border-radius:6px;background-color:#3f5b57;">
+          <a href="{{ link }}" style="display:inline-block;padding:12px 24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:6px;">{% block button %}{% endblock %}</a>
+        </td></tr>
+      </table>
+      {% block outro %}{% endblock %}
+      <p style="margin:24px 0 0;font-size:13px;color:#5f6b69;">Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur&nbsp;:<br>
+        <a href="{{ link }}" style="color:#3f5b57;word-break:break-all;">{{ link }}</a></p>
+    </td></tr>
+    <tr><td style="padding:16px 32px;border-top:1px solid #e3e8e6;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#5f6b69;">
+      Message automatique envoyé par le site <a href="{{ site_url }}" style="color:#3f5b57;">{{ site_url }}</a>.
+    </td></tr>
+  </table>
+</td></tr>
+</table>
+</body>
+</html>

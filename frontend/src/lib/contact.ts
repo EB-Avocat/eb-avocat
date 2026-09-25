@@ -128,6 +128,14 @@ export function buildBrevoPayload(data: ContactFormData, opts: BrevoPayloadOptio
 export type SendResult = { ok: true } | { ok: false; error: string };
 
 /**
+ * The address in a bare email or a `Display Name <email>` value. BREVO_SENDER_EMAIL is shared with
+ * the backend, which shows that name; contact messages keep their own "(site web)" sender name.
+ */
+function mailboxAddress(value: string): string {
+	return (value.match(/<([^<>]+)>\s*$/)?.[1] ?? value).trim();
+}
+
+/**
  * Sends a validated contact submission to Eva via the Brevo transactional API.
  * Reads BREVO_API_KEY / BREVO_SENDER_EMAIL from `env` (process.env by default)
  * and falls back to the public CONTACT.email for the recipient.
@@ -143,7 +151,10 @@ export async function sendContactEmail(
 	if (!apiKey) return { ok: false, error: "BREVO_API_KEY is not configured." };
 	if (!senderEmail) return { ok: false, error: "BREVO_SENDER_EMAIL is not configured." };
 
-	const payload = buildBrevoPayload(data, { senderEmail, recipientEmail });
+	const payload = buildBrevoPayload(data, {
+		senderEmail: mailboxAddress(senderEmail),
+		recipientEmail,
+	});
 
 	let response: Response;
 	try {

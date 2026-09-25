@@ -171,6 +171,7 @@ export const api = {
 		create: (data: UserCreateRequest) => post<UserCreate>("/admin/users/", data),
 		update: (id: string, data: PatchedUserRequest) => patch<User>(`/admin/users/${id}/`, data),
 		remove: (id: string) => del(`/admin/users/${id}/`),
+		sendLink: (id: string) => post<void>(`/admin/users/${id}/send-link/`),
 		setAvatar: (id: string, source: ImageSource) =>
 			post<User>(`/admin/users/${id}/avatar/`, imageForm(source)),
 		cropAvatar: (id: string, crop: CropRequest) =>

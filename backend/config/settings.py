@@ -123,26 +123,24 @@ REVALIDATE_SECRET = os.environ.get("REVALIDATE_SECRET", "")
 # Set by Vercel when "Protection Bypass for Automation" is on: lets that call through
 # Deployment Protection on preview URLs.
 VERCEL_AUTOMATION_BYPASS_SECRET = os.environ.get("VERCEL_AUTOMATION_BYPASS_SECRET", "")
-# Secret back-office path, used to build links in emails (password reset).
+# Secret back-office path, used to build links in account emails (invitations, password reset).
 BACKOFFICE_PATH = os.environ.get("BACKOFFICE_PATH", "admin-dev")
 
-# Email (password reset) via the Brevo SMTP relay when credentials are set, console otherwise.
-if os.environ.get("EMAIL_HOST_PASSWORD"):
+# Email (invitations, password reset) via the Brevo transactional API (django-anymail) when a key is set
+# (same key as the frontend contact form), printed to the console otherwise.
+if os.environ.get("BREVO_API_KEY"):
     MAILERS = {
         "default": {
-            "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
-            "OPTIONS": {
-                "host": os.environ.get("EMAIL_HOST", "smtp-relay.brevo.com"),
-                "port": int(os.environ.get("EMAIL_PORT", "587")),
-                "username": os.environ.get("EMAIL_HOST_USER", ""),
-                "password": os.environ["EMAIL_HOST_PASSWORD"],
-                "use_tls": True,
-            },
+            "BACKEND": "anymail.backends.brevo.EmailBackend",
+            "OPTIONS": {"api_key": os.environ["BREVO_API_KEY"]},
         }
     }
 else:
     MAILERS = {"default": {"BACKEND": "django.core.mail.backends.console.EmailBackend"}}
-DEFAULT_FROM_EMAIL = os.environ.get("BREVO_SENDER_EMAIL", "no-reply@localhost")
+# Both take a bare address or "Display Name <address>" (the name mail apps show).
+DEFAULT_FROM_EMAIL = os.environ.get("BREVO_SENDER_EMAIL") or "no-reply@localhost"
+# Reply-To of account emails (the sender is a shared, unattended address). Not a Django setting.
+BACKOFFICE_REPLY_TO = [address] if (address := os.environ.get("BREVO_REPLY_TO_EMAIL")) else []
 
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"

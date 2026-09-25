@@ -1,0 +1,6 @@
+{% extends "accounts/emails/base.html" %}
+{% block preheader %}Choisissez votre mot de passe pour activer votre compte.{% endblock %}
+{% block title %}Bienvenue sur le back-office{% endblock %}
+{% block intro %}<p style="margin:0;">Un compte vient d'être créé pour vous sur le back-office du site d'Eva Biezunski. Pour l'activer, choisissez votre mot de passe.</p>{% endblock %}
+{% block button %}Choisir mon mot de passe{% endblock %}
+{% block outro %}<p style="margin:0;">Ce lien est valable {{ days }} jours. Passé ce délai, demandez-en un nouveau à un administrateur ou depuis la page <a href="{{ password_page_url }}" style="color:#3f5b57;">Mot de passe oublié</a>.</p>{% endblock %}

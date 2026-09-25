@@ -128,14 +128,17 @@ The contact form posts to `POST /api/contact`, which sends Eva a transactional e
 [Brevo](https://www.brevo.com/) API (with the visitor set as `reply-to`). Configure these
 environment variables — see [`env.example`](frontend/env.example):
 
-| Variable             | Required | Description                                                        |
-| -------------------- | -------- | ------------------------------------------------------------------ |
-| `BREVO_API_KEY`      | yes      | Brevo API key (SMTP & API → API Keys).                             |
-| `BREVO_SENDER_EMAIL` | yes      | Verified sender email/domain in Brevo (the "from" address).        |
-| `BREVO_TO_EMAIL`     | no       | Recipient; defaults to the public contact email in `constants.ts`. |
+| Variable             | Required | Description                                                                        |
+| -------------------- | -------- | ---------------------------------------------------------------------------------- |
+| `BREVO_API_KEY`      | yes      | Brevo API key (SMTP & API → API Keys).                                             |
+| `BREVO_SENDER_EMAIL` | yes      | Verified sender in Brevo; `Name <email>` accepted (name used by back-office mail). |
+| `BREVO_TO_EMAIL`     | no       | Recipient; defaults to the public contact email in `constants.ts`.                 |
 
 Set them in `.env.local` for local dev, and in the Vercel project (Production + Preview) for
-deployment. The sender must be a **verified sender/domain** in your Brevo account.
+deployment. The sender must be a **verified sender/domain** in your Brevo account. Use a shared
+address (e.g. `contact@`) rather than Eva's own: mail "from Eva to Eva" sent by Brevo looks
+spoofed to her mailbox. Brevo's **Authorised IPs** blocking must be off, since Vercel functions
+have no fixed IP.
 
 ## Scripts
 
@@ -194,7 +197,9 @@ The project's Root Directory must be the repo root.
 Database: Neon Postgres from the Marketplace (`DATABASE_URL`). Media: a Vercel Blob store
 (`BLOB_READ_WRITE_TOKEN`, `STORAGE_BACKEND=vercel_blob`). Also set `SECRET_KEY`,
 `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `SITE_URL`, `REVALIDATE_SECRET` and `BACKOFFICE_PATH`,
-plus `EMAIL_HOST_USER`/`EMAIL_HOST_PASSWORD` for password-reset e-mails through Brevo SMTP.
+plus `BREVO_API_KEY`/`BREVO_SENDER_EMAIL` (shared with the contact form) for back-office invitation and
+password-reset e-mails through the Brevo API (`BREVO_REPLY_TO_EMAIL`, e.g. Eva's address, receives
+the replies); without a key the backend only prints them to its logs.
 Migrations run in the backend's build step.
 `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS` and `SITE_URL` only need values for Production: every
 deployment also trusts its own `VERCEL_URL` and `VERCEL_BRANCH_URL`, and previews use the branch URL
