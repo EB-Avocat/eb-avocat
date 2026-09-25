@@ -16,6 +16,8 @@ def reload_settings(monkeypatch: pytest.MonkeyPatch) -> Iterator[ModuleType]:
         "VERCEL_URL",
         "VERCEL_BRANCH_URL",
         "VERCEL",
+        "VERCEL_ENV",
+        "VERCEL_PROJECT_PRODUCTION_URL",
         "FRONTEND_INTERNAL_URL",
         "BREVO_API_KEY",
     ):
@@ -58,10 +60,32 @@ def test_revalidation_goes_through_the_site_url_on_vercel(
     reload_settings: ModuleType, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.setenv("VERCEL_BRANCH_URL", "eb-avocat-git-feat-x-team.vercel.app")
+    settings = importlib.reload(reload_settings)
+
+    assert settings.FRONTEND_INTERNAL_URL == "https://eb-avocat-git-feat-x-team.vercel.app"
+
+
+def test_production_revalidation_uses_the_primary_domain(
+    reload_settings: ModuleType, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Not SITE_URL: a redirecting alias (www -> apex) would drop the Authorization header."""
+    monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.setenv("VERCEL_ENV", "production")
+    monkeypatch.setenv("VERCEL_PROJECT_PRODUCTION_URL", "biezunski-avocat.fr")
     monkeypatch.setenv("SITE_URL", "https://www.biezunski-avocat.fr")
     settings = importlib.reload(reload_settings)
 
-    assert settings.FRONTEND_INTERNAL_URL == "https://www.biezunski-avocat.fr"
+    assert settings.FRONTEND_INTERNAL_URL == "https://biezunski-avocat.fr"
+
+
+def test_services_binding_host_is_trusted_on_vercel(
+    reload_settings: ModuleType, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("VERCEL", "1")
+    settings = importlib.reload(reload_settings)
+
+    assert ".services.vercel-infra.com" in settings.ALLOWED_HOSTS
 
 
 def test_emails_go_through_brevo_when_a_key_is_set(

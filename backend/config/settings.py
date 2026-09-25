@@ -27,6 +27,10 @@ if not SECRET_KEY:
 # (random *.vercel.app subdomains) are trusted without a wildcard.
 VERCEL_HOSTS = [host for host in (os.environ.get("VERCEL_URL"), os.environ.get("VERCEL_BRANCH_URL")) if host]
 ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1,backend") + VERCEL_HOSTS
+if os.environ.get("VERCEL"):
+    # The frontend's server-side fetches come through the Services binding (BACKEND_INTERNAL_URL,
+    # backend.<project>.services.vercel-infra.com): without it every SSR API call is a 400.
+    ALLOWED_HOSTS.append(".services.vercel-infra.com")
 CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", "http://localhost:3000") + [
     f"https://{host}" for host in VERCEL_HOSTS
 ]
@@ -118,8 +122,17 @@ MAX_IMAGE_UPLOAD_BYTES = 8 * 1024 * 1024
 _branch_url = os.environ.get("VERCEL_BRANCH_URL")
 SITE_URL = os.environ.get("SITE_URL") or (f"https://{_branch_url}" if _branch_url else "http://localhost:3000")
 # Frontend on-demand revalidation (Next.js /api/revalidate). On Vercel a backend -> frontend
-# service binding would be circular, so the call goes through the public site URL instead.
-FRONTEND_INTERNAL_URL = os.environ.get("FRONTEND_INTERNAL_URL") or (SITE_URL if os.environ.get("VERCEL") else "")
+# service binding would be circular, so the call goes through a public URL: in production,
+# Vercel's primary domain (never a redirecting alias like www, which would drop the
+# Authorization header), on previews the branch URL.
+_production_url = os.environ.get("VERCEL_PROJECT_PRODUCTION_URL")
+if os.environ.get("VERCEL_ENV") == "production" and _production_url:
+    _vercel_frontend_url = f"https://{_production_url}"
+else:
+    _vercel_frontend_url = SITE_URL
+FRONTEND_INTERNAL_URL = os.environ.get("FRONTEND_INTERNAL_URL") or (
+    _vercel_frontend_url if os.environ.get("VERCEL") else ""
+)
 REVALIDATE_SECRET = os.environ.get("REVALIDATE_SECRET", "")
 # Set by Vercel when "Protection Bypass for Automation" is on: lets that call through
 # Deployment Protection on preview URLs.
