@@ -194,7 +194,8 @@ The project's Root Directory must be the repo root.
 Database: Neon Postgres from the Marketplace (`DATABASE_URL`). Media: a Vercel Blob store
 (`BLOB_READ_WRITE_TOKEN`, `STORAGE_BACKEND=vercel_blob`). Also set `SECRET_KEY`,
 `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `SITE_URL`, `REVALIDATE_SECRET` and `BACKOFFICE_PATH`,
-plus `EMAIL_HOST_USER`/`EMAIL_HOST_PASSWORD` for password-reset e-mails through Brevo SMTP.
+plus `BREVO_API_KEY`/`BREVO_SENDER_EMAIL` (shared with the contact form) for back-office invitation and
+password-reset e-mails through the Brevo API; without a key the backend only prints them to its logs.
 Migrations run in the backend's build step.
 `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS` and `SITE_URL` only need values for Production: every
 deployment also trusts its own `VERCEL_URL` and `VERCEL_BRANCH_URL`, and previews use the branch URL

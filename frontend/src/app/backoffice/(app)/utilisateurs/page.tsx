@@ -211,19 +211,17 @@ function InviteModal({
 		const formElement = event.currentTarget;
 		const form = new FormData(formElement);
 		const password = String(form.get("password") ?? "");
-		const email = String(form.get("email"));
 		setBusy(true);
 		setError(null);
 		try {
 			const user = await api.users.create({
-				email,
+				email: String(form.get("email")),
 				first_name: String(form.get("first_name")),
 				last_name: String(form.get("last_name")),
 				role,
 				password: password || undefined,
 			});
-			// Without a password, the new user chooses one from the emailed link.
-			if (!password) await api.auth.requestReset(email);
+			// Without a password, the backend emails an invitation to choose one.
 			formElement.reset();
 			onCreated(user, !password);
 		} catch (err) {

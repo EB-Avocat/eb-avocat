@@ -17,6 +17,7 @@ def reload_settings(monkeypatch: pytest.MonkeyPatch) -> Iterator[ModuleType]:
         "VERCEL_BRANCH_URL",
         "VERCEL",
         "FRONTEND_INTERNAL_URL",
+        "BREVO_API_KEY",
     ):
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setenv("SECRET_KEY", "test-secret")
@@ -61,3 +62,21 @@ def test_revalidation_goes_through_the_site_url_on_vercel(
     settings = importlib.reload(reload_settings)
 
     assert settings.FRONTEND_INTERNAL_URL == "https://www.biezunski-avocat.fr"
+
+
+def test_emails_go_through_brevo_when_a_key_is_set(
+    reload_settings: ModuleType, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("BREVO_API_KEY", "xkeysib-test")
+    settings = importlib.reload(reload_settings)
+
+    assert settings.MAILERS["default"] == {
+        "BACKEND": "core.mail.BrevoEmailBackend",
+        "OPTIONS": {"api_key": "xkeysib-test"},
+    }
+
+
+def test_emails_are_printed_without_a_brevo_key(reload_settings: ModuleType) -> None:
+    settings = importlib.reload(reload_settings)
+
+    assert settings.MAILERS["default"]["BACKEND"] == "django.core.mail.backends.console.EmailBackend"

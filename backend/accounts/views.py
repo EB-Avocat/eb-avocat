@@ -1,14 +1,13 @@
 from typing import Any
 
-from django.conf import settings
 from django.contrib.auth import authenticate, login, logout, password_validation, update_session_auth_hash
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.core.mail import send_mail
+from django.db import transaction
 from django.db.models import QuerySet
 from django.middleware.csrf import get_token
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import action
@@ -21,7 +20,7 @@ from rest_framework.serializers import BaseSerializer
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
-from accounts import services
+from accounts import emails, services
 from accounts.models import ApiToken, User
 from accounts.permissions import IsAdminRole
 from accounts.serializers import (
@@ -89,16 +88,7 @@ class PasswordResetRequestView(APIView):
         serializer.is_valid(raise_exception=True)
         user = User.objects.filter(email__iexact=serializer.validated_data["email"], is_active=True).first()
         if user is not None:
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = default_token_generator.make_token(user)
-            link = f"{settings.SITE_URL}/{settings.BACKOFFICE_PATH}/mot-de-passe/nouveau?uid={uid}&token={token}"
-            send_mail(
-                "Réinitialisation de votre mot de passe",
-                f"Bonjour,\n\nPour choisir un nouveau mot de passe, ouvrez ce lien :\n{link}\n\n"
-                "Si vous n'êtes pas à l'origine de cette demande, ignorez ce message.",
-                None,
-                [user.email],
-            )
+            emails.send_password_link(user)
         # Same answer whether or not the account exists (no user enumeration).
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -213,6 +203,14 @@ class UserViewSet(viewsets.ModelViewSet[User]):
 
     def get_serializer_class(self) -> type[UserSerializer]:
         return UserCreateSerializer if self.action == "create" else UserSerializer
+
+    @transaction.atomic
+    def perform_create(self, serializer: BaseSerializer[User]) -> None:
+        user = serializer.save()
+        if not user.has_usable_password():
+            # Created without a password: the new user chooses one from the invitation link.
+            # Atomic, so an invitation that can't be sent doesn't leave an unreachable account.
+            emails.send_password_link(user)
 
     def _is_last_admin(self, user: User) -> bool:
         other_admins = User.objects.filter(role=User.Role.ADMIN, is_active=True).exclude(pk=user.pk)
