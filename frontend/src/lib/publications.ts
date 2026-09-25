@@ -26,23 +26,28 @@ function backendUrl(): string | null {
 }
 
 /**
- * GET a public API path. Returns null when the backend is not configured,
- * unreachable, or answers 404 — the site then shows its empty state instead of
- * failing (e.g. during a build without a backend).
+ * GET a public API path, strictly: null when the backend is not configured (e.g.
+ * during a build) or answers 404, throws on any other failure. For ISR pages,
+ * which then keep serving their last good version instead of caching a 404.
  */
-async function getJson<T>(path: string): Promise<T | null> {
+async function getJsonOrThrow<T>(path: string): Promise<T | null> {
 	const base = backendUrl();
 	if (!base) return null;
-	try {
-		const response = await fetch(new URL(path, base), {
-			headers: { accept: "application/json" },
-			next: { tags: [PUBLICATIONS_TAG], revalidate: REVALIDATE_SECONDS },
-		});
-		if (!response.ok) return null;
-		return (await response.json()) as T;
-	} catch {
+	const response = await fetch(new URL(path, base), {
+		headers: { accept: "application/json" },
+		next: { tags: [PUBLICATIONS_TAG], revalidate: REVALIDATE_SECONDS },
+	});
+	if (response.status === 404) return null;
+	if (!response.ok) throw new Error(`Backend GET ${path} failed: HTTP ${response.status}`);
+	return (await response.json()) as T;
+}
+
+/** Like getJsonOrThrow, but any failure is null: the page shows its empty state. */
+function getJson<T>(path: string): Promise<T | null> {
+	return getJsonOrThrow<T>(path).catch((error: unknown) => {
+		console.error(error);
 		return null;
-	}
+	});
 }
 
 export interface PublicationList {
@@ -88,7 +93,9 @@ export async function getLatestPublications(
 }
 
 export async function getPublicationBySlug(slug: string): Promise<PublicationDetail | null> {
-	const article = await getJson<ApiArticleDetail>(`/api/v1/articles/${encodeURIComponent(slug)}/`);
+	const article = await getJsonOrThrow<ApiArticleDetail>(
+		`/api/v1/articles/${encodeURIComponent(slug)}/`,
+	);
 	return article ? mapArticleDetail(article) : null;
 }
 
