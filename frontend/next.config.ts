@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
 	// Django routes end with "/": keep Next from stripping it before proxying /api/v1.
 	// Only when Next proxies the API itself; otherwise public URLs keep one canonical form.
 	skipTrailingSlashRedirect: Boolean(backendUrl),
+	// Vercel Services don't hoist this to the project: mirror changes in the root vercel.json
+	// `images`, or /_next/image 404s in production.
 	images: {
 		// Covers and avatars live on Vercel Blob in production.
 		remotePatterns: [{ protocol: "https", hostname: "**.public.blob.vercel-storage.com" }],
