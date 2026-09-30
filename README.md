@@ -170,8 +170,13 @@ frontend/src/
 └── __tests__/        # Vitest + Testing Library tests
 public/
 ├── fonts/            # Museo font family
-└── images/           # Logos, favicon, portrait
+└── images/           # Logos (SVG + PNG/WebP), favicon, portrait
+    └── icons/        # Contact icons (SVG + PNG/WebP)
 ```
+
+The logos and contact icons are also hot-linked from the e-mail signature. Their PNG/WebP
+copies are generated from the SVGs by `bun run scripts/generate-signature-images.ts` (in
+`frontend/`); re-run it and commit the output whenever one of those SVGs changes.
 
 The backend lives in `backend/` (`accounts`, `articles`, `core`, `config` apps); its
 environment is documented in [`backend/env.example`](backend/env.example).
