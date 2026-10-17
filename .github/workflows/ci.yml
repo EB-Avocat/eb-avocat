@@ -16,7 +16,7 @@ jobs:
         # lfs not enabled: lint/typecheck/tests don't need the binary assets
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.2
+          bun-version: 1.4.3
       - run: bun install --frozen-lockfile
       - name: Lint & format (biome)
         run: bun run lint
@@ -41,7 +41,7 @@ jobs:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/eb_avocat
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.2.0
+      - uses: astral-sh/setup-uv@v10.3.0
       - name: Lint, types, tests and coverage >= 90% (tox)
         run: uvx tox -e lint,type,test
 
@@ -51,10 +51,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.2.0
+      - uses: astral-sh/setup-uv@v10.3.0
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.2
+          bun-version: 1.4.3
       - run: bun install --frozen-lockfile
         working-directory: frontend
       - name: Regenerate the OpenAPI schema and TypeScript types
