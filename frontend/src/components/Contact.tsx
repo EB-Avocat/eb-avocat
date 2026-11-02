@@ -4,8 +4,7 @@ import { type FormEvent, useEffect, useRef, useState } from "react";
 import { contactItems } from "@/components/contactItems";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { CONTACT, OTHER_SUBJECT } from "@/lib/constants";
-import { CONTACT_LIMITS } from "@/lib/contact";
+import { CONTACT, CONTACT_LIMITS, OTHER_SUBJECT } from "@/lib/constants";
 
 const labelClass = "mb-1 block text-sm font-500 text-near-black";
 // Keep the brand border+ring on focus, but do NOT suppress the outline: the global
@@ -191,8 +190,8 @@ export function Contact() {
 							/>
 						</div>
 						{/* Honeypot: bots fill every field, people never see this one. Off-screen rather than
-						    display:none (which some bots skip), out of the tab order and hidden from
-						    assistive technologies. */}
+						    display:none or the well-known sr-only class (which some bots skip), out of the
+						    tab order and hidden from assistive technologies. */}
 						<div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
 							<label htmlFor="website">{CONTACT.formFields.honeypot}</label>
 							<input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />

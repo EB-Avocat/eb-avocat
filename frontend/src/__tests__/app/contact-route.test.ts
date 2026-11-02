@@ -1,8 +1,8 @@
 import { checkBotId } from "botid/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/contact/route";
-import { CONTACT } from "@/lib/constants";
-import { BREVO_API_URL, CONTACT_LIMITS, MIN_FILL_MS } from "@/lib/contact";
+import { CONTACT, CONTACT_LIMITS } from "@/lib/constants";
+import { BREVO_API_URL, MIN_FILL_MS } from "@/lib/contact";
 
 vi.mock("botid/server", () => ({ checkBotId: vi.fn() }));
 
@@ -29,8 +29,8 @@ function botIdVerdict(isBot: boolean) {
 	return { isHuman: !isBot, isBot, isVerifiedBot: false, bypassed: false };
 }
 
-function stubBrevo() {
-	const fetchMock = vi.fn(async () => new Response(null, { status: 201 }));
+function stubBrevo(status = 201) {
+	const fetchMock = vi.fn(async () => new Response(null, { status }));
 	vi.stubGlobal("fetch", fetchMock);
 	return fetchMock;
 }
@@ -92,6 +92,15 @@ describe("POST /api/contact", () => {
 	});
 
 	describe("silent drop", () => {
+		async function expectSilentDrop(body: unknown, reason: string) {
+			const fetchMock = stubBrevo();
+			const res = await POST(postRequest(body));
+			expect(res.status).toBe(200);
+			await expect(res.json()).resolves.toEqual({ ok: true });
+			expect(fetchMock).not.toHaveBeenCalled();
+			expect(console.warn).toHaveBeenCalledWith("Contact spam dropped:", reason);
+		}
+
 		beforeEach(() => {
 			vi.spyOn(console, "warn").mockImplementation(() => {});
 		});
@@ -105,23 +114,13 @@ describe("POST /api/contact", () => {
 				{ ...validBody, message: "http://a.fr http://b.fr http://c.fr http://d.fr" },
 			],
 		])("answers 200 without sending for %s", async (reason, body) => {
-			const fetchMock = stubBrevo();
-			const res = await POST(postRequest(body));
-			expect(res.status).toBe(200);
-			await expect(res.json()).resolves.toEqual({ ok: true });
-			expect(fetchMock).not.toHaveBeenCalled();
+			await expectSilentDrop(body, reason);
 			expect(checkBotId).not.toHaveBeenCalled();
-			expect(console.warn).toHaveBeenCalledWith("Contact spam dropped:", reason);
 		});
 
 		it("answers 200 without sending when BotID flags a bot", async () => {
 			vi.mocked(checkBotId).mockResolvedValue(botIdVerdict(true));
-			const fetchMock = stubBrevo();
-			const res = await POST(postRequest(validBody));
-			expect(res.status).toBe(200);
-			await expect(res.json()).resolves.toEqual({ ok: true });
-			expect(fetchMock).not.toHaveBeenCalled();
-			expect(console.warn).toHaveBeenCalledWith("Contact spam dropped:", "botid");
+			await expectSilentDrop(validBody, "botid");
 		});
 
 		it("never logs the visitor's data", async () => {
@@ -159,10 +158,7 @@ describe("POST /api/contact", () => {
 
 	it("returns 500 when Brevo fails", async () => {
 		vi.spyOn(console, "error").mockImplementation(() => {});
-		vi.stubGlobal(
-			"fetch",
-			vi.fn(async () => new Response(null, { status: 500 })),
-		);
+		stubBrevo(500);
 		const res = await POST(postRequest(validBody));
 		expect(res.status).toBe(500);
 	});
@@ -179,10 +175,7 @@ describe("POST /api/contact", () => {
 
 	it("never leaks the API key in the response", async () => {
 		vi.spyOn(console, "error").mockImplementation(() => {});
-		vi.stubGlobal(
-			"fetch",
-			vi.fn(async () => new Response(null, { status: 500 })),
-		);
+		stubBrevo(500);
 		const res = await POST(postRequest(validBody));
 		const text = await res.text();
 		expect(text).not.toContain("secret-key");

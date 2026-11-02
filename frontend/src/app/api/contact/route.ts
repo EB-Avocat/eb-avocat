@@ -19,7 +19,7 @@ async function isBotIdBot(): Promise<boolean> {
 }
 
 /** Answers like a successful send so the bot learns nothing; logs the reason, never the data. */
-function silentDrop(reason: SpamReason | "botid") {
+function silentDrop(reason: SpamReason) {
 	console.warn("Contact spam dropped:", reason);
 	return Response.json({ ok: true });
 }
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
 		return Response.json({ ok: false, errors: validation.errors }, { status: 400 });
 	}
 
-	const spam = detectSpam(body);
+	const spam = detectSpam(body, validation.data);
 	if (spam) return silentDrop(spam);
 	if (await isBotIdBot()) return silentDrop("botid");
 

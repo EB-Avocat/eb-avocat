@@ -1,9 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CONTACT, OTHER_SUBJECT } from "@/lib/constants";
+import { CONTACT, CONTACT_LIMITS, OTHER_SUBJECT } from "@/lib/constants";
 import {
 	BREVO_API_URL,
 	buildBrevoPayload,
-	CONTACT_LIMITS,
 	type ContactFormData,
 	detectSpam,
 	isSameOrigin,
@@ -107,19 +106,24 @@ describe("validateContactForm length caps", () => {
 
 describe("detectSpam", () => {
 	const human = { ...valid, website: "", elapsedMs: MIN_FILL_MS + 1000 };
+	// detectSpam gets the raw payload plus the message as validation normalised it.
+	const check = (overrides: Record<string, unknown> = {}) => {
+		const payload = { ...human, ...overrides };
+		return detectSpam(payload, { ...valid, message: payload.message });
+	};
 
 	it("lets a normal submission through", () => {
-		expect(detectSpam(human)).toBeNull();
-		expect(detectSpam({ ...human, elapsedMs: String(MIN_FILL_MS) })).toBeNull();
-		expect(detectSpam({ ...human, website: undefined })).toBeNull();
+		expect(check()).toBeNull();
+		expect(check({ elapsedMs: String(MIN_FILL_MS) })).toBeNull();
+		expect(check({ website: undefined })).toBeNull();
 	});
 
 	it("flags a filled honeypot", () => {
-		expect(detectSpam({ ...human, website: "https://spam.example" })).toBe("honeypot");
+		expect(check({ website: "https://spam.example" })).toBe("honeypot");
 	});
 
 	it("ignores a whitespace-only honeypot", () => {
-		expect(detectSpam({ ...human, website: "  " })).toBeNull();
+		expect(check({ website: "  " })).toBeNull();
 	});
 
 	it.each([
@@ -130,31 +134,25 @@ describe("detectSpam", () => {
 		["not a number type", true],
 		["infinite", Number.POSITIVE_INFINITY],
 	])("flags an elapsedMs that is %s", (_label, elapsedMs) => {
-		expect(detectSpam({ ...human, elapsedMs })).toBe("too-fast");
+		expect(check({ elapsedMs })).toBe("too-fast");
 	});
 
 	it("flags a message with too many links", () => {
 		const links = (n: number) =>
 			Array.from({ length: n }, (_, i) => `https://spam${i}.example/x`).join(" ");
-		expect(detectSpam({ ...human, message: links(MAX_MESSAGE_URLS) })).toBeNull();
-		expect(detectSpam({ ...human, message: links(MAX_MESSAGE_URLS + 1) })).toBe("too-many-links");
+		expect(check({ message: links(MAX_MESSAGE_URLS) })).toBeNull();
+		expect(check({ message: links(MAX_MESSAGE_URLS + 1) })).toBe("too-many-links");
 	});
 
 	it("counts www links and does not double-count https://www.", () => {
 		const message = "https://www.a.fr www.b.fr http://c.fr WWW.d.fr";
-		expect(detectSpam({ ...human, message })).toBe("too-many-links");
-		expect(
-			detectSpam({ ...human, message: "https://www.a.fr https://www.b.fr https://www.c.fr" }),
-		).toBeNull();
+		expect(check({ message })).toBe("too-many-links");
+		expect(check({ message: "https://www.a.fr https://www.b.fr https://www.c.fr" })).toBeNull();
 	});
 
 	it("counts links glued together without whitespace", () => {
 		const message = "http://a.fr,http://b.fr|https://c.fr<br>www.d.fr";
-		expect(detectSpam({ ...human, message })).toBe("too-many-links");
-	});
-
-	it("tolerates a non-object payload", () => {
-		expect(detectSpam(null)).toBe("too-fast");
+		expect(check({ message })).toBe("too-many-links");
 	});
 });
 

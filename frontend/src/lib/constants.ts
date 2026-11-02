@@ -1,3 +1,14 @@
+/** Contact-form field caps (characters, after trimming): the form's `maxLength` and the API's checks. */
+export const CONTACT_LIMITS = {
+	name: 100,
+	email: 254,
+	phone: 30,
+	subject: 150,
+	message: 5000,
+} as const;
+
+const maxChars = (limit: number) => `${limit.toLocaleString("fr-FR")} caractères maximum`;
+
 export const SITE = {
 	name: "Eva Biezunski",
 	title: "Eva Biezunski Avocate, Cabinet dédié aux professionnels libéraux",
@@ -152,11 +163,11 @@ export const CONTACT = {
 		emailInvalid: "L'email est invalide.",
 		messageRequired: "Le message est requis.",
 		customSubjectRequired: "Veuillez préciser l'objet.",
-		nameTooLong: "Le nom ou le prénom est trop long (100 caractères maximum).",
+		nameTooLong: `Le nom ou le prénom est trop long (${maxChars(CONTACT_LIMITS.name)}).`,
 		emailTooLong: "L'email est trop long.",
 		phoneTooLong: "Le numéro de téléphone est trop long.",
-		subjectTooLong: "L'objet est trop long (150 caractères maximum).",
-		messageTooLong: "Le message est trop long (5 000 caractères maximum).",
+		subjectTooLong: `L'objet est trop long (${maxChars(CONTACT_LIMITS.subject)}).`,
+		messageTooLong: `Le message est trop long (${maxChars(CONTACT_LIMITS.message)}).`,
 	},
 	subjectOptions: [
 		"Création de société",

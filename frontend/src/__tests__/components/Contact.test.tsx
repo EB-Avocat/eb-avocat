@@ -1,8 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Contact } from "@/components/Contact";
-import { CONTACT, OTHER_SUBJECT } from "@/lib/constants";
-import { CONTACT_LIMITS } from "@/lib/contact";
+import { CONTACT, CONTACT_LIMITS, OTHER_SUBJECT } from "@/lib/constants";
 
 function fillRequiredFields() {
 	fireEvent.change(screen.getByLabelText(CONTACT.formFields.lastName), {

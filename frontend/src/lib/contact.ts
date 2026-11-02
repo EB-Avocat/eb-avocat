@@ -1,4 +1,4 @@
-import { CONTACT, OTHER_SUBJECT, SITE } from "@/lib/constants";
+import { CONTACT, CONTACT_LIMITS, OTHER_SUBJECT, SITE } from "@/lib/constants";
 
 /** Brevo transactional email endpoint. */
 export const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
@@ -18,15 +18,6 @@ export type ValidationResult =
 	| { ok: true; data: ContactFormData }
 	| { ok: false; errors: string[] };
 
-/** Maximum lengths (in characters, after trimming), mirrored by the form's `maxLength`. */
-export const CONTACT_LIMITS = {
-	name: 100,
-	email: 254,
-	phone: 30,
-	subject: 150,
-	message: 5000,
-} as const;
-
 /** Submissions sent faster than this after the form rendered are treated as bots. */
 export const MIN_FILL_MS = 3000;
 
@@ -38,7 +29,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // together without whitespace ("http://a.fr,http://b.fr") still count separately.
 const URL_RE = /https?:\/\/|(?<!\/\/)\bwww\./gi;
 
-/** Trimmed string with CRLF / CR line breaks normalised to LF (as the browser's maxLength counts them). */
+/** Trimmed string with line breaks normalised to LF, as the browser's `maxLength` counts them. */
 function asString(value: unknown): string {
 	return typeof value === "string" ? value.replace(/\r\n?/g, "\n").trim() : "";
 }
@@ -92,25 +83,25 @@ export function validateContactForm(input: unknown): ValidationResult {
 	return { ok: true, data };
 }
 
-export type SpamReason = "honeypot" | "too-fast" | "too-many-links";
+export type SpamReason = "honeypot" | "too-fast" | "too-many-links" | "botid";
 
 /**
- * Cheap bot heuristics on a raw payload: the hidden `website` honeypot is filled, the form was
- * sent less than MIN_FILL_MS after it rendered (or without a usable `elapsedMs`), or the message
- * carries more than MAX_MESSAGE_URLS links. Returns the first reason found, or null.
+ * Cheap bot heuristics on a submission that passed validation: the hidden `website` honeypot
+ * of the raw payload is filled, the form was sent less than MIN_FILL_MS after it rendered (or
+ * without a numeric `elapsedMs`), or the message carries more than MAX_MESSAGE_URLS links.
+ * Returns the first reason found, or null.
  */
-export function detectSpam(input: unknown): SpamReason | null {
+export function detectSpam(
+	input: unknown,
+	data: ContactFormData,
+): Exclude<SpamReason, "botid"> | null {
 	const raw = (input ?? {}) as Record<string, unknown>;
 	if (asString(raw.website)) return "honeypot";
 
-	const { elapsedMs } = raw;
-	const elapsed =
-		typeof elapsedMs === "number" || (typeof elapsedMs === "string" && elapsedMs.trim())
-			? Number(elapsedMs)
-			: Number.NaN;
+	const elapsed = Number(raw.elapsedMs);
 	if (!Number.isFinite(elapsed) || elapsed < MIN_FILL_MS) return "too-fast";
 
-	if ((asString(raw.message).match(URL_RE)?.length ?? 0) > MAX_MESSAGE_URLS) {
+	if ((data.message.match(URL_RE)?.length ?? 0) > MAX_MESSAGE_URLS) {
 		return "too-many-links";
 	}
 	return null;
