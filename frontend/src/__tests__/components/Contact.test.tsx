@@ -72,7 +72,7 @@ describe("Contact", () => {
 
 	it("hides the honeypot from people and assistive technologies", () => {
 		const { container } = render(<Contact />);
-		const honeypot = container.querySelector<HTMLInputElement>('input[name="website"]');
+		const honeypot = container.querySelector<HTMLInputElement>('input[name="hp_ref"]');
 		expect(honeypot).not.toBeNull();
 		expect(honeypot?.tabIndex).toBe(-1);
 		expect(honeypot?.autocomplete).toBe("off");
@@ -102,7 +102,7 @@ describe("Contact", () => {
 			await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
 			const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
 			const body = JSON.parse(init.body as string);
-			expect(body.website).toBe("");
+			expect(body.hp_ref).toBe("");
 			expect(body.elapsedMs).toBe(4200);
 		});
 
@@ -129,6 +129,90 @@ describe("Contact", () => {
 				email: "marie@example.com",
 				message: "Bonjour.",
 			});
+		});
+
+		function stubResponse(status: number, body?: unknown) {
+			vi.stubGlobal(
+				"fetch",
+				vi.fn(
+					async () => new Response(body === undefined ? null : JSON.stringify(body), { status }),
+				),
+			);
+		}
+
+		async function submitFailing(status: number, body?: unknown) {
+			stubResponse(status, body);
+			render(<Contact />);
+			fillRequiredFields();
+			fireEvent.click(screen.getByText(CONTACT.formFields.submit));
+		}
+
+		it("shows the anti-spam message on verification_failed and keeps the form content", async () => {
+			await submitFailing(400, { ok: false, code: "verification_failed" });
+
+			const alert = await screen.findByRole("alert");
+			expect(alert).toHaveTextContent(CONTACT.formErrors.verificationFailed);
+			expect(screen.getByLabelText(CONTACT.formFields.message)).toHaveValue("Bonjour.");
+		});
+
+		it("shows the server's French errors, each in the alert", async () => {
+			await submitFailing(400, {
+				ok: false,
+				errors: [CONTACT.formErrors.tooManyLinks, CONTACT.formErrors.messageTooLong],
+			});
+
+			const alert = await screen.findByRole("alert");
+			// textContent, not toHaveTextContent: the latter would fold the no-break space of "5 000".
+			expect(alert.textContent).toContain(CONTACT.formErrors.tooManyLinks);
+			expect(alert.textContent).toContain(CONTACT.formErrors.messageTooLong);
+			expect(screen.queryByText(CONTACT.formMessages.error)).not.toBeInTheDocument();
+			expect(screen.getByLabelText(CONTACT.formFields.lastName)).toHaveValue("Dupont");
+		});
+
+		it.each([
+			["a 500 without a body", 500, undefined],
+			["a 403", 403, { ok: false }],
+			["an empty errors list", 400, { ok: false, errors: [] }],
+			["malformed errors", 400, { ok: false, errors: [1, 2] }],
+		])("falls back to the generic error on %s", async (_label, status, body) => {
+			await submitFailing(status, body);
+
+			const alert = await screen.findByRole("alert");
+			expect(alert).toHaveTextContent(CONTACT.formMessages.error);
+		});
+
+		it("falls back to the generic error when the network fails", async () => {
+			vi.stubGlobal(
+				"fetch",
+				vi.fn(async () => {
+					throw new TypeError("network");
+				}),
+			);
+			render(<Contact />);
+			fillRequiredFields();
+			fireEvent.click(screen.getByText(CONTACT.formFields.submit));
+
+			expect(await screen.findByRole("alert")).toHaveTextContent(CONTACT.formMessages.error);
+		});
+
+		it("clears a previous error once the retry succeeds", async () => {
+			const fetchMock = vi
+				.fn()
+				.mockResolvedValueOnce(
+					new Response(JSON.stringify({ ok: false, code: "verification_failed" }), { status: 400 }),
+				)
+				.mockResolvedValueOnce(new Response(null, { status: 200 }));
+			vi.stubGlobal("fetch", fetchMock);
+			render(<Contact />);
+			fillRequiredFields();
+			fireEvent.click(screen.getByText(CONTACT.formFields.submit));
+			await screen.findByRole("alert");
+
+			fireEvent.click(screen.getByText(CONTACT.formFields.submit));
+			await waitFor(() =>
+				expect(screen.getByText(CONTACT.formMessages.success)).toBeInTheDocument(),
+			);
+			expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 		});
 
 		it("shows an error message when the request fails", async () => {

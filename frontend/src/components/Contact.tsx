@@ -14,9 +14,21 @@ const inputClass =
 
 type Status = "idle" | "submitting" | "success" | "error";
 
+/** What to tell the visitor about a failed submission: the server's French reasons, if any. */
+async function failureMessages(res: Response): Promise<string[]> {
+	const body: unknown = await res.json().catch(() => null);
+	const { code, errors } = (body ?? {}) as { code?: unknown; errors?: unknown };
+	if (code === "verification_failed") return [CONTACT.formErrors.verificationFailed];
+	if (Array.isArray(errors) && errors.length > 0 && errors.every((e) => typeof e === "string")) {
+		return errors;
+	}
+	return [];
+}
+
 export function Contact() {
 	const [subject, setSubject] = useState("");
 	const [status, setStatus] = useState<Status>("idle");
+	const [errors, setErrors] = useState<string[]>([]);
 	// When the form became usable in the browser: the server drops submissions sent too fast.
 	// performance.now() is monotonic, so a system clock change cannot skew the measure.
 	const renderedAt = useRef(0);
@@ -39,11 +51,17 @@ export function Contact() {
 				headers: { "content-type": "application/json" },
 				body: JSON.stringify(payload),
 			});
-			if (!res.ok) throw new Error("Request failed");
+			if (!res.ok) {
+				// Keep what the visitor typed: the form is only reset on success.
+				setErrors(await failureMessages(res));
+				setStatus("error");
+				return;
+			}
 			form.reset();
 			setSubject("");
 			setStatus("success");
 		} catch {
+			setErrors([]);
 			setStatus("error");
 		}
 	};
@@ -193,8 +211,8 @@ export function Contact() {
 						    display:none or the well-known sr-only class (which some bots skip), out of the
 						    tab order and hidden from assistive technologies. */}
 						<div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
-							<label htmlFor="website">{CONTACT.formFields.honeypot}</label>
-							<input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+							<label htmlFor="hp_ref">{CONTACT.formFields.honeypot}</label>
+							<input id="hp_ref" name="hp_ref" type="text" tabIndex={-1} autoComplete="off" />
 						</div>
 						<Button type="submit" disabled={status === "submitting"}>
 							{status === "submitting" ? CONTACT.formMessages.sending : CONTACT.formFields.submit}
@@ -205,9 +223,13 @@ export function Contact() {
 							</p>
 						)}
 						{status === "error" && (
-							<p role="alert" className="text-sm font-300 text-red-600">
-								{CONTACT.formMessages.error}
-							</p>
+							<div role="alert" className="space-y-1 text-sm font-300 text-red-600">
+								{errors.length > 0 ? (
+									errors.map((message) => <p key={message}>{message}</p>)
+								) : (
+									<p>{CONTACT.formMessages.error}</p>
+								)}
+							</div>
 						)}
 					</form>
 				</div>

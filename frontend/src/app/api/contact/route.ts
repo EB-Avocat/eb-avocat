@@ -1,8 +1,8 @@
 import { checkBotId } from "botid/server";
 import {
-	detectSpam,
+	isHoneypotFilled,
 	isSameOrigin,
-	type SpamReason,
+	isTooFast,
 	sendContactEmail,
 	validateContactForm,
 } from "@/lib/contact";
@@ -18,10 +18,13 @@ async function isBotIdBot(): Promise<boolean> {
 	}
 }
 
-/** Answers like a successful send so the bot learns nothing; logs the reason, never the data. */
-function silentDrop(reason: SpamReason) {
-	console.warn("Contact spam dropped:", reason);
-	return Response.json({ ok: true });
+/**
+ * A real person can hit these (a slow form fill, a blocked BotID script): tell them to retry
+ * rather than dropping their message. Logs the reason, never the visitor's data.
+ */
+function verificationFailed(reason: "too-fast" | "botid") {
+	console.warn("Contact verification failed:", reason);
+	return Response.json({ ok: false, code: "verification_failed" }, { status: 400 });
 }
 
 export async function POST(request: Request) {
@@ -42,9 +45,13 @@ export async function POST(request: Request) {
 		return Response.json({ ok: false, errors: validation.errors }, { status: 400 });
 	}
 
-	const spam = detectSpam(body, validation.data);
-	if (spam) return silentDrop(spam);
-	if (await isBotIdBot()) return silentDrop("botid");
+	// Only the honeypot is a silent drop: no person can fill a field they cannot see.
+	if (isHoneypotFilled(body)) {
+		console.warn("Contact spam dropped:", "honeypot");
+		return Response.json({ ok: true });
+	}
+	if (isTooFast(body)) return verificationFailed("too-fast");
+	if (await isBotIdBot()) return verificationFailed("botid");
 
 	const result = await sendContactEmail(validation.data);
 	if (!result.ok) {

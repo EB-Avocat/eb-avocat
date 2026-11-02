@@ -21,9 +21,6 @@ export type ValidationResult =
 /** Submissions sent faster than this after the form rendered are treated as bots. */
 export const MIN_FILL_MS = 3000;
 
-/** Messages with more links than this are treated as link spam. */
-export const MAX_MESSAGE_URLS = 3;
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Counts each scheme or bare "www." (but not the "www." of "https://www."), so links glued
 // together without whitespace ("http://a.fr,http://b.fr") still count separately.
@@ -78,43 +75,43 @@ export function validateContactForm(input: unknown): ValidationResult {
 		errors.push(formErrors.subjectTooLong);
 	}
 	if (data.message.length > CONTACT_LIMITS.message) errors.push(formErrors.messageTooLong);
+	if ((data.message.match(URL_RE)?.length ?? 0) > CONTACT_LIMITS.urls) {
+		errors.push(formErrors.tooManyLinks);
+	}
 
 	if (errors.length > 0) return { ok: false, errors };
 	return { ok: true, data };
 }
 
-export type SpamReason = "honeypot" | "too-fast" | "too-many-links" | "botid";
+/** True when the hidden `hp_ref` honeypot of the raw payload is filled (only bots do that). */
+export function isHoneypotFilled(input: unknown): boolean {
+	const raw = (input ?? {}) as Record<string, unknown>;
+	return asString(raw.hp_ref) !== "";
+}
 
 /**
- * Cheap bot heuristics on a submission that passed validation: the hidden `website` honeypot
- * of the raw payload is filled, the form was sent less than MIN_FILL_MS after it rendered (or
- * without a numeric `elapsedMs`), or the message carries more than MAX_MESSAGE_URLS links.
- * Returns the first reason found, or null.
+ * True when the form was sent less than MIN_FILL_MS after it rendered, or without a usable
+ * numeric `elapsedMs` (a number or a numeric string).
  */
-export function detectSpam(
-	input: unknown,
-	data: ContactFormData,
-): Exclude<SpamReason, "botid"> | null {
+export function isTooFast(input: unknown): boolean {
 	const raw = (input ?? {}) as Record<string, unknown>;
-	if (asString(raw.website)) return "honeypot";
-
 	const elapsed = Number(raw.elapsedMs);
-	if (!Number.isFinite(elapsed) || elapsed < MIN_FILL_MS) return "too-fast";
-
-	if ((data.message.match(URL_RE)?.length ?? 0) > MAX_MESSAGE_URLS) {
-		return "too-many-links";
-	}
-	return null;
+	return !Number.isFinite(elapsed) || elapsed < MIN_FILL_MS;
 }
 
 /**
  * False when the request carries an `Origin` header for another host than the one it was sent
- * to (a cross-site form post or a forged script request). Requests without `Origin` pass.
+ * to (a cross-site form post or a forged script request). Requests without `Origin` pass. The
+ * host is `x-forwarded-host` (the public host, since the platform may forward an internal
+ * `host`), then `host`.
  */
 export function isSameOrigin(request: Request): boolean {
 	const origin = request.headers.get("origin");
 	if (!origin) return true;
-	const host = request.headers.get("host") ?? new URL(request.url).host;
+	const host =
+		request.headers.get("x-forwarded-host") ??
+		request.headers.get("host") ??
+		new URL(request.url).host;
 	try {
 		return new URL(origin).host === host;
 	} catch {

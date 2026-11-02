@@ -5,6 +5,7 @@ export const CONTACT_LIMITS = {
 	phone: 30,
 	subject: 150,
 	message: 5000,
+	urls: 3,
 } as const;
 
 const maxChars = (limit: number) => `${limit.toLocaleString("fr-FR")} caractères maximum`;
@@ -148,7 +149,7 @@ export const CONTACT = {
 		customSubject: "Précisez l'objet",
 		message: "Message",
 		// Label of the hidden anti-spam field (never shown to people).
-		honeypot: "Site web",
+		honeypot: "Laisser ce champ vide",
 		submit: "Envoyer",
 	},
 	formMessages: {
@@ -168,6 +169,9 @@ export const CONTACT = {
 		phoneTooLong: "Le numéro de téléphone est trop long.",
 		subjectTooLong: `L'objet est trop long (${maxChars(CONTACT_LIMITS.subject)}).`,
 		messageTooLong: `Le message est trop long (${maxChars(CONTACT_LIMITS.message)}).`,
+		tooManyLinks: `Votre message contient trop de liens (${CONTACT_LIMITS.urls} maximum).`,
+		verificationFailed:
+			"La vérification anti-spam n'a pas abouti. Veuillez réessayer dans quelques secondes, ou contacter le cabinet par téléphone ou par email.",
 	},
 	subjectOptions: [
 		"Création de société",
