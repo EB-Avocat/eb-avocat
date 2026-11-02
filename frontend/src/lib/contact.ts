@@ -34,11 +34,13 @@ export const MIN_FILL_MS = 3000;
 export const MAX_MESSAGE_URLS = 3;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-// `\S+` consumes the whole link, so "https://www.…" counts once.
-const URL_RE = /(?:https?:\/\/|\bwww\.)\S+/gi;
+// Counts each scheme or bare "www." (but not the "www." of "https://www."), so links glued
+// together without whitespace ("http://a.fr,http://b.fr") still count separately.
+const URL_RE = /https?:\/\/|(?<!\/\/)\bwww\./gi;
 
+/** Trimmed string with CRLF / CR line breaks normalised to LF (as the browser's maxLength counts them). */
 function asString(value: unknown): string {
-	return typeof value === "string" ? value.trim() : "";
+	return typeof value === "string" ? value.replace(/\r\n?/g, "\n").trim() : "";
 }
 
 /**
@@ -80,7 +82,7 @@ export function validateContactForm(input: unknown): ValidationResult {
 	if (data.phone.length > CONTACT_LIMITS.phone) errors.push(formErrors.phoneTooLong);
 	if (
 		data.subject.length > CONTACT_LIMITS.subject ||
-		(data.customSubject ?? "").length > CONTACT_LIMITS.subject
+		(data.customSubject?.length ?? 0) > CONTACT_LIMITS.subject
 	) {
 		errors.push(formErrors.subjectTooLong);
 	}

@@ -136,6 +136,8 @@ export const CONTACT = {
 		subject: "Objet",
 		customSubject: "Précisez l'objet",
 		message: "Message",
+		// Label of the hidden anti-spam field (never shown to people).
+		honeypot: "Site web",
 		submit: "Envoyer",
 	},
 	formMessages: {

@@ -78,7 +78,9 @@ describe("Contact", () => {
 		expect(honeypot?.tabIndex).toBe(-1);
 		expect(honeypot?.autocomplete).toBe("off");
 		expect(honeypot?.closest('[aria-hidden="true"]')).not.toBeNull();
-		expect(screen.queryByRole("textbox", { name: "Site web" })).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole("textbox", { name: CONTACT.formFields.honeypot }),
+		).not.toBeInTheDocument();
 	});
 
 	describe("submission", () => {
@@ -89,7 +91,7 @@ describe("Contact", () => {
 		});
 
 		it("sends the honeypot and the time since the form rendered", async () => {
-			vi.useFakeTimers({ toFake: ["Date"] });
+			vi.useFakeTimers({ toFake: ["performance"] });
 			const fetchMock = vi.fn(async () => new Response(null, { status: 200 }));
 			vi.stubGlobal("fetch", fetchMock);
 

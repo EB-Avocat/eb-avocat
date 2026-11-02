@@ -74,6 +74,15 @@ describe("validateContactForm length caps", () => {
 		expect(result.ok).toBe(true);
 	});
 
+	it("counts a CRLF line break as one character, like the browser's maxLength", () => {
+		const message = `${"a".repeat(CONTACT_LIMITS.message - 2)}\r\nb`;
+		const result = validateContactForm({ ...valid, message });
+		expect(result).toEqual({
+			ok: true,
+			data: expect.objectContaining({ message: message.replace("\r\n", "\n") }),
+		});
+	});
+
 	it("measures trimmed values", () => {
 		const result = validateContactForm({
 			...valid,
@@ -137,6 +146,11 @@ describe("detectSpam", () => {
 		expect(
 			detectSpam({ ...human, message: "https://www.a.fr https://www.b.fr https://www.c.fr" }),
 		).toBeNull();
+	});
+
+	it("counts links glued together without whitespace", () => {
+		const message = "http://a.fr,http://b.fr|https://c.fr<br>www.d.fr";
+		expect(detectSpam({ ...human, message })).toBe("too-many-links");
 	});
 
 	it("tolerates a non-object payload", () => {

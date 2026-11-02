@@ -19,9 +19,10 @@ export function Contact() {
 	const [subject, setSubject] = useState("");
 	const [status, setStatus] = useState<Status>("idle");
 	// When the form became usable in the browser: the server drops submissions sent too fast.
+	// performance.now() is monotonic, so a system clock change cannot skew the measure.
 	const renderedAt = useRef(0);
 	useEffect(() => {
-		renderedAt.current = Date.now();
+		renderedAt.current = performance.now();
 	}, []);
 
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -29,7 +30,7 @@ export function Contact() {
 		const form = e.currentTarget;
 		const payload = {
 			...Object.fromEntries(new FormData(form).entries()),
-			elapsedMs: Date.now() - renderedAt.current,
+			elapsedMs: Math.round(performance.now() - renderedAt.current),
 		};
 
 		setStatus("submitting");
@@ -193,7 +194,7 @@ export function Contact() {
 						    display:none (which some bots skip), out of the tab order and hidden from
 						    assistive technologies. */}
 						<div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
-							<label htmlFor="website">Site web</label>
+							<label htmlFor="website">{CONTACT.formFields.honeypot}</label>
 							<input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
 						</div>
 						<Button type="submit" disabled={status === "submitting"}>
