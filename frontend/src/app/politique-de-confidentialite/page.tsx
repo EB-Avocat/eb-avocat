@@ -122,7 +122,7 @@ export default function PolitiqueDeConfidentialitePage() {
 
 				<div className="mx-auto max-w-3xl space-y-12 font-300 leading-relaxed">
 					<section className="space-y-4">
-						<p className="font-500">Date de dernière mise à jour : 19 juin 2026</p>
+						<p className="font-500">Date de dernière mise à jour : 2 novembre 2026</p>
 						<p>
 							Eva Biezunski (EI) met tout en œuvre pour protéger vos Données Personnelles
 							conformément au Règlement Européen sur la Protection des Données (RGPD) et à la loi
@@ -331,6 +331,14 @@ export default function PolitiqueDeConfidentialitePage() {
 							Toutes les informations que vous transmettez au Cabinet sont stockées sur nos serveurs
 							sécurisés, ou ceux de nos prestataires, au sein de l&apos;Espace Économique Européen
 							(« EEE »).
+						</p>
+						<p>
+							Afin de protéger le formulaire de contact contre les envois automatisés (spam), le
+							Site utilise le service de détection des robots de son hébergeur, Vercel Inc. (Vercel
+							BotID). Ce service analyse des informations techniques relatives à votre navigateur,
+							uniquement pour vérifier que la demande émane d&apos;une personne. Ces données ne sont
+							pas utilisées à des fins publicitaires. Ce traitement repose sur l&apos;intérêt
+							légitime du Cabinet à sécuriser son Site.
 						</p>
 					</section>
 

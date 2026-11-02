@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Contact } from "@/components/Contact";
 import { CONTACT, OTHER_SUBJECT } from "@/lib/constants";
+import { CONTACT_LIMITS } from "@/lib/contact";
 
 function fillRequiredFields() {
 	fireEvent.change(screen.getByLabelText(CONTACT.formFields.lastName), {
@@ -55,8 +56,54 @@ describe("Contact", () => {
 		expect(screen.queryByLabelText(CONTACT.formFields.customSubject)).not.toBeInTheDocument();
 	});
 
+	it("caps field lengths like the server", () => {
+		render(<Contact />);
+		fireEvent.change(screen.getByLabelText(CONTACT.formFields.subject), {
+			target: { value: OTHER_SUBJECT },
+		});
+		const maxLength = (label: string) =>
+			(screen.getByLabelText(label) as HTMLInputElement).maxLength;
+		expect(maxLength(CONTACT.formFields.lastName)).toBe(CONTACT_LIMITS.name);
+		expect(maxLength(CONTACT.formFields.firstName)).toBe(CONTACT_LIMITS.name);
+		expect(maxLength(CONTACT.formFields.email)).toBe(CONTACT_LIMITS.email);
+		expect(maxLength(CONTACT.formFields.phone)).toBe(CONTACT_LIMITS.phone);
+		expect(maxLength(CONTACT.formFields.customSubject)).toBe(CONTACT_LIMITS.subject);
+		expect(maxLength(CONTACT.formFields.message)).toBe(CONTACT_LIMITS.message);
+	});
+
+	it("hides the honeypot from people and assistive technologies", () => {
+		const { container } = render(<Contact />);
+		const honeypot = container.querySelector<HTMLInputElement>('input[name="website"]');
+		expect(honeypot).not.toBeNull();
+		expect(honeypot?.tabIndex).toBe(-1);
+		expect(honeypot?.autocomplete).toBe("off");
+		expect(honeypot?.closest('[aria-hidden="true"]')).not.toBeNull();
+		expect(screen.queryByRole("textbox", { name: "Site web" })).not.toBeInTheDocument();
+	});
+
 	describe("submission", () => {
-		afterEach(() => vi.restoreAllMocks());
+		afterEach(() => {
+			vi.useRealTimers();
+			vi.unstubAllGlobals();
+			vi.restoreAllMocks();
+		});
+
+		it("sends the honeypot and the time since the form rendered", async () => {
+			vi.useFakeTimers({ toFake: ["Date"] });
+			const fetchMock = vi.fn(async () => new Response(null, { status: 200 }));
+			vi.stubGlobal("fetch", fetchMock);
+
+			render(<Contact />);
+			fillRequiredFields();
+			vi.advanceTimersByTime(4200);
+			fireEvent.click(screen.getByText(CONTACT.formFields.submit));
+
+			await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+			const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+			const body = JSON.parse(init.body as string);
+			expect(body.website).toBe("");
+			expect(body.elapsedMs).toBe(4200);
+		});
 
 		it("posts the form to /api/contact and shows a success message", async () => {
 			const fetchMock = vi.fn(async () => new Response(null, { status: 200 }));

@@ -1,10 +1,11 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { contactItems } from "@/components/contactItems";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { CONTACT, OTHER_SUBJECT } from "@/lib/constants";
+import { CONTACT_LIMITS } from "@/lib/contact";
 
 const labelClass = "mb-1 block text-sm font-500 text-near-black";
 // Keep the brand border+ring on focus, but do NOT suppress the outline: the global
@@ -17,11 +18,19 @@ type Status = "idle" | "submitting" | "success" | "error";
 export function Contact() {
 	const [subject, setSubject] = useState("");
 	const [status, setStatus] = useState<Status>("idle");
+	// When the form became usable in the browser: the server drops submissions sent too fast.
+	const renderedAt = useRef(0);
+	useEffect(() => {
+		renderedAt.current = Date.now();
+	}, []);
 
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		const form = e.currentTarget;
-		const payload = Object.fromEntries(new FormData(form).entries());
+		const payload = {
+			...Object.fromEntries(new FormData(form).entries()),
+			elapsedMs: Date.now() - renderedAt.current,
+		};
 
 		setStatus("submitting");
 		try {
@@ -77,7 +86,14 @@ export function Contact() {
 								<label htmlFor="lastName" className={labelClass}>
 									{CONTACT.formFields.lastName}
 								</label>
-								<input id="lastName" name="lastName" type="text" required className={inputClass} />
+								<input
+									id="lastName"
+									name="lastName"
+									type="text"
+									required
+									maxLength={CONTACT_LIMITS.name}
+									className={inputClass}
+								/>
 							</div>
 							<div>
 								<label htmlFor="firstName" className={labelClass}>
@@ -88,6 +104,7 @@ export function Contact() {
 									name="firstName"
 									type="text"
 									required
+									maxLength={CONTACT_LIMITS.name}
 									className={inputClass}
 								/>
 							</div>
@@ -97,13 +114,26 @@ export function Contact() {
 								<label htmlFor="email" className={labelClass}>
 									{CONTACT.formFields.email}
 								</label>
-								<input id="email" name="email" type="email" required className={inputClass} />
+								<input
+									id="email"
+									name="email"
+									type="email"
+									required
+									maxLength={CONTACT_LIMITS.email}
+									className={inputClass}
+								/>
 							</div>
 							<div>
 								<label htmlFor="phone" className={labelClass}>
 									{CONTACT.formFields.phone}
 								</label>
-								<input id="phone" name="phone" type="tel" className={inputClass} />
+								<input
+									id="phone"
+									name="phone"
+									type="tel"
+									maxLength={CONTACT_LIMITS.phone}
+									className={inputClass}
+								/>
 							</div>
 						</div>
 						<div>
@@ -137,14 +167,34 @@ export function Contact() {
 								<label htmlFor="customSubject" className={labelClass}>
 									{CONTACT.formFields.customSubject}
 								</label>
-								<input id="customSubject" name="customSubject" type="text" className={inputClass} />
+								<input
+									id="customSubject"
+									name="customSubject"
+									type="text"
+									maxLength={CONTACT_LIMITS.subject}
+									className={inputClass}
+								/>
 							</div>
 						)}
 						<div>
 							<label htmlFor="message" className={labelClass}>
 								{CONTACT.formFields.message}
 							</label>
-							<textarea id="message" name="message" rows={5} required className={inputClass} />
+							<textarea
+								id="message"
+								name="message"
+								rows={5}
+								required
+								maxLength={CONTACT_LIMITS.message}
+								className={inputClass}
+							/>
+						</div>
+						{/* Honeypot: bots fill every field, people never see this one. Off-screen rather than
+						    display:none (which some bots skip), out of the tab order and hidden from
+						    assistive technologies. */}
+						<div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
+							<label htmlFor="website">Site web</label>
+							<input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
 						</div>
 						<Button type="submit" disabled={status === "submitting"}>
 							{status === "submitting" ? CONTACT.formMessages.sending : CONTACT.formFields.submit}

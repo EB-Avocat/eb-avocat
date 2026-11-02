@@ -150,6 +150,11 @@ export const CONTACT = {
 		emailInvalid: "L'email est invalide.",
 		messageRequired: "Le message est requis.",
 		customSubjectRequired: "Veuillez préciser l'objet.",
+		nameTooLong: "Le nom ou le prénom est trop long (100 caractères maximum).",
+		emailTooLong: "L'email est trop long.",
+		phoneTooLong: "Le numéro de téléphone est trop long.",
+		subjectTooLong: "L'objet est trop long (150 caractères maximum).",
+		messageTooLong: "Le message est trop long (5 000 caractères maximum).",
 	},
 	subjectOptions: [
 		"Création de société",

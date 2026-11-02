@@ -3,7 +3,12 @@ import { CONTACT, OTHER_SUBJECT } from "@/lib/constants";
 import {
 	BREVO_API_URL,
 	buildBrevoPayload,
+	CONTACT_LIMITS,
 	type ContactFormData,
+	detectSpam,
+	isSameOrigin,
+	MAX_MESSAGE_URLS,
+	MIN_FILL_MS,
 	resolveSubject,
 	sendContactEmail,
 	validateContactForm,
@@ -49,6 +54,120 @@ describe("validateContactForm", () => {
 			customSubject: "Question diverse",
 		});
 		expect(provided.ok).toBe(true);
+	});
+});
+
+describe("validateContactForm length caps", () => {
+	const tooLong = (limit: number) => "a".repeat(limit + 1);
+
+	it("accepts values at the limits", () => {
+		const result = validateContactForm({
+			...valid,
+			lastName: "a".repeat(CONTACT_LIMITS.name),
+			firstName: "a".repeat(CONTACT_LIMITS.name),
+			email: `${"a".repeat(CONTACT_LIMITS.email - "@example.com".length)}@example.com`,
+			phone: "0".repeat(CONTACT_LIMITS.phone),
+			subject: OTHER_SUBJECT,
+			customSubject: "a".repeat(CONTACT_LIMITS.subject),
+			message: "a".repeat(CONTACT_LIMITS.message),
+		});
+		expect(result.ok).toBe(true);
+	});
+
+	it("measures trimmed values", () => {
+		const result = validateContactForm({
+			...valid,
+			lastName: ` ${"a".repeat(CONTACT_LIMITS.name)} `,
+		});
+		expect(result.ok).toBe(true);
+	});
+
+	it.each([
+		["lastName", tooLong(CONTACT_LIMITS.name), CONTACT.formErrors.nameTooLong],
+		["firstName", tooLong(CONTACT_LIMITS.name), CONTACT.formErrors.nameTooLong],
+		["email", `${"a".repeat(CONTACT_LIMITS.email)}@example.com`, CONTACT.formErrors.emailTooLong],
+		["phone", tooLong(CONTACT_LIMITS.phone), CONTACT.formErrors.phoneTooLong],
+		["subject", tooLong(CONTACT_LIMITS.subject), CONTACT.formErrors.subjectTooLong],
+		["customSubject", tooLong(CONTACT_LIMITS.subject), CONTACT.formErrors.subjectTooLong],
+		["message", tooLong(CONTACT_LIMITS.message), CONTACT.formErrors.messageTooLong],
+	])("rejects an over-long %s", (field, value, error) => {
+		const result = validateContactForm({ ...valid, [field]: value });
+		expect(result).toEqual({ ok: false, errors: [error] });
+	});
+});
+
+describe("detectSpam", () => {
+	const human = { ...valid, website: "", elapsedMs: MIN_FILL_MS + 1000 };
+
+	it("lets a normal submission through", () => {
+		expect(detectSpam(human)).toBeNull();
+		expect(detectSpam({ ...human, elapsedMs: String(MIN_FILL_MS) })).toBeNull();
+		expect(detectSpam({ ...human, website: undefined })).toBeNull();
+	});
+
+	it("flags a filled honeypot", () => {
+		expect(detectSpam({ ...human, website: "https://spam.example" })).toBe("honeypot");
+	});
+
+	it("ignores a whitespace-only honeypot", () => {
+		expect(detectSpam({ ...human, website: "  " })).toBeNull();
+	});
+
+	it.each([
+		["too fast", MIN_FILL_MS - 1],
+		["missing", undefined],
+		["empty", ""],
+		["not a number", "soon"],
+		["not a number type", true],
+		["infinite", Number.POSITIVE_INFINITY],
+	])("flags an elapsedMs that is %s", (_label, elapsedMs) => {
+		expect(detectSpam({ ...human, elapsedMs })).toBe("too-fast");
+	});
+
+	it("flags a message with too many links", () => {
+		const links = (n: number) =>
+			Array.from({ length: n }, (_, i) => `https://spam${i}.example/x`).join(" ");
+		expect(detectSpam({ ...human, message: links(MAX_MESSAGE_URLS) })).toBeNull();
+		expect(detectSpam({ ...human, message: links(MAX_MESSAGE_URLS + 1) })).toBe("too-many-links");
+	});
+
+	it("counts www links and does not double-count https://www.", () => {
+		const message = "https://www.a.fr www.b.fr http://c.fr WWW.d.fr";
+		expect(detectSpam({ ...human, message })).toBe("too-many-links");
+		expect(
+			detectSpam({ ...human, message: "https://www.a.fr https://www.b.fr https://www.c.fr" }),
+		).toBeNull();
+	});
+
+	it("tolerates a non-object payload", () => {
+		expect(detectSpam(null)).toBe("too-fast");
+	});
+});
+
+describe("isSameOrigin", () => {
+	const request = (headers: Record<string, string>) =>
+		new Request("https://biezunski-avocat.fr/api/contact", { method: "POST", headers });
+
+	it("accepts a request without Origin", () => {
+		expect(isSameOrigin(request({}))).toBe(true);
+	});
+
+	it("accepts an Origin matching the request host", () => {
+		expect(isSameOrigin(request({ origin: "https://biezunski-avocat.fr" }))).toBe(true);
+	});
+
+	it("compares against the Host header when present", () => {
+		expect(
+			isSameOrigin(request({ origin: "https://preview.vercel.app", host: "preview.vercel.app" })),
+		).toBe(true);
+	});
+
+	it("rejects a foreign Origin", () => {
+		expect(isSameOrigin(request({ origin: "https://evil.example" }))).toBe(false);
+	});
+
+	it("rejects an opaque or malformed Origin", () => {
+		expect(isSameOrigin(request({ origin: "null" }))).toBe(false);
 	});
 });
 

@@ -18,7 +18,24 @@ export type ValidationResult =
 	| { ok: true; data: ContactFormData }
 	| { ok: false; errors: string[] };
 
+/** Maximum lengths (in characters, after trimming), mirrored by the form's `maxLength`. */
+export const CONTACT_LIMITS = {
+	name: 100,
+	email: 254,
+	phone: 30,
+	subject: 150,
+	message: 5000,
+} as const;
+
+/** Submissions sent faster than this after the form rendered are treated as bots. */
+export const MIN_FILL_MS = 3000;
+
+/** Messages with more links than this are treated as link spam. */
+export const MAX_MESSAGE_URLS = 3;
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// `\S+` consumes the whole link, so "https://www.…" counts once.
+const URL_RE = /(?:https?:\/\/|\bwww\.)\S+/gi;
 
 function asString(value: unknown): string {
 	return typeof value === "string" ? value.trim() : "";
@@ -56,8 +73,60 @@ export function validateContactForm(input: unknown): ValidationResult {
 		errors.push(formErrors.customSubjectRequired);
 	}
 
+	if (data.lastName.length > CONTACT_LIMITS.name || data.firstName.length > CONTACT_LIMITS.name) {
+		errors.push(formErrors.nameTooLong);
+	}
+	if (data.email.length > CONTACT_LIMITS.email) errors.push(formErrors.emailTooLong);
+	if (data.phone.length > CONTACT_LIMITS.phone) errors.push(formErrors.phoneTooLong);
+	if (
+		data.subject.length > CONTACT_LIMITS.subject ||
+		(data.customSubject ?? "").length > CONTACT_LIMITS.subject
+	) {
+		errors.push(formErrors.subjectTooLong);
+	}
+	if (data.message.length > CONTACT_LIMITS.message) errors.push(formErrors.messageTooLong);
+
 	if (errors.length > 0) return { ok: false, errors };
 	return { ok: true, data };
+}
+
+export type SpamReason = "honeypot" | "too-fast" | "too-many-links";
+
+/**
+ * Cheap bot heuristics on a raw payload: the hidden `website` honeypot is filled, the form was
+ * sent less than MIN_FILL_MS after it rendered (or without a usable `elapsedMs`), or the message
+ * carries more than MAX_MESSAGE_URLS links. Returns the first reason found, or null.
+ */
+export function detectSpam(input: unknown): SpamReason | null {
+	const raw = (input ?? {}) as Record<string, unknown>;
+	if (asString(raw.website)) return "honeypot";
+
+	const { elapsedMs } = raw;
+	const elapsed =
+		typeof elapsedMs === "number" || (typeof elapsedMs === "string" && elapsedMs.trim())
+			? Number(elapsedMs)
+			: Number.NaN;
+	if (!Number.isFinite(elapsed) || elapsed < MIN_FILL_MS) return "too-fast";
+
+	if ((asString(raw.message).match(URL_RE)?.length ?? 0) > MAX_MESSAGE_URLS) {
+		return "too-many-links";
+	}
+	return null;
+}
+
+/**
+ * False when the request carries an `Origin` header for another host than the one it was sent
+ * to (a cross-site form post or a forged script request). Requests without `Origin` pass.
+ */
+export function isSameOrigin(request: Request): boolean {
+	const origin = request.headers.get("origin");
+	if (!origin) return true;
+	const host = request.headers.get("host") ?? new URL(request.url).host;
+	try {
+		return new URL(origin).host === host;
+	} catch {
+		return false;
+	}
 }
 
 /** The objet shown in the email: the free-text value when subject is "Autre". */
