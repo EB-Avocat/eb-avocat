@@ -1,3 +1,15 @@
+/** Contact-form field caps (characters, after trimming): the form's `maxLength` and the API's checks. */
+export const CONTACT_LIMITS = {
+	name: 100,
+	email: 254,
+	phone: 30,
+	subject: 150,
+	message: 5000,
+	urls: 3,
+} as const;
+
+const maxChars = (limit: number) => `${limit.toLocaleString("fr-FR")} caractères maximum`;
+
 export const SITE = {
 	name: "Eva Biezunski",
 	title: "Eva Biezunski Avocate, Cabinet dédié aux professionnels libéraux",
@@ -136,6 +148,8 @@ export const CONTACT = {
 		subject: "Objet",
 		customSubject: "Précisez l'objet",
 		message: "Message",
+		// Label of the hidden anti-spam field (never shown to people).
+		honeypot: "Laisser ce champ vide",
 		submit: "Envoyer",
 	},
 	formMessages: {
@@ -150,6 +164,14 @@ export const CONTACT = {
 		emailInvalid: "L'email est invalide.",
 		messageRequired: "Le message est requis.",
 		customSubjectRequired: "Veuillez préciser l'objet.",
+		nameTooLong: `Le nom ou le prénom est trop long (${maxChars(CONTACT_LIMITS.name)}).`,
+		emailTooLong: "L'email est trop long.",
+		phoneTooLong: "Le numéro de téléphone est trop long.",
+		subjectTooLong: `L'objet est trop long (${maxChars(CONTACT_LIMITS.subject)}).`,
+		messageTooLong: `Le message est trop long (${maxChars(CONTACT_LIMITS.message)}).`,
+		tooManyLinks: `Votre message contient trop de liens (${CONTACT_LIMITS.urls} maximum).`,
+		verificationFailed:
+			"La vérification anti-spam n'a pas abouti. Veuillez réessayer dans quelques secondes, ou contacter le cabinet par téléphone ou par email.",
 	},
 	subjectOptions: [
 		"Création de société",

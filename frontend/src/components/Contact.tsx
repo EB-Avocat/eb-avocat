@@ -1,10 +1,10 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { contactItems } from "@/components/contactItems";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { CONTACT, OTHER_SUBJECT } from "@/lib/constants";
+import { CONTACT, CONTACT_LIMITS, OTHER_SUBJECT } from "@/lib/constants";
 
 const labelClass = "mb-1 block text-sm font-500 text-near-black";
 // Keep the brand border+ring on focus, but do NOT suppress the outline: the global
@@ -14,14 +14,35 @@ const inputClass =
 
 type Status = "idle" | "submitting" | "success" | "error";
 
+/** What to tell the visitor about a failed submission: the server's French reasons, if any. */
+async function failureMessages(res: Response): Promise<string[]> {
+	const body: unknown = await res.json().catch(() => null);
+	const { code, errors } = (body ?? {}) as { code?: unknown; errors?: unknown };
+	if (code === "verification_failed") return [CONTACT.formErrors.verificationFailed];
+	if (Array.isArray(errors) && errors.length > 0 && errors.every((e) => typeof e === "string")) {
+		return errors;
+	}
+	return [];
+}
+
 export function Contact() {
 	const [subject, setSubject] = useState("");
 	const [status, setStatus] = useState<Status>("idle");
+	const [errors, setErrors] = useState<string[]>([]);
+	// When the form became usable in the browser: the server drops submissions sent too fast.
+	// performance.now() is monotonic, so a system clock change cannot skew the measure.
+	const renderedAt = useRef(0);
+	useEffect(() => {
+		renderedAt.current = performance.now();
+	}, []);
 
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		const form = e.currentTarget;
-		const payload = Object.fromEntries(new FormData(form).entries());
+		const payload = {
+			...Object.fromEntries(new FormData(form).entries()),
+			elapsedMs: Math.round(performance.now() - renderedAt.current),
+		};
 
 		setStatus("submitting");
 		try {
@@ -30,11 +51,17 @@ export function Contact() {
 				headers: { "content-type": "application/json" },
 				body: JSON.stringify(payload),
 			});
-			if (!res.ok) throw new Error("Request failed");
+			if (!res.ok) {
+				// Keep what the visitor typed: the form is only reset on success.
+				setErrors(await failureMessages(res));
+				setStatus("error");
+				return;
+			}
 			form.reset();
 			setSubject("");
 			setStatus("success");
 		} catch {
+			setErrors([]);
 			setStatus("error");
 		}
 	};
@@ -77,7 +104,14 @@ export function Contact() {
 								<label htmlFor="lastName" className={labelClass}>
 									{CONTACT.formFields.lastName}
 								</label>
-								<input id="lastName" name="lastName" type="text" required className={inputClass} />
+								<input
+									id="lastName"
+									name="lastName"
+									type="text"
+									required
+									maxLength={CONTACT_LIMITS.name}
+									className={inputClass}
+								/>
 							</div>
 							<div>
 								<label htmlFor="firstName" className={labelClass}>
@@ -88,6 +122,7 @@ export function Contact() {
 									name="firstName"
 									type="text"
 									required
+									maxLength={CONTACT_LIMITS.name}
 									className={inputClass}
 								/>
 							</div>
@@ -97,13 +132,26 @@ export function Contact() {
 								<label htmlFor="email" className={labelClass}>
 									{CONTACT.formFields.email}
 								</label>
-								<input id="email" name="email" type="email" required className={inputClass} />
+								<input
+									id="email"
+									name="email"
+									type="email"
+									required
+									maxLength={CONTACT_LIMITS.email}
+									className={inputClass}
+								/>
 							</div>
 							<div>
 								<label htmlFor="phone" className={labelClass}>
 									{CONTACT.formFields.phone}
 								</label>
-								<input id="phone" name="phone" type="tel" className={inputClass} />
+								<input
+									id="phone"
+									name="phone"
+									type="tel"
+									maxLength={CONTACT_LIMITS.phone}
+									className={inputClass}
+								/>
 							</div>
 						</div>
 						<div>
@@ -137,14 +185,34 @@ export function Contact() {
 								<label htmlFor="customSubject" className={labelClass}>
 									{CONTACT.formFields.customSubject}
 								</label>
-								<input id="customSubject" name="customSubject" type="text" className={inputClass} />
+								<input
+									id="customSubject"
+									name="customSubject"
+									type="text"
+									maxLength={CONTACT_LIMITS.subject}
+									className={inputClass}
+								/>
 							</div>
 						)}
 						<div>
 							<label htmlFor="message" className={labelClass}>
 								{CONTACT.formFields.message}
 							</label>
-							<textarea id="message" name="message" rows={5} required className={inputClass} />
+							<textarea
+								id="message"
+								name="message"
+								rows={5}
+								required
+								maxLength={CONTACT_LIMITS.message}
+								className={inputClass}
+							/>
+						</div>
+						{/* Honeypot: bots fill every field, people never see this one. Off-screen rather than
+						    display:none or the well-known sr-only class (which some bots skip), out of the
+						    tab order and hidden from assistive technologies. */}
+						<div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
+							<label htmlFor="hp_ref">{CONTACT.formFields.honeypot}</label>
+							<input id="hp_ref" name="hp_ref" type="text" tabIndex={-1} autoComplete="off" />
 						</div>
 						<Button type="submit" disabled={status === "submitting"}>
 							{status === "submitting" ? CONTACT.formMessages.sending : CONTACT.formFields.submit}
@@ -155,9 +223,13 @@ export function Contact() {
 							</p>
 						)}
 						{status === "error" && (
-							<p role="alert" className="text-sm font-300 text-red-600">
-								{CONTACT.formMessages.error}
-							</p>
+							<div role="alert" className="space-y-1 text-sm font-300 text-red-600">
+								{errors.length > 0 ? (
+									errors.map((message) => <p key={message}>{message}</p>)
+								) : (
+									<p>{CONTACT.formMessages.error}</p>
+								)}
+							</div>
 						)}
 					</form>
 				</div>

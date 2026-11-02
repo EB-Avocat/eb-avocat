@@ -1,4 +1,4 @@
-import { CONTACT, OTHER_SUBJECT, SITE } from "@/lib/constants";
+import { CONTACT, CONTACT_LIMITS, OTHER_SUBJECT, SITE } from "@/lib/constants";
 
 /** Brevo transactional email endpoint. */
 export const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
@@ -18,10 +18,17 @@ export type ValidationResult =
 	| { ok: true; data: ContactFormData }
 	| { ok: false; errors: string[] };
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** Submissions sent faster than this after the form rendered are treated as bots. */
+export const MIN_FILL_MS = 3000;
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Counts each scheme or bare "www." (but not the "www." of "https://www."), so links glued
+// together without whitespace ("http://a.fr,http://b.fr") still count separately.
+const URL_RE = /https?:\/\/|(?<!\/\/)\bwww\./gi;
+
+/** Trimmed string with line breaks normalised to LF, as the browser's `maxLength` counts them. */
 function asString(value: unknown): string {
-	return typeof value === "string" ? value.trim() : "";
+	return typeof value === "string" ? value.replace(/\r\n?/g, "\n").trim() : "";
 }
 
 /**
@@ -56,8 +63,60 @@ export function validateContactForm(input: unknown): ValidationResult {
 		errors.push(formErrors.customSubjectRequired);
 	}
 
+	if (data.lastName.length > CONTACT_LIMITS.name || data.firstName.length > CONTACT_LIMITS.name) {
+		errors.push(formErrors.nameTooLong);
+	}
+	if (data.email.length > CONTACT_LIMITS.email) errors.push(formErrors.emailTooLong);
+	if (data.phone.length > CONTACT_LIMITS.phone) errors.push(formErrors.phoneTooLong);
+	if (
+		data.subject.length > CONTACT_LIMITS.subject ||
+		(data.customSubject?.length ?? 0) > CONTACT_LIMITS.subject
+	) {
+		errors.push(formErrors.subjectTooLong);
+	}
+	if (data.message.length > CONTACT_LIMITS.message) errors.push(formErrors.messageTooLong);
+	if ((data.message.match(URL_RE)?.length ?? 0) > CONTACT_LIMITS.urls) {
+		errors.push(formErrors.tooManyLinks);
+	}
+
 	if (errors.length > 0) return { ok: false, errors };
 	return { ok: true, data };
+}
+
+/** True when the hidden `hp_ref` honeypot of the raw payload is filled (only bots do that). */
+export function isHoneypotFilled(input: unknown): boolean {
+	const raw = (input ?? {}) as Record<string, unknown>;
+	return asString(raw.hp_ref) !== "";
+}
+
+/**
+ * True when the form was sent less than MIN_FILL_MS after it rendered, or without a usable
+ * numeric `elapsedMs` (a number or a numeric string).
+ */
+export function isTooFast(input: unknown): boolean {
+	const raw = (input ?? {}) as Record<string, unknown>;
+	const elapsed = Number(raw.elapsedMs);
+	return !Number.isFinite(elapsed) || elapsed < MIN_FILL_MS;
+}
+
+/**
+ * False when the request carries an `Origin` header for another host than the one it was sent
+ * to (a cross-site form post or a forged script request). Requests without `Origin` pass. The
+ * host is `x-forwarded-host` (the public host, since the platform may forward an internal
+ * `host`), then `host`.
+ */
+export function isSameOrigin(request: Request): boolean {
+	const origin = request.headers.get("origin");
+	if (!origin) return true;
+	const host =
+		request.headers.get("x-forwarded-host") ??
+		request.headers.get("host") ??
+		new URL(request.url).host;
+	try {
+		return new URL(origin).host === host;
+	} catch {
+		return false;
+	}
 }
 
 /** The objet shown in the email: the free-text value when subject is "Autre". */
