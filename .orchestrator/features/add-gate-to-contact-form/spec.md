@@ -96,3 +96,13 @@ and privacy wording are in ux-brief.md.
 ## Out of scope
 - Moving the contact endpoint to Django; storing submissions.
 - Code-level rate limiting (needs a shared store; the Vercel Firewall rule covers it).
+
+## Revision 3 (after T-70 review, lead decision)
+Rule: never silently drop something a real person could trigger.
+- Only the honeypot is a silent drop. It is renamed `hp_ref` (autofill / password managers could fill `website`).
+- Too fast (< 3 s) and a BotID bot verdict → `400 { ok: false, code: "verification_failed" }`; the client shows
+  « La vérification anti-spam n'a pas abouti. Veuillez réessayer dans quelques secondes, ou contacter le cabinet par téléphone ou par email. »
+  The form keeps its content.
+- More than 3 URLs → visible validation error « Votre message contient trop de liens (3 maximum). »
+- The client shows the server's French `errors` when present.
+- Origin check uses `x-forwarded-host` then `host` (Vercel Services may forward an internal Host).
