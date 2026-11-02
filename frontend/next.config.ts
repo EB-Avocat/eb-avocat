@@ -1,3 +1,4 @@
+import { withBotId } from "botid/next/config";
 import type { NextConfig } from "next";
 
 // Local/docker only: proxy the Django API (+ local media) and the MCP endpoint so
@@ -35,4 +36,6 @@ const nextConfig: NextConfig = {
 	},
 };
 
-export default nextConfig;
+// withBotId appends the rewrites that proxy Vercel BotID's challenge script (see
+// src/instrumentation-client.ts) after ours.
+export default withBotId(nextConfig);
