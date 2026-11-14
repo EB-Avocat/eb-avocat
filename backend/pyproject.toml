@@ -2,7 +2,7 @@
 name = "eb-avocat-backend"
 version = "0.1.0"
 description = "API, back-office backend and MCP server for the EB Avocat website"
-requires-python = ">=3.13,<3.15"
+requires-python = ">=3.15,<3.16"
 dependencies = [
     "dj-database-url>=3.1.2",
     "django>=6.1.1",
