@@ -255,6 +255,8 @@ reduced-motion handling, `aria-current` on nav and pagination, labelled form fie
 - Imagery: one portrait only; consider documentary photography, illustration or none, decided in the brand issue.
 
 ## Method and limits
+- Class and element counts in §3 are approximate (grep over `src/**/*.tsx`); read them as orders of magnitude, not exact figures.
+- Back-office findings A-19, A-23, A-24, A-25 rest on a screen-level read; confirm with Eva or a live session before scoping issues on them.
 - Read: all of `app/`, `components/`, `lib/constants.ts`, `lib/publications.ts`, `hooks/`, `globals.css`; the back-office was read at screen level (Shell, AuthCard, `ui.tsx`, article list and editor headers), not line by line. The privacy page was only scanned for headings.
 - Not done (no running site): real rendering, responsive checks, Lighthouse, screen-reader pass, analytics. Statements about mobile behaviour come from the classes, not screenshots.
 - Contrast values were computed with a small script (relative luminance, alpha blending over the actual background colours).
