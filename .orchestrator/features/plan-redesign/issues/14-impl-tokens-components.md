@@ -34,4 +34,4 @@ Page layouts and new pages.
 
 ## References
 
-- Audit: A-13, A-14, A-16, A-26, A-27, A-28; Figcraft `Foundations v2`, `Components v2`; `frontend/src/app/globals.css`
+- [Audit](@@REPO@@/audit.md): A-13, A-14, A-16, A-26, A-27, A-28; Figcraft `Foundations v2`, `Components v2`; `frontend/src/app/globals.css`

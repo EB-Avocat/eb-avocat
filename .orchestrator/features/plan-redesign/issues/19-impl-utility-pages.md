@@ -31,4 +31,6 @@ Legal text changes.
 
 ## References
 
-- Audit: A-11, A-21, A-30; `.orchestrator/features/plan-redesign/design/v2/`; `app/carte/page.tsx`, `app/not-found.tsx`, `app/error.tsx`, `app/global-error.tsx`
+- [Audit](@@REPO@@/audit.md): A-11, A-21, A-30; `.orchestrator/features/plan-redesign/design/v2/`; `app/carte/page.tsx`, `app/not-found.tsx`, `app/error.tsx`, `app/global-error.tsx`
+
+![carte-mobile](@@REPO@@/design/current/carte-mobile.png?raw=true)

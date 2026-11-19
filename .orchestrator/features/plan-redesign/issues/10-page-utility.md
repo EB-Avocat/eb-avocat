@@ -30,4 +30,7 @@ Legal text changes, code.
 
 ## References
 
-- Audit: A-11, A-30, §1 (carte states, global-error); `design/current/mentions-legales-desktop.png`, `politique-de-confidentialite-desktop.png`, `404-desktop.png`, `error-desktop.png`, `global-error-desktop.png`, `carte-mobile.png`, `carte-ios-mobile.png`, `carte-firefox-ios-mobile.png`
+- [Audit](@@REPO@@/audit.md): A-11, A-30, §1 (carte states, global-error); [`mentions-legales-desktop.png`](@@REPO@@/design/current/mentions-legales-desktop.png), [`politique-de-confidentialite-desktop.png`](@@REPO@@/design/current/politique-de-confidentialite-desktop.png), [`404-desktop.png`](@@REPO@@/design/current/404-desktop.png), [`error-desktop.png`](@@REPO@@/design/current/error-desktop.png), [`global-error-desktop.png`](@@REPO@@/design/current/global-error-desktop.png), [`carte-mobile.png`](@@REPO@@/design/current/carte-mobile.png), [`carte-ios-mobile.png`](@@REPO@@/design/current/carte-ios-mobile.png), [`carte-firefox-ios-mobile.png`](@@REPO@@/design/current/carte-firefox-ios-mobile.png)
+
+![carte-mobile](@@REPO@@/design/current/carte-mobile.png?raw=true)
+![404-desktop](@@REPO@@/design/current/404-desktop.png?raw=true)

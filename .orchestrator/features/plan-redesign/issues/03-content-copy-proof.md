@@ -33,4 +33,6 @@ Layout and visuals, new publications.
 
 ## References
 
-- Audit: A-01, A-04, A-07, A-17, A-30; `lib/constants.ts`; `design/current/home-desktop.png`
+- [Audit](@@REPO@@/audit.md): A-01, A-04, A-07, A-17, A-30; `lib/constants.ts`; [`home-desktop.png`](@@REPO@@/design/current/home-desktop.png)
+
+![home-desktop](@@REPO@@/design/current/home-desktop.png?raw=true)

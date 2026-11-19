@@ -32,4 +32,6 @@ Editor changes.
 
 ## References
 
-- Audit: A-09, A-10, A-20, A-21; `.orchestrator/features/plan-redesign/design/v2/`; `app/publications/`
+- [Audit](@@REPO@@/audit.md): A-09, A-10, A-20, A-21; `.orchestrator/features/plan-redesign/design/v2/`; `app/publications/`
+
+![article-desktop](@@REPO@@/design/current/article-desktop.png?raw=true)

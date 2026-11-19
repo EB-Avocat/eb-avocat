@@ -33,4 +33,4 @@ Link building, paid acquisition.
 
 ## References
 
-- Audit: A-03, A-18, A-20, A-21, A-22; `app/sitemap.ts`, `app/robots.ts`, `app/layout.tsx`
+- [Audit](@@REPO@@/audit.md): A-03, A-18, A-20, A-21, A-22; `app/sitemap.ts`, `app/robots.ts`, `app/layout.tsx`

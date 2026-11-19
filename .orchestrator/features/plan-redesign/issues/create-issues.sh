@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 # Creates the "Site redesign" epic and its child issues from the markdown drafts
-# next to this script. Run from the repo root:
+# next to this script. Run it AFTER the plan-redesign PR is merged to main: the links
+# and screenshots in the issue bodies point at files on the main branch.
+# Run from the repo root:
 #   bash .orchestrator/features/plan-redesign/issues/create-issues.sh
 #
 # Re-runnable: an issue whose exact title already exists is not created again, but its
 # number is still looked up so links and the epic task list stay complete.
 set -euo pipefail
 
+# Where the audit, spec and PNGs live once merged; replaces @@REPO@@ in the drafts.
+REPO_URL="${REPO_URL:-https://github.com/EB-Avocat/eb-avocat/blob/main/.orchestrator/features/plan-redesign}"
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TMP="$(mktemp -d)"
+TMP="$(mktemp -d "${TMPDIR:-/tmp}/create-issues.XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 
 command -v gh >/dev/null || { echo "gh is not installed" >&2; exit 1; }
@@ -34,7 +38,7 @@ done
 # front-matter value: fm <file> <key>
 fm() { awk -v k="$2" 'NR==1&&$0!="---"{exit} NR>1&&$0=="---"{exit} index($0,k": ")==1{sub(k": ","");print;exit}' "$1"; }
 # body without the front matter
-body() { awk 'c>=2{print;next} $0=="---"{c++}' "$1"; }
+body() { awk 'c>=2{print;next} $0=="---"{c++}' "$1" | sed "s|@@REPO@@|$REPO_URL|g"; }
 
 # number of the issue with this exact title, or empty
 find_issue() {

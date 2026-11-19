@@ -32,4 +32,6 @@ Back-end spam handling and delivery (existing), booking tool.
 
 ## References
 
-- Audit: A-05, A-06, A-15, A-17; Figcraft `Components` frame `form fields`; `design/current/home-states-desktop.png`, `home-states-mobile.png`
+- [Audit](@@REPO@@/audit.md): A-05, A-06, A-15, A-17; Figcraft `Components` frame `form fields`; [`home-states-desktop.png`](@@REPO@@/design/current/home-states-desktop.png), [`home-states-mobile.png`](@@REPO@@/design/current/home-states-mobile.png)
+
+![home-states-desktop](@@REPO@@/design/current/home-states-desktop.png?raw=true)

@@ -34,4 +34,6 @@ Domaine pages, publications, contact form logic.
 
 ## References
 
-- Audit: A-01, A-02, A-04, A-05, A-06, A-18; `.orchestrator/features/plan-redesign/design/v2/`; `components/Navbar.tsx`, `app/page.tsx`
+- [Audit](@@REPO@@/audit.md): A-01, A-02, A-04, A-05, A-06, A-18; `.orchestrator/features/plan-redesign/design/v2/`; `components/Navbar.tsx`, `app/page.tsx`
+
+![home-desktop](@@REPO@@/design/current/home-desktop.png?raw=true)

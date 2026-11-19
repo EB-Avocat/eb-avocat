@@ -31,4 +31,7 @@ Back-office editor (see back-office issue), code.
 
 ## References
 
-- Audit: A-09, A-10, A-20, A-32; Figcraft `Site — Desktop` frames `publications`, `article`; `design/current/publications-desktop.png`, `publications-mobile.png`, `publications-empty-desktop.png`, `article-desktop.png`, `article-mobile.png`
+- [Audit](@@REPO@@/audit.md): A-09, A-10, A-20, A-32; Figcraft `Site — Desktop` frames `publications`, `article`; [`publications-desktop.png`](@@REPO@@/design/current/publications-desktop.png), [`publications-mobile.png`](@@REPO@@/design/current/publications-mobile.png), [`publications-empty-desktop.png`](@@REPO@@/design/current/publications-empty-desktop.png), [`article-desktop.png`](@@REPO@@/design/current/article-desktop.png), [`article-mobile.png`](@@REPO@@/design/current/article-mobile.png)
+
+![publications-desktop](@@REPO@@/design/current/publications-desktop.png?raw=true)
+![article-desktop](@@REPO@@/design/current/article-desktop.png?raw=true)

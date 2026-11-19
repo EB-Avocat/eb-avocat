@@ -33,4 +33,6 @@ None.
 
 ## References
 
-- Audit: A-01, A-05, §2 Journeys; `Site — Desktop` frame `home`, `design/current/home-desktop.png`, `home-mobile.png`
+- [Audit](@@REPO@@/audit.md): A-01, A-05, §2 Journeys; `Site — Desktop` frame `home`, [`home-desktop.png`](@@REPO@@/design/current/home-desktop.png), [`home-mobile.png`](@@REPO@@/design/current/home-mobile.png)
+
+![home-desktop](@@REPO@@/design/current/home-desktop.png?raw=true)

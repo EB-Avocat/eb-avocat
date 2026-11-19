@@ -33,4 +33,7 @@ New back-office features, MCP endpoint, permissions.
 
 ## References
 
-- Audit: A-19, A-23, A-24, A-25, J5; Figcraft `Back-office`; `design/current/bo-articles-desktop.png`, `bo-article-editeur-desktop.png`, `bo-article-editeur-slash-desktop.png`, `bo-connexion-desktop.png`, `bo-menu-mobile.png`
+- [Audit](@@REPO@@/audit.md): A-19, A-23, A-24, A-25, J5; Figcraft `Back-office`; [`bo-articles-desktop.png`](@@REPO@@/design/current/bo-articles-desktop.png), [`bo-article-editeur-desktop.png`](@@REPO@@/design/current/bo-article-editeur-desktop.png), [`bo-article-editeur-slash-desktop.png`](@@REPO@@/design/current/bo-article-editeur-slash-desktop.png), [`bo-connexion-desktop.png`](@@REPO@@/design/current/bo-connexion-desktop.png), [`bo-menu-mobile.png`](@@REPO@@/design/current/bo-menu-mobile.png)
+
+![bo-articles-desktop](@@REPO@@/design/current/bo-articles-desktop.png?raw=true)
+![bo-article-editeur-desktop](@@REPO@@/design/current/bo-article-editeur-desktop.png?raw=true)

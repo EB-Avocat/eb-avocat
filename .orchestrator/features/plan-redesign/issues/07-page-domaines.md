@@ -32,4 +32,6 @@ Writing every page's final copy (content issue), code.
 
 ## References
 
-- Audit: A-03, A-07, A-20; Figcraft `Components` frame `ServiceCard`; `design/current/home-desktop.png`
+- [Audit](@@REPO@@/audit.md): A-03, A-07, A-20; Figcraft `Components` frame `ServiceCard`; [`home-desktop.png`](@@REPO@@/design/current/home-desktop.png)
+
+![home-desktop](@@REPO@@/design/current/home-desktop.png?raw=true)

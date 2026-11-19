@@ -33,4 +33,7 @@ Page layouts, code.
 
 ## References
 
-- Audit: A-12, A-13, A-14, A-26, A-27, §3 and the contrast tables; Figcraft `Foundations`, `Components`; `design/current/foundations.png`, `components.png`
+- [Audit](@@REPO@@/audit.md): A-12, A-13, A-14, A-26, A-27, §3 and the contrast tables; Figcraft `Foundations`, `Components`; [`foundations.png`](@@REPO@@/design/current/foundations.png), [`components.png`](@@REPO@@/design/current/components.png)
+
+![foundations](@@REPO@@/design/current/foundations.png?raw=true)
+![components](@@REPO@@/design/current/components.png?raw=true)

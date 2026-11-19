@@ -31,4 +31,7 @@ Token definitions and components (design system issue), page layouts.
 
 ## References
 
-- Audit: A-08, A-27, A-28, §5; Figcraft `Cover`, `Foundations`; `design/current/cover.png`, `foundations.png`
+- [Audit](@@REPO@@/audit.md): A-08, A-27, A-28, §5; Figcraft `Cover`, `Foundations`; [`cover.png`](@@REPO@@/design/current/cover.png), [`foundations.png`](@@REPO@@/design/current/foundations.png)
+
+![cover](@@REPO@@/design/current/cover.png?raw=true)
+![foundations](@@REPO@@/design/current/foundations.png?raw=true)

@@ -31,4 +31,6 @@ New permissions, MCP changes.
 
 ## References
 
-- Audit: A-19, A-23, A-24, A-25; `.orchestrator/features/plan-redesign/design/v2/`; `components/backoffice/**`, `app/backoffice/**`
+- [Audit](@@REPO@@/audit.md): A-19, A-23, A-24, A-25; `.orchestrator/features/plan-redesign/design/v2/`; `components/backoffice/**`, `app/backoffice/**`
+
+![bo-article-editeur-desktop](@@REPO@@/design/current/bo-article-editeur-desktop.png?raw=true)

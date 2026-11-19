@@ -36,4 +36,7 @@ Domaine pages, publications, legal pages, code.
 
 ## References
 
-- Audit: A-01, A-04, A-05, A-06, A-08, A-16, A-32; Figcraft `Site — Desktop` / `Site — Mobile` frames `home`, `home-states`; `design/current/home-desktop.png`, `home-mobile.png`, `home-scrolled-desktop.png`, `home-states-desktop.png`, `menu-open-mobile.png`
+- [Audit](@@REPO@@/audit.md): A-01, A-04, A-05, A-06, A-08, A-16, A-32; Figcraft `Site — Desktop` / `Site — Mobile` frames `home`, `home-states`; [`home-desktop.png`](@@REPO@@/design/current/home-desktop.png), [`home-mobile.png`](@@REPO@@/design/current/home-mobile.png), [`home-scrolled-desktop.png`](@@REPO@@/design/current/home-scrolled-desktop.png), [`home-states-desktop.png`](@@REPO@@/design/current/home-states-desktop.png), [`menu-open-mobile.png`](@@REPO@@/design/current/menu-open-mobile.png)
+
+![home-desktop](@@REPO@@/design/current/home-desktop.png?raw=true)
+![home-mobile](@@REPO@@/design/current/home-mobile.png?raw=true)

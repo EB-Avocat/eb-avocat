@@ -31,4 +31,6 @@ Booking tool, change of delivery provider.
 
 ## References
 
-- Audit: A-15, A-17; `.orchestrator/features/plan-redesign/design/v2/`; `components/Contact.tsx`, `lib/contact.ts`
+- [Audit](@@REPO@@/audit.md): A-15, A-17; `.orchestrator/features/plan-redesign/design/v2/`; `components/Contact.tsx`, `lib/contact.ts`
+
+![home-states-desktop](@@REPO@@/design/current/home-states-desktop.png?raw=true)

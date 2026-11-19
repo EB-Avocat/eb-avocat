@@ -32,4 +32,6 @@ Redirect configuration (rollout issue).
 
 ## References
 
-- Audit: A-03, A-07, A-20; `.orchestrator/features/plan-redesign/design/v2/`
+- [Audit](@@REPO@@/audit.md): A-03, A-07, A-20; `.orchestrator/features/plan-redesign/design/v2/`
+
+![home-desktop](@@REPO@@/design/current/home-desktop.png?raw=true)

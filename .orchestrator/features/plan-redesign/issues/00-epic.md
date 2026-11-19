@@ -5,9 +5,9 @@ labels: redesign
 
 ## Context
 
-biezunski-avocat.fr (Eva Biezunski, avocate en droit des sociétés, Lyon) works but reads as a generic template, converts weakly and cannot rank for what prospects search. The audit (`.orchestrator/features/plan-redesign/audit.md`) lists 32 findings, 6 of them high severity: A-01 positioning, A-02 navigation, A-03 no page per domaine, A-04 proof, A-05 CTA that does not match its promise, A-09 articles are dead ends.
+biezunski-avocat.fr (Eva Biezunski, avocate en droit des sociétés, Lyon) works but reads as a generic template, converts weakly and cannot rank for what prospects search. The audit ([audit.md](@@REPO@@/audit.md)) lists 32 findings, 6 of them high severity: A-01 positioning, A-02 navigation, A-03 no page per domaine, A-04 proof, A-05 CTA that does not match its promise, A-09 articles are dead ends.
 
-The current design is copied screen by screen in Figcraft (`EB-Avocat.figcraft`) with PNG exports in `.orchestrator/features/plan-redesign/design/current/`. That file is the baseline the redesign starts from.
+The current design is copied screen by screen in Figcraft (`EB-Avocat.figcraft`) with PNG exports in [design/current/](@@REPO@@/design/current). That file is the baseline the redesign starts from.
 
 ## Goal
 
@@ -35,6 +35,9 @@ None. Children are listed in the task list below (added by `create-issues.sh`).
 
 ## References
 
-- Audit: `.orchestrator/features/plan-redesign/audit.md`
-- Baseline PNGs: `.orchestrator/features/plan-redesign/design/current/` (`cover.png`, `foundations.png`, `components.png`, `home-desktop.png`, …)
+- [Audit](@@REPO@@/audit.md)
+- [Spec](@@REPO@@/spec.md)
+- Baseline PNGs: [design/current/](@@REPO@@/design/current) ([`cover.png`](@@REPO@@/design/current/cover.png), [`foundations.png`](@@REPO@@/design/current/foundations.png), [`components.png`](@@REPO@@/design/current/components.png), [`home-desktop.png`](@@REPO@@/design/current/home-desktop.png), …)
 - Figcraft file: `EB-Avocat.figcraft`, pages `Cover`, `Foundations`, `Components`, `Site — Desktop`, `Site — Mobile`, `Back-office`
+
+![cover](@@REPO@@/design/current/cover.png?raw=true)

@@ -33,4 +33,7 @@ Visual design, page copy, implementation.
 
 ## References
 
-- Audit: A-02, A-03, A-18, A-32, §1 site map; `design/current/home-desktop.png`, `menu-open-mobile.png`; Figcraft `Components` frame `Navbar`
+- [Audit](@@REPO@@/audit.md): A-02, A-03, A-18, A-32, §1 site map; [`home-desktop.png`](@@REPO@@/design/current/home-desktop.png), [`menu-open-mobile.png`](@@REPO@@/design/current/menu-open-mobile.png); Figcraft `Components` frame `Navbar`
+
+![home-desktop](@@REPO@@/design/current/home-desktop.png?raw=true)
+![menu-open-mobile](@@REPO@@/design/current/menu-open-mobile.png?raw=true)

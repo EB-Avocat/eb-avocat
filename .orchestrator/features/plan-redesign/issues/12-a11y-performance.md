@@ -32,4 +32,6 @@ Implementing the fixes (done in the implementation issues).
 
 ## References
 
-- Audit: A-12, A-13, A-14, A-15, A-16, A-28, A-29, A-31, contrast tables in §4; `design/current/foundations.png`
+- [Audit](@@REPO@@/audit.md): A-12, A-13, A-14, A-15, A-16, A-28, A-29, A-31, contrast tables in §4; [`foundations.png`](@@REPO@@/design/current/foundations.png)
+
+![foundations](@@REPO@@/design/current/foundations.png?raw=true)

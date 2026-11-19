@@ -39,4 +39,4 @@ New features discovered during QA (new issues).
 
 ## References
 
-- Audit: all; `.orchestrator/features/plan-redesign/design/v2/`; SEO issue redirect map
+- [Audit](@@REPO@@/audit.md): all; `.orchestrator/features/plan-redesign/design/v2/`; SEO issue redirect map
