@@ -20,10 +20,14 @@ No production code changes. The only repo changes are docs and exported images u
 - Stack: Next.js 16 App Router, Tailwind 4, `lucide-react` icons, copy in `frontend/src/lib/constants.ts`.
 - Typography: **Museo** (OTF in `frontend/public/fonts`, weights 300/500/700 used; 100/900 shipped but unused).
 - Colours (`frontend/src/app/globals.css` `@theme`): primary `#3f5b57`, primary-light `#4a7a6f`,
-  dark-teal `#264445`, darker-teal `#162729`, near-black `#191919`, plus Tailwind grays
-  (gray-500/600/700, gray-100/200) and `red-600` for errors. Section tint = primary-light at 5%.
-- Layout: centred `max-w-6xl` container, `px-6`, sections `py-20`, radius `rounded` (4px) on
-  buttons and `rounded-lg` (8px) on cards, cards use `shadow-md` → `shadow-lg` on hover.
+  dark-teal `#264445`, darker-teal `#162729`, near-black `#191919`, plus hard-coded Tailwind
+  colours: public site text gray-500/600/700, borders gray-100/300, `red-600` for the contact
+  error; back-office adds gray-50/100/200/300/400, `red-50/700/800` for errors and `green-*`
+  for success. Section tint = primary-light at 5%.
+- Layout: centred `max-w-6xl` container (`max-w-3xl` for the article and 404/error), `px-6`,
+  home sections `py-20`, other pages `py-16` (404/error `py-24`), radius `rounded` (4px) on
+  buttons, `rounded-lg` (8px) on cards, `rounded-full` on category chips, cards use
+  `shadow-md` → `shadow-lg` on hover.
 - Assets: logos in `frontend/public/images` (dark-green, light-green, white, black variants, SVG),
   `portrait.jpeg`, contact icons in `images/icons`, favicon.
 
@@ -61,7 +65,9 @@ Source: `app/backoffice/**`, `components/backoffice/**`.
 Figcraft file organised in pages:
 1. `Cover` — title, date, legend.
 2. `Foundations` — colour styles, text styles (Museo), spacing/radius/shadow references, logos, icons.
-3. `Components` — components with variants: Button (primary / outline / disabled), Navbar
+3. `Components` — components with variants: Button (primary / outline-on-dark / disabled — the
+   code's `Button` has no disabled styling, it only sets `disabled`; the 404/error "Nous
+   contacter" teal outline link is a separate, hand-styled variant), Navbar
    (overlay-top / solid / mobile closed / mobile open), SectionHeading (dark / light), ServiceCard,
    PublicationCard (with and without cover), CategoryChip / filter, Pagination, form fields
    (default / focus / error), Footer, back-office sidebar item, back-office controls.

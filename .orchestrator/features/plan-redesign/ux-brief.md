@@ -44,4 +44,6 @@ with the screen and the source file.
   `create-issues.sh` creates missing labels first (`gh label create --force`).
 - `create-issues.sh`: idempotent-ish (skip if an issue with the same title exists), creates the epic,
   captures its number, creates children with `Part of #<epic>` in the body, then edits the epic to
-  add a task list of children.
+  add a task list of children. When an issue is skipped because it already exists, the script still
+  looks up its number (`gh issue list --search … --json number`) so a re-run after a partial failure
+  links children to the existing epic and the task list includes every child, old and new.
