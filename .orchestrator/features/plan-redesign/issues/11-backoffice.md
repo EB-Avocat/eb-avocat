@@ -22,7 +22,7 @@ New back-office features, MCP endpoint, permissions.
 ## Acceptance criteria
 
 - [ ] Eva's feedback recorded.
-- [ ] Back-office frames updated in Figcraft (`Back-office v2`) and exported to `design/v2/`.
+- [ ] Back-office frames updated in Figcraft (`Back-office v2`) and exported to `.orchestrator/features/plan-redesign/design/v2/`.
 - [ ] Placeholder and disabled text meet contrast (gray-400 case from the audit fixed).
 - [ ] Publishing flow decided and written down.
 - [ ] Mobile editing decision recorded.

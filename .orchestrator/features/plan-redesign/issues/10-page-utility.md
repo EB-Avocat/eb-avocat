@@ -19,7 +19,7 @@ Legal text changes, code.
 
 ## Acceptance criteria
 
-- [ ] Frames exported to `design/v2/`, desktop and mobile where relevant.
+- [ ] Frames exported to `.orchestrator/features/plan-redesign/design/v2/`, desktop and mobile where relevant.
 - [ ] `/carte` desktop decision recorded.
 - [ ] All error screens share one layout and tokens.
 - [ ] Legal pages reuse the article prose styles.

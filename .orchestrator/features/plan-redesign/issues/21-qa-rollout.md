@@ -34,7 +34,9 @@ New features discovered during QA (new issues).
 - {{18}} Contact
 - {{19}} Utility pages
 - {{20}} Back-office
+- {{12}} Accessibility and performance budgets
+- {{13}} SEO preservation
 
 ## References
 
-- Audit: all; `design/v2/`; SEO issue redirect map
+- Audit: all; `.orchestrator/features/plan-redesign/design/v2/`; SEO issue redirect map

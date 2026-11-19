@@ -19,7 +19,7 @@ New permissions, MCP changes.
 
 ## Acceptance criteria
 
-- [ ] Matches `design/v2/` back-office frames.
+- [ ] Matches `.orchestrator/features/plan-redesign/design/v2/` back-office frames.
 - [ ] Publishing flow as decided, covered by tests.
 - [ ] Eva validates the flow on staging.
 - [ ] `tox -e lint,type,test`, `tox -e frontend` pass.
@@ -31,4 +31,4 @@ New permissions, MCP changes.
 
 ## References
 
-- Audit: A-19, A-23, A-24, A-25; `design/v2/`; `components/backoffice/**`, `app/backoffice/**`
+- Audit: A-19, A-23, A-24, A-25; `.orchestrator/features/plan-redesign/design/v2/`; `components/backoffice/**`, `app/backoffice/**`

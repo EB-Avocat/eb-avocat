@@ -19,7 +19,7 @@ Writing every page's final copy (content issue), code.
 
 ## Acceptance criteria
 
-- [ ] Template frames exported to `design/v2/`, desktop and mobile.
+- [ ] Template frames exported to `.orchestrator/features/plan-redesign/design/v2/`, desktop and mobile.
 - [ ] Content blocks listed with their source and owner per domaine.
 - [ ] Each page has one primary CTA and a visible phone path.
 - [ ] Matches the SEO needs: one h1, FAQ-ready, breadcrumb.

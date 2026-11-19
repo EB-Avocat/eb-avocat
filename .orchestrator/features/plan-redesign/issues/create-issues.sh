@@ -64,9 +64,8 @@ else
 fi
 
 # --- children -------------------------------------------------------------
-declare -A NUM=()      # draft number -> real issue number
-declare -A FILE=()     # draft number -> file
-declare -A CREATED=()  # draft number -> 1 when created in this run
+# Plain variables (NUM_<nn>, FILE_<nn>, CREATED_<nn>) instead of associative arrays:
+# macOS ships bash 3.2, which has no `declare -A`.
 ORDER=()
 for f in "$DIR"/[0-9][0-9]-*.md; do
   nn="$(basename "$f" | cut -c1-2)"
@@ -77,31 +76,44 @@ for f in "$DIR"/[0-9][0-9]-*.md; do
     echo "$nn exists: #$n  $title"
   else
     n="$(create_issue "$f" "$EPIC")"
-    CREATED[$nn]=1
+    printf -v "CREATED_$nn" '%s' 1
     echo "$nn created: #$n  $title"
   fi
-  NUM[$nn]="$n"; FILE[$nn]="$f"; ORDER+=("$nn")
+  printf -v "NUM_$nn" '%s' "$n"
+  printf -v "FILE_$nn" '%s' "$f"
+  ORDER+=("$nn")
 done
 
-# --- rewrite draft numbers ({{NN}}) in the bodies created in this run -----------
+# --- rewrite draft numbers ({{NN}}) in the bodies --------------------------------
+# Done for issues created in this run and for existing ones that still hold a
+# placeholder (a previous run that failed between create and edit).
 for nn in "${ORDER[@]}"; do
-  [ -n "${CREATED[$nn]:-}" ] || continue
+  created="CREATED_$nn"; num="NUM_$nn"; file="FILE_$nn"
+  if [ -z "${!created:-}" ]; then
+    gh issue view "${!num}" --json body --jq .body | grep -q '{{[0-9][0-9]}}' || continue
+  fi
   bf="$TMP/$nn.final"
-  { printf 'Part of #%s\n\n' "$EPIC"; body "${FILE[$nn]}"; } >"$bf"
+  { printf 'Part of #%s\n\n' "$EPIC"; body "${!file}"; } >"$bf"
   for k in "${ORDER[@]}"; do
-    sed -i.bak "s/{{$k}}/#${NUM[$k]}/g" "$bf"
+    knum="NUM_$k"
+    sed -i.bak "s/{{$k}}/#${!knum}/g" "$bf"
   done
   rm -f "$bf.bak"
-  gh issue edit "${NUM[$nn]}" --body-file "$bf" >/dev/null
+  gh issue edit "${!num}" --body-file "$bf" >/dev/null
 done
 
 # --- epic task list -------------------------------------------------------
+# Keep the boxes already ticked on the epic: a re-run must not reset progress.
+current="$(gh issue view "$EPIC" --json body --jq .body)"
 ef="$TMP/epic.final"
 {
   body "$EPIC_FILE"
   printf '\n## Child issues\n\n'
   for nn in "${ORDER[@]}"; do
-    printf -- '- [ ] #%s\n' "${NUM[$nn]}"
+    num="NUM_$nn"
+    mark=" "
+    printf '%s\n' "$current" | grep -qE "^- \[[xX]\] #${!num}\$" && mark="x"
+    printf -- '- [%s] #%s\n' "$mark" "${!num}"
   done
 } >"$ef"
 gh issue edit "$EPIC" --body-file "$ef" >/dev/null

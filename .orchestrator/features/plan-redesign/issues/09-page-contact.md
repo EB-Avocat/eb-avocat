@@ -20,7 +20,7 @@ Back-end spam handling and delivery (existing), booking tool.
 
 ## Acceptance criteria
 
-- [ ] Frames exported to `design/v2/` for every form state, desktop and mobile.
+- [ ] Frames exported to `.orchestrator/features/plan-redesign/design/v2/` for every form state, desktop and mobile.
 - [ ] Every field has a visible label, a required or optional marker and an error message wording in French.
 - [ ] GDPR notice and response time are written and approved by Eva.
 - [ ] Phone and email reachable in one tap from the header on mobile.

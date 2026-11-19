@@ -21,7 +21,7 @@ Domaine pages, publications, contact form logic.
 
 ## Acceptance criteria
 
-- [ ] Matches `design/v2/` home frames at desktop 1440 and mobile 390.
+- [ ] Matches `.orchestrator/features/plan-redesign/design/v2/` home frames at desktop 1440 and mobile 390.
 - [ ] Hero shows the approved promise and a CTA whose label matches its action.
 - [ ] Phone and contact reachable from the header on every page.
 - [ ] Lighthouse accessibility and performance meet the budgets.
@@ -34,4 +34,4 @@ Domaine pages, publications, contact form logic.
 
 ## References
 
-- Audit: A-01, A-02, A-04, A-05, A-06, A-18; `design/v2/`; `components/Navbar.tsx`, `app/page.tsx`
+- Audit: A-01, A-02, A-04, A-05, A-06, A-18; `.orchestrator/features/plan-redesign/design/v2/`; `components/Navbar.tsx`, `app/page.tsx`

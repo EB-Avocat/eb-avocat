@@ -22,7 +22,7 @@ Domaine pages, publications, legal pages, code.
 
 ## Acceptance criteria
 
-- [ ] Frames `Site v2 — Desktop / home`, `Site v2 — Mobile / home` exported to `design/v2/`.
+- [ ] Frames `Site v2 — Desktop / home`, `Site v2 — Mobile / home` exported to `.orchestrator/features/plan-redesign/design/v2/`.
 - [ ] Hero shows promise, audience, primary CTA and a phone path without scrolling on mobile.
 - [ ] Each high finding A-01, A-04, A-05 is answered visibly in the design.
 - [ ] Uses only design system v2 components and tokens.

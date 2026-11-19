@@ -19,7 +19,7 @@ Back-office editor (see back-office issue), code.
 
 ## Acceptance criteria
 
-- [ ] Frames for list, empty state and article exported to `design/v2/`, desktop and mobile.
+- [ ] Frames for list, empty state and article exported to `.orchestrator/features/plan-redesign/design/v2/`, desktop and mobile.
 - [ ] High finding A-09 answered: author block, CTA, related content below every article.
 - [ ] Prose styles come from the design system (no separate typography plugin look).
 - [ ] Article page has room for JSON-LD data (author, dates, image) without visible change.

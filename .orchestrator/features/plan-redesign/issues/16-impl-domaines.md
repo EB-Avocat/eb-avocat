@@ -32,4 +32,4 @@ Redirect configuration (rollout issue).
 
 ## References
 
-- Audit: A-03, A-07, A-20; `design/v2/`
+- Audit: A-03, A-07, A-20; `.orchestrator/features/plan-redesign/design/v2/`

@@ -10,7 +10,7 @@ Delivers the fix for A-09 (articles that lead nowhere) and A-10, A-20 for articl
 ## Scope
 
 - Publications list and article template per design: author card, contextual CTA, related and next articles, reading time, back link that keeps list state.
-- `Article`/`BlogPosting` and `BreadcrumbList` JSON-LD, real `lastModified` in the sitemap (A-21).
+- `Article`/`BlogPosting` and `BreadcrumbList` JSON-LD; the sitemap `lastModified` fix itself is owned by the SEO issue ({{13}}).
 - Back-end changes only if needed for author card or related content, with tests (coverage ≥ 90%).
 
 ## Out of scope
@@ -32,4 +32,4 @@ Editor changes.
 
 ## References
 
-- Audit: A-09, A-10, A-20, A-21; `design/v2/`; `app/publications/`
+- Audit: A-09, A-10, A-20, A-21; `.orchestrator/features/plan-redesign/design/v2/`; `app/publications/`
