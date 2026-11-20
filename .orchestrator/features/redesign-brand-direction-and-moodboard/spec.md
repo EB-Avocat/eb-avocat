@@ -131,6 +131,8 @@ Tasks 3 and 4 are created once the direction is chosen, so their brief carries t
 3. **Museo files already public**: remove the OTFs from the site now (small change, Georgia
    fallback until #79) or with #79; purge them from the git history or not. Asked once the spec is
    approved; the answer becomes a note for #79 or a separate small issue, not work in this feature.
+   **Answered (user, 2026-11-20): wait for #79.** #79 ships the new font and removes the Museo OTFs and
+   every `Museo` reference in the same change; no early removal, no git-history purge.
 
 ## Acceptance criteria (from #69)
 - [ ] Museo licence status recorded (not free, not licensed for the web: replaced); free-licence font
