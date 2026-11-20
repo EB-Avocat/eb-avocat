@@ -1,7 +1,9 @@
 # Redesign: information architecture and navigation — spec
 
-Issue: [#67](https://github.com/EB-Avocat/eb-avocat/issues/67), part of epic #65. Depends on #66
-(objectives, audience, KPIs), which runs **in parallel**: see "Assumptions to reconcile with #66".
+Issue: [#67](https://github.com/EB-Avocat/eb-avocat/issues/67), part of epic #65.
+**Blocked by #66** (objectives, audience, KPIs, feature `redesign-objectives-audience-and-kpis`).
+No task of this feature starts before #66's `objectives.md` is approved and merged: see
+"Blocked by #66" below.
 
 ## Goal
 
@@ -40,8 +42,11 @@ copy issue (#68) owns the final wording.
 
 ## Lead's starting proposal (ux validates, changes with a reason, or rejects)
 
-This is the hypothesis the user approves the direction of; `ux` stress-tests it against the
-audit journeys J1-J5 and the audience and records the final decision with its reason.
+This is a hypothesis, written before #66 exists. The lead revises it against #66's
+`objectives.md` before creating tasks; `ux` then stress-tests it against the audiences, the ranked
+journeys and the audit and records the final decision with its reason. #66's spec already points
+the same way (prospects first, J1 and J2 priority 1, a contact request rather than a booking,
+phone beside the CTA, review ask out of the main nav).
 
 ### Site map
 
@@ -69,7 +74,7 @@ the domaine pages have traffic. ux confirms or overturns this.
 
 - **Desktop header**: logo (→ `/`, replaces "Accueil") · Domaines (→ `/domaines`, with the 4-5
   domaine pages as a disclosure menu) · À propos · Publications · phone number as a link · one
-  primary CTA button (→ `/contact`, label from #66).
+  primary CTA button (→ `/contact`, action from #66 §4, wording from #68).
 - **Mobile header**: logo · call button (`tel:`, visible without opening the menu) · menu button.
   Menu: the same items + the CTA + email; Domaines expands in place.
 - **"Votre avis" leaves the main nav**: footer link, end of articles (after the author block),
@@ -118,7 +123,8 @@ All under `.orchestrator/features/redesign-information-architecture-and-na/`:
    - internal linking rules (home → domaines, domaine ↔ publications via categories, article →
      domaine / contact / author, 404 → hub and contact);
    - how the IA maps to the journeys J1-J5 (each journey in the new structure, step by step);
-   - open questions for Eva or #66, and follow-ups for later issues.
+   - "Depends on #66": each decision that rests on `objectives.md`, with the section it cites;
+   - open questions for Eva, and follow-ups for later issues.
 2. **`url-table.md`** (owner `ux`): one row per URL, columns *new URL · old URL · redirect
    (none / 301 / 302 / client-side) · indexable · in sitemap · canonical · notes*. Covers pages,
    query parameters (`?category=`, `?page=`), hash anchors, `/carte`, `/avis` if adopted, and
@@ -138,26 +144,43 @@ All under `.orchestrator/features/redesign-information-architecture-and-na/`:
 
 | # | Node | Task | Depends on |
 |---|---|---|---|
-| 1 | ux | `ia.md` and `url-table.md`: validate or revise the lead's proposal, record every decision with its reason | — |
+| 0 | lead | Sync with `main` once #66 is merged; revise the proposal against `objectives.md`; create tasks 1-2 | #66 merged |
+| 1 | ux | `ia.md` and `url-table.md`: validate or revise the lead's proposal against `objectives.md`, record every decision with its reason | 0 |
 | 2 | ui | Low-fi wireframes from `ia.md` in Figcraft + PNG exports to `design/` | 1 |
 | — | lead | Review, merge, tick the #67 acceptance criteria, comment on #78 with the URL table link, PR | 2 |
 
 ux may hand a draft site map to ui early (handoff) so the wireframes start before the URL table is
 final; ui only draws what `ia.md` decides.
 
-## Assumptions to reconcile with #66
+## Blocked by #66
 
-#66 (objectives, audience, KPIs) runs in parallel and its docs are not readable from this
-worktree. This IA assumes:
+#66 decides the inputs this IA is built on. Its deliverable is
+`.orchestrator/features/redesign-objectives-audience-and-kpis/objectives.md`; today only its spec
+exists. This feature consumes, from that file:
 
-- prospects (liberal professionals and entrepreneurs around Lyon) are the first audience; clients,
-  QR contacts and Eva come after;
-- the primary conversion is a contact request, reached through one CTA whose **label** #66 decides
-  (A-05). The IA fixes the CTA's **target** (`/contact`) and position, not its wording;
-- phone is a first-class channel (tap-to-call on mobile).
+| #66 section | What the IA takes from it | Where it lands here |
+|---|---|---|
+| 1. Audiences and priorities | which audience the header, home order and footer serve first; what clients, QR contacts and Eva need without costing prospects | nav items, home order, footer columns |
+| 2. Journeys J1-J5 ranked | the journeys the IA must make shortest (J1 home → contact, J2 publication → contact) | journey walkthrough in `ia.md`, article exits, review-ask placement (J3) |
+| 3. Positioning | the promise and the differentiators the home order must put first; which domaines are core | home order, core vs secondary domaines, own page vs section |
+| 4. Primary conversion and CTA (A-05) | the CTA's real action and its target, the channels (form, phone, email) and their weight | CTA target and position, `/contact` page or section, phone/email in the header |
+| 5. KPIs | events that need a distinct, trackable page or location (`contact_submit {origin_path}`, `tel_click {location}`, `review_click {location}`, `vcard_save`) | URL choices (one contact URL), `location` values = named header/footer/article slots |
+| 7. Hand-offs | anything #66 explicitly asks #67 to decide | checked one by one in `ia.md` |
 
-If #66 decides otherwise (e.g. a real booking path), only the CTA target and the contact page row
-change; `ia.md` lists these dependencies in one place.
+**Sequencing**
+
+1. This spec is approved now as the plan; the lead's proposal below is a hypothesis, not a
+   decision.
+2. When #66 is merged (or its `objectives.md` is approved on its integration branch), the lead
+   syncs this integration branch with `main` so `objectives.md` is in the worktree, revises the
+   lead's proposal where #66 contradicts it (commit + short note to the user if anything material
+   changes, e.g. a booking path instead of a contact request), and only then creates the tasks.
+3. `ux` cites the #66 section behind each IA decision that depends on it. Anything #66 leaves
+   open (e.g. Eva's approval still pending) is listed in `ia.md` under "Depends on #66" with the
+   default the IA uses.
+
+If #66 ends with a real booking path rather than a contact request, the `/contact` row, the CTA
+target and the home contact block change; everything else stands.
 
 ## Acceptance (maps to #67)
 

@@ -1,6 +1,10 @@
 # UX brief — Information architecture and navigation
 
-Read `spec.md` first, then the audit:
+Read `spec.md` first, then **#66's decisions** in
+`.orchestrator/features/redesign-objectives-audience-and-kpis/objectives.md` (audiences and
+journeys ranked, positioning, primary conversion and CTA, KPI events, hand-offs to #67). This
+task starts only once that file is merged; every IA decision that rests on it cites its section.
+Then the audit:
 `.orchestrator/features/plan-redesign/audit.md` (A-02, A-03, A-06, A-09, A-18, A-31, A-32, §1 site
 map, §2 journeys) and the baseline PNGs in `.orchestrator/features/plan-redesign/design/current/`
 (`home-desktop.png`, `home-mobile.png`, `menu-open-mobile.png`, `article-desktop.png`).
@@ -43,9 +47,11 @@ Sources of truth in the code: `frontend/src/lib/constants.ts` (`NAV_LINKS`, `SER
 
 - `ia.md` and `url-table.md` in the feature folder, structure as listed in `spec.md`
   "Deliverables". Mermaid for the site map diagram.
-- A section "Depends on #66" that lists what changes if #66 picks a different audience order or
-  CTA, and a section "Open questions for Eva" (content availability per domaine, Formations,
-  Mécénat).
+- A section "Depends on #66" that lists each decision resting on `objectives.md` (with the
+  section it cites) and, for anything #66 left open, the default the IA uses; a section "Open
+  questions for Eva" (content availability per domaine, Formations, Mécénat).
+- Name the header, footer and article slots consistently: they become the `location` values of
+  #66's KPI events (`contact_cta_click`, `tel_click`, `mailto_click`, `review_click`).
 - Hand off to `ui` (mcp__orch__handoff) once the site map, header/menu, footer and home order are
   decided, even if the URL table is still being finished. Tell ui which file and sections to draw.
 
