@@ -274,12 +274,14 @@ The review ask (J3, rank 3) leaves the main nav and the home page (A-02, #66 §1
 | Place | Form | `location` |
 |---|---|---|
 | Footer, « Le cabinet » group | text link « Laisser un avis » (the group carries id `avis`) | `footer` |
-| End of article, last line of the author card | text link « Client du cabinet ? Laisser un avis » | `article` |
+| End of article, one line **below** the contact block (before related articles) | text link « Client du cabinet ? Laisser un avis » | `article` |
 | `/carte` | secondary link under the contact links | `carte` |
 | Print / email | `/avis` short URL | — (server count, §16) |
 
-Never a button, never above or beside a contact CTA (#66 §7, #71: secondary paths never compete
-with the CTA). It opens Google in a new tab; the accessible name says so (A-15).
+Never a button, never above a contact CTA, never in the same block as a contact CTA button (#66 §7,
+#71: secondary paths never compete with the CTA). In the footer list it comes last, after the plain
+« Contact » text link: both are text links of equal weight there, and no CTA button sits in the
+footer (§7). It opens Google in a new tab; the accessible name says so (A-15).
 
 **`/avis`: yes.** A 302 (temporary: the target is external and Eva may replace the link) from
 `biezunski-avocat.fr/avis` to the Google review URL. Reason: Eva can print it or say it ("…-avocat.fr
@@ -351,7 +353,7 @@ Every content page ends with an exit toward contact; no dead end (A-09).
 | Home | Contact band (§6) |
 | `/domaines` | Domaine list (4 cards → pages, or anchors on this page for a page that missed the gate) · Mécénat section (`#mecenat`) · « Pour qui » · pointer to Formations · contact band (`domaine`) |
 | Domaine page | Content (#72) · related publications · « Autres domaines » (the 3 others, from the domaine list, §2) · contact band (`domaine`) |
-| Article | **Author card** (photo, name, credential line, link → `/a-propos`, review text link §5) → **contact block** (CTA + phone, contextual line by #68, `article`) → **related articles** (2-3) → room for the `article_read_end` sentinel at the end of the body (#66 §6, #73 places it) |
+| Article | **Author card** (photo, name, credential line, link → `/a-propos`) → **contact block** (CTA + phone, contextual line by #68, `article`) → review text link (§5) → **related articles** (2-3) → room for the `article_read_end` sentinel at the end of the body (#66 §6, #73 places it) |
 | `/publications` | List · pagination · contact band (`publications`) |
 | `/a-propos` | Formations · publications link · contact band (`about`) |
 | `/contact` | The form is the page; no band |
@@ -427,7 +429,7 @@ vCard (`/carte/vcard`), or call / email / map on **every platform** (today iOS o
 the same card instead of a silent redirect to `/` (A-11; `url-table.md`).
 
 **J3 (rank 3) client → leave a review.** Eva sends `/avis` or the Google link → Google. On the
-site: footer « Laisser un avis » (every page), the author card at the end of articles, `/carte`.
+site: footer « Laisser un avis » (every page), the line under the contact block at the end of articles, `/carte`.
 Not in the header, not on home (A-02).
 
 **J5 (rank 4) Eva → write → publish.** Unchanged entry: the secret `/${BACKOFFICE_PATH}/*` prefix
@@ -546,7 +548,7 @@ count.
 | `domaine` | Contact band on `/domaines` and on each domaine page (form requests from the hub and the pages are told apart by `origin`; `link_click` carries no path, so tel / mailto clicks from these bands are counted together) | **added** |
 | `about` | Contact band on `/a-propos` | **added** |
 | `publications` | Contact band on `/publications` | **added** |
-| `article` | Article end: contact block (CTA, phone) and author-card review link | kept |
+| `article` | Article end: contact block (CTA, phone) and the review link below it | kept |
 | `footer` | Footer: phone, email, Contact link, review link | kept |
 | `carte` | `/carte`: phone, email, review link (vCard is `kind=vcard` here) | kept |
 | `legal` | Phone / email links inside the legal pages' text | kept |
