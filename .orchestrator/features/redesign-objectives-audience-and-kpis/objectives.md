@@ -33,22 +33,21 @@ Built only from `HERO`, `ABOUT`, `SERVICES`, `QR_CARD`, `FOOTER` in `constants.t
 client names, no comparative claim, no promised result (avocat ethics). ≤ 80 words (`wc -w`).
 
 **Variant A — "structurer et anticiper"** (recommended: it puts the audience first and keeps the
-current first-person voice of À propos), 76 words:
+current first-person voice of À propos), 71 words:
 
 > Avocate au Barreau de Lyon, j'aide les professionnels libéraux et les entrepreneurs à structurer
 > leur activité : choix de la société, statuts, contrats, opérations sur leur clientèle ou
 > patientèle. J'anticipe dès la création les ambitions de chacun et je traite en amont les points
-> de friction entre associés. Je connais les exigences des Ordres professionnels : je vous
-> accompagne dans vos démarches auprès d'eux, sur vos questions déontologiques et, si besoin,
-> devant les Conseils de l'Ordre.
+> de friction entre associés. Mon accompagnement se poursuit dans leurs relations avec leur Ordre
+> professionnel, sur leurs questions déontologiques et, si besoin, devant les Conseils de l'Ordre.
 
-**Variant B — "profession réglementée"** (leads with the Ordre difference), 72 words:
+**Variant B — "profession réglementée"** (leads with the Ordre difference), 74 words:
 
 > Votre profession est réglementée : la société et les contrats qui l'encadrent doivent en tenir
 > compte. Avocate au Barreau de Lyon, j'accompagne les professionnels libéraux de la création de
 > leur structure (SEL, SCM, SCI, SPFPL) jusqu'aux démarches devant leur Ordre, et je réponds à
 > leurs questions déontologiques. Je construis avec vous un cadre qui tient compte de vos projets
-> futurs et des relations entre associés, pour traiter les désaccords avant qu'ils n'apparaissent.
+> futurs et des relations entre associés, en traitant en amont les points de friction éventuels.
 
 | Element | Where it is in A / B | Source |
 |---|---|---|
@@ -97,19 +96,20 @@ Window: calendar month (Europe/Paris) unless stated. "Article" = `/publications/
 | # | KPI | Definition (counting rule) | Source | Baseline | Target | Owner |
 |---|---|---|---|---|---|---|
 | K1 | Contact requests / month | Form: POST `/api/contact` that returns `ok: true` **and** sent the email (honeypot drops excluded). Plus calls and emails from new people that Eva logs (count only) | Server-side counter (§6); Eva's monthly count | Form: count Brevo emails with subject starting "Contact site —" in Eva's inbox, last 6–12 months. Calls/emails: ask Eva, else unknown, measure from launch | ↑ | #80 (counter), #83, #86 |
-| K2 | tel / mailto clicks | Clicks on any `tel:` or `mailto:` link, by `location` (header, hero, contact, footer, article, carte); 1 per click | Vercel custom events | Unknown, measure ≥ 4 weeks before launch. GBP "calls" as partial proxy | ↑ | #80, #83 |
+| K2 | tel / mailto clicks | Clicks on a `tel:` link to `CONTACT.phone` or a `mailto:` link to `CONTACT.email` (not privacy@vercel.com, the médiateur, etc.), by `location` (event plan enum); 1 per click | Vercel custom events | Unknown, measure ≥ 4 weeks before launch. GBP "calls" as partial proxy | ↑ | #80, #83 |
 | K3 | Contact-CTA clicks | Clicks on the primary contact CTA, by `location` | Vercel custom events | Hero "Prendre rendez-vous" today: unknown, measure before launch | ↑ | #80 |
 | K4 | Publication reads | Page views of article pages; "engaged read" = `article_read_end` (end-of-body sentinel visible), once per page view | Vercel Web Analytics (+ custom event) | Page views: from Analytics once enabled (≥ 4 weeks pre-launch). Engaged: unknown, measure from launch | ↑ | #80, #73 |
 | K5 | Reads → contact | (a) K1 form requests with `origin` = an article path; (b) `contact_cta_click` with `location=article` / article page views | Server counter + custom events | 0 by construction today (no article CTA, A-09); measure from launch | ↑ (a) count, (b) rate | #73, #80, #83 |
 | K6 | `/carte` visits | Page views of `/carte` (mobile only today: desktop UA is redirected, A-11) | Vercel Web Analytics | Measure ≥ 4 weeks before launch | → / ↑ (depends on cards handed out) | #80 |
-| K7 | vCard saves | Successful GET `/carte/vcard` (200), 1 per request | Server-side counter | Unknown, measure before launch (needs the counter) | ↑ as share of K6 | #80 |
+| K7 | vCard saves | Successful GET `/carte/vcard` (200), 1 per request (the route must run per request, not be prerendered or CDN-cached: #80 checks the build output and forces it dynamic if needed) | Server-side counter | Unknown, measure before launch (needs the counter) | ↑ as share of K6 | #80 |
 | K8 | Review-link clicks | Clicks on `REVIEW_URL` links, by `location`. Proxy: GBP review count per month | Custom events; GBP | GBP: current review count (Eva) | ↑ | #80 |
 | K9 | Search | Impressions, clicks, average position, monthly, split: brand queries (contain "biezunski") vs domaine queries (SEL, SCM, patientèle, Ordre, contentieux ordinal, "avocat … Lyon") | Search Console | Export 16 months of history if the property exists; else create it now (unknown until then) | Brand ≥ baseline (SEO protected); domaine ↑ | #78, #86 |
 | K10 | Core Web Vitals | LCP, INP, CLS at p75, mobile and desktop, 28-day field data | Vercel Speed Insights | Lighthouse + CrUX snapshot of `/`, one article, `/carte` now (CrUX may lack data for a small site); Speed Insights ≥ 4 weeks pre-launch | Within #77 budgets, no regression | #77, #86 |
 | K11 | GBP actions | Calls, website clicks, direction requests, monthly | Google Business Profile insights | Export last 6 months now (Eva) | ↑ | #86 |
 
 **Pre-launch measurement (dependency):** the redesign must not launch before **≥ 4 full weeks** of
-K1–K4, K6, K7, K10 on the current site. The tracking part of #80 (analytics, counters, events on the
+K1, K4 (page views), K6, K7, K10, plus K2 and K3 on Pro (custom events; on Hobby they do not exist,
+see the fallback below), on the current site. The tracking part of #80 (analytics, counters, events on the
 current components) must therefore ship first, ahead of the redesign; recommended as its own small
 issue blocking #86 (lead to decide). Reports at launch +1 and +3 months compare with that window (#86).
 
@@ -130,12 +130,12 @@ email, phone, name, query string or identifier.
 
 | Event | Properties | Fired when |
 |---|---|---|
-| `contact_cta_click` | `location`: header \| hero \| article \| contact_page \| footer \| not_found | Primary contact CTA clicked |
-| `contact_submit` | `origin`: path of the page the visitor came from (article CTA passes it), else `direct` | `/api/contact` answered `ok: true` (client event, mirrors the server count) |
+| `contact_cta_click` | `location`: header \| hero \| article \| contact_section (home `#contact`, current site) \| contact_page \| footer \| not_found | Primary contact CTA clicked |
+| `contact_submit` | `origin`: path of the page the visitor came from (article CTA passes it), else `direct` | `/api/contact` answered `ok: true` (client event; close to the server count but not equal: a honeypot drop also answers `ok: true`, so the server counter is the reference) |
 | `contact_error` | `kind`: validation \| verification \| server | Form shows an error (diagnoses lost requests) |
-| `tel_click` / `mailto_click` | `location` (as above + carte) | `tel:` / `mailto:` link clicked |
+| `tel_click` / `mailto_click` | `location` (as above + carte + legal for mentions légales / politique) | `tel:` / `mailto:` link clicked |
 | `vcard_save` | none | "Enregistrer le contact" tapped (server count is the reference) |
-| `review_click` | `location`: footer \| article \| carte | Review link clicked |
+| `review_click` | `location`: home_review (current « Votre avis » section) \| footer \| article \| carte | Review link clicked |
 | `article_read_end` | `slug` | End-of-body sentinel enters the viewport, once per view |
 
 **Consent (no banner).** Vercel Web Analytics and Speed Insights store nothing on the device and do
@@ -149,8 +149,10 @@ personal data.
 
 **Privacy-policy edits** (`politique-de-confidentialite/page.tsx`, with #80; Eva approves wording):
 1. §3 table: add row « Mesure d'audience du Site » | « Données techniques de navigation (pages
-   vues, type d'appareil, pays, page de provenance), agrégées et anonymes ; aucun cookie » |
-   « Intérêt légitime du Cabinet à connaître la fréquentation de son Site ».
+   vues, type d'appareil, pays, page de provenance), pseudonymisées puis agrégées ; aucun cookie » |
+   « Intérêt légitime du Cabinet à connaître la fréquentation de son Site ». Also fix the existing
+   « Gestion des demandes de contact » row: the form also collects prénom, téléphone and objet, not
+   only « Nom, email, contenu du message ».
 2. §4: name the processors: Vercel Inc. (hébergement, détection des robots, mesure d'audience) and
    Brevo (acheminement des emails du formulaire). Remove the off-topic bullet about « services de
    paiement de loyer ».
