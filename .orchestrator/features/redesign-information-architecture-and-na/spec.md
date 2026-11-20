@@ -47,7 +47,9 @@ copy issue (#68) owns the final wording.
 `/carte/vcard`, `/backoffice/*`, plus `sitemap.xml`, `robots.txt`, `manifest.webmanifest`,
 `/media/*`, `/api/v1/*`, `/mcp`. Nav model: `NAV_LINKS` + `PUBLICATIONS_LINK` in
 `frontend/src/lib/constants.ts`, `components/Navbar.tsx`, `components/Footer.tsx`,
-`hooks/useScrollSpy.ts`. No redirects exist in `next.config.ts` or `vercel.json`.
+`hooks/useScrollSpy.ts`. Existing redirects: `vercel.json` sends `cdn.biezunski-avocat.fr/<anything
+but media/>` to the main host (301), and `/carte` answers non-mobile User-Agents with a 307 to `/`
+(`redirect()` in `app/carte/page.tsx`); `next.config.ts` has none.
 
 ## Inputs from #66 (decided, not reopened here)
 

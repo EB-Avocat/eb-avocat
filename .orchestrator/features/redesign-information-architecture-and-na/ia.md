@@ -42,20 +42,22 @@ flowchart TD
   hub --> d1 & d2 & d3 & d4
   hub --> about
   pubs --> art
-  art -->|primary category| d1
+  art -->|domaine of its first mapped category| d1 & d2 & d3 & d4
   d1 & d2 & d3 & d4 -->|related articles| art
   art --> about
   carte --> vcard
   carte --> home
-  carte --> avis
 
   classDef header fill:#ddd,stroke:#333;
   classDef footeronly fill:#fff,stroke:#999,stroke-dasharray: 4 3;
   class hub,about,pubs,contact header;
-  class legal1,legal2,avis footeronly;
+  classDef printonly fill:#fff,stroke:#999,stroke-dasharray: 1 3;
+  class legal1,legal2 footeronly;
+  class avis printonly;
 ```
 
-Grey = reachable from the header on every page. Dashed = footer (or print) only. `/carte` is
+Grey = reachable from the header on every page. Dashed = footer only. Dotted = print / email only:
+`/avis` is never linked from the site (site review links point straight to Google, §5). `/carte` is
 reached only by the printed QR code. Every page (except `/carte`, `/carte/vcard`, `/avis`) has the
 header and footer, so every page links to `/contact`, the hub, the 4 domaine pages (header menu and
 footer), `/a-propos` and `/publications`.
@@ -149,7 +151,9 @@ mobile, #66 §7) → form → address (link to the map) and access. No booking U
 
 One header model on every public page except `/carte` (which has no header). No overlay variant,
 no scroll-spy, no hero-logo trick (A-18): the header is the same on home and elsewhere, and every
-link is a route, never an in-page anchor.
+link is a route, never an anchor on the current page. The only fragments are cross-page ones:
+the launch-gate fallback `/domaines#<slug>` (§2), `/domaines#mecenat` and `/a-propos#formations`;
+on `/domaines` a fallback link to its own section counts as the `/domaines` active state (§4.5).
 
 ### 4.1 Desktop header (≥ 1024 px)
 
@@ -177,8 +181,8 @@ Left to right:
 ### 4.2 Mobile and tablet header (< 1024 px)
 
 Visible without opening the menu, left to right: **logo** (→ `/`) · **call button** (`tel:`,
-icon + short visible label « Appeler » where width allows, accessible name « Appeler le cabinet,
-07 56 85 62 75 »; tracking `tel` / `header`) · **menu button** (« Menu », `aria-expanded`).
+icon + short visible label « Appeler » where width allows, accessible name « Appeler le cabinet, » + `CONTACT.phone`
+(rendered from the constant, never retyped); tracking `tel` / `header`) · **menu button** (« Menu », `aria-expanded`).
 
 The call button is the one contact action always visible on mobile (#66 §4, A-06): mobile
 prospects call first (#66 §7). The form is two actions away (menu → CTA), and one action away
@@ -241,8 +245,9 @@ Route-aware, computed from the path, the same on desktop and in the mobile menu:
 | `/contact` | header CTA shown as current (no hover affordance) | `aria-current="page"` |
 | legal, 404, error | none | — |
 
-A `button` cannot carry `aria-current`, so the « Domaines » state is visual only; the panel link
-carries the attribute. In the mobile menu, on a domaine page the Domaines disclosure still opens
+`aria-current` is a global ARIA attribute, so the « Domaines » button also carries
+`aria-current="true"` (current section) on `/domaines` and `/domaines/<slug>`, with the visual
+active state; the panel link carries `aria-current="page"`. In the mobile menu, on a domaine page the Domaines disclosure still opens
 collapsed (consistency, menu fits without scroll), the button shows the visual active state.
 
 ### 4.6 Sticky
@@ -311,14 +316,14 @@ No extra CTA band mid-page: the sticky header carries the action at every scroll
 
 ## 7. Footer
 
-Same footer on every page with a header (no variants, A-18). Four blocks on desktop (columns),
-stacked in the same order on mobile:
+Same footer on every page with a header (no variants, A-18). Three link blocks on desktop
+(columns) plus a full-width legal row, stacked in the same order on mobile:
 
 | Block | Content | Tracking |
 |---|---|---|
 | Identity | Logo · « Avocate au Barreau de Lyon » · address (link to the map) · phone · email · LinkedIn (new tab, said in the name) | `tel` / `mailto` / `footer` |
 | Domaines | The 4 domaine pages · « Tous les domaines » (`/domaines`) | — |
-| Le cabinet | À propos · Publications · Contact (`/contact`, `contact_cta` / `footer`) · « Laisser un avis » (Google, new tab, id `avis`, `review` / `footer`) | as listed |
+| Le cabinet | À propos · Publications · Contact (`/contact`, `contact_cta` / `footer`) · « Laisser un avis » (Google, new tab, `review` / `footer`; the « Le cabinet » group carries id `avis`, §5) | as listed |
 | Legal row | © line · Mentions légales · Politique de confidentialité · site credit | — |
 
 - Block titles are **not headings** (A-31): plain text styled as a label; each link group is a
@@ -388,7 +393,8 @@ Shown on **level-2 pages only**: domaine pages and articles. Not on home, level-
   d'Ariane">` with an ordered list.
 - On mobile the last crumb may be truncated (#72/#73); the links never are.
 - On articles the breadcrumb replaces « ← Retour aux publications » (same target, one element).
-- The same trails feed `BreadcrumbList` JSON-LD on these pages and on the level-1 pages (#78).
+- The same trails feed `BreadcrumbList` JSON-LD on these pages only (#78). Level-1 pages show no
+  breadcrumb, so they get no `BreadcrumbList` (structured data must match visible content).
 
 ---
 
@@ -416,8 +422,9 @@ the same card instead of a silent redirect to `/` (A-11; `url-table.md`).
 site: footer « Laisser un avis » (every page), the author card at the end of articles, `/carte`.
 Not in the header, not on home (A-02).
 
-**J5 (rank 4) Eva → write → publish.** Unchanged entry `/backoffice` (not linked from the public
-site, noindex). The IA asks one thing of it: categories aligned with the domaines so articles link
+**J5 (rank 4) Eva → write → publish.** Unchanged entry: the secret `/${BACKOFFICE_PATH}/*` prefix
+that `proxy.ts` rewrites to `/backoffice/*` (direct `/backoffice` hits get the 404; not linked from
+the public site, `X-Robots-Tag: noindex, nofollow`). The IA asks one thing of it: categories aligned with the domaines so articles link
 to domaine pages (§8 rule 2, #76).
 
 ---
@@ -456,7 +463,11 @@ reads it, with the same-origin referrer as fallback.**
 
 1. The single delegated listener that already sends `link_click` (#66 §6) also writes, on a
    `data-track="contact_cta"` click, `sessionStorage["contact_origin"] = location.pathname`
-   (path only: no query, no hash).
+   (path only: no query, no hash). Two exceptions: on `/contact` itself (the header CTA is
+   current there) it writes nothing, so a click on it never overwrites the real origin; on the
+   404 page, where `location.pathname` is the unknown path, it writes `/404` (the not-found page
+   marks itself, e.g. a `data-origin="/404"` attribute the listener reads first). Storage access
+   is wrapped in try/catch: blocked storage must never stop `link_click` or the navigation.
 2. The `/contact` form reads that value when it submits. If it is empty, it uses
    `document.referrer` **only if** same-origin, reduced to its pathname. Else `direct`.
 3. The value is cleared after a successful send and overwritten by the next CTA click.
@@ -511,7 +522,7 @@ count.
 | `hero` | Home hero: CTA, phone | kept |
 | `contact_section` | Home contact band (`#contact`): CTA, phone, email | kept (now a band, no form) |
 | `contact_page` | `/contact`: phone, email links on the page | kept |
-| `domaine` | Contact band on `/domaines` and on each domaine page (the hub and pages are told apart by `origin`, not by `location`) | **added** |
+| `domaine` | Contact band on `/domaines` and on each domaine page (form requests from the hub and the pages are told apart by `origin`; `link_click` carries no path, so tel / mailto clicks from these bands are counted together) | **added** |
 | `about` | Contact band on `/a-propos` | **added** |
 | `publications` | Contact band on `/publications` | **added** |
 | `article` | Article end: contact block (CTA, phone) and author-card review link | kept |
@@ -577,7 +588,7 @@ nav model, route-aware active state, publications as credibility before contact.
 | #71 Home | Section order and jobs (§6); hero above the fold on mobile; compact sticky header (§4.6) |
 | #72 Domaine template | Breadcrumb, « Pour qui », situations, FAQ, related publications (§8 rule 2), « Autres domaines », contact band `domaine`; same template renders the hub sections |
 | #73 Publications | Article end order (§8); breadcrumb replaces the back link (§9); « En savoir plus : [domaine] »; list contact band; preserve filter state (A-10) |
-| #74 Contact | `/contact` page order (§3); channels as equals; no booking |
+| #74 Contact | `/contact` page order (§3); channels as equals; no booking; `CONTACT.subjectOptions` follows the domaines (« Contentieux » → « Ordre et déontologie », with #68's final labels) |
 | #76 Back-office | Primary categories aligned with the 4 domaines; mapping domaine ↔ category (a field on `Category` or a constant, decided with #80) |
 | #78 SEO | `url-table.md`: canonicals, `?page=` self-canonical, `?category=` canonical, robots (`/carte` disallow vs noindex, A-21), sitemap `lastModified`, `BreadcrumbList` (§9), legacy URLs from Search Console once it exists (K9) |
 | #80 Implementation | One header/footer (drop variants, `useScrollSpy`, `NAV_LINKS` anchors); disclosure + menu behaviour (§4); active state (§4.5); `/avis` route (302) and a server count of its hits (event `avis`, no property — add to #66 §6 event list); `/carte` contact links on all platforms + no UA redirect + review link; `global-error` shows phone and email (§11); final `location` enum (§13); `origin` mechanism (§12); keep `/images/icons/*` paths (hot-linked by Eva's email signature) |
