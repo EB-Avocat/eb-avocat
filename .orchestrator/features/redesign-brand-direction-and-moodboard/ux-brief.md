@@ -16,22 +16,26 @@ associates, accompany in front of the Ordre. Proof: Barreau de Lyon, Ordre work.
 
 ## Constraints every direction keeps
 - Logo unchanged; teal core (`#3f5b57`, `#4a7a6f`, `#264445`, `#162729`) and near-black `#191919`.
-- Museo (or the fallback chosen if the licence fails).
+- A free-licence (OFL) font close to Museo replaces Museo, which is not licensed (decided by the user).
 - WCAG 2.2 AA: every text colour pair ≥ 4.5:1 (3:1 large text / UI); accent never the only
   carrier of meaning. Compute ratios, don't eyeball them.
 - Ethics of the profession (RIN): no comparative or results claims, no client imagery without
   consent, sober tone.
 
 ## Task 1 (ux) — what `brand.md` must contain
-1. **Font**: licence findings (what the files and metadata say, what the exljbris EULAs say about
-   @font-face, conversion, subsetting, public hosting), the questions still open for Eva, the
-   font plan (WOFF2, subset, preload, fallback metrics, weights kept), and the two fallback options
-   with prices or OFL alternatives (two candidates, why they are close to Museo).
+1. **Font**: Museo is out (not free, not licensed for the web). Shortlist 3–4 OFL fonts close to
+   Museo (start from Aleo, Zilla Slab, Bitter, Hepta Slab, Podkova; add or drop with reasons) and
+   score them on the criteria in `spec.md` §1: closeness to Museo and to the logo lettering
+   (Museo 300, outlined), 16px body legibility, weights / variable axis, true italics, French
+   glyphs, x-height and width vs Museo, WOFF2 size, licence (OFL 1.1). Recommend one. Write the font
+   plan (WOFF2, subset, preload, fallback metrics, weights kept) and the list of code places that
+   name Museo, for #79. Give ui, for the `Type` board, the candidates, where to download them
+   (Google Fonts or the foundry's GitHub), and the specimen copy.
 2. **Logo rules**: variant per surface (white, tint, primary, dark teal, photo), clear space, minimum
    sizes, don'ts, favicon.
 3. **Palette**: core + per-direction extensions (accent, 4–6 warm neutrals tinted toward teal,
    error, success), with hex and contrast tables; usage proportions (e.g. 60/30/10).
-4. **Typography role**: weights and where each is allowed (light weights only at large sizes, A-12).
+4. **Typography role** (in the recommended font): weights and where each is allowed (light weights only at large sizes, A-12).
 5. **Imagery and icons**: the options (documentary photography, graphic motif/illustration,
    typography-only), pros/cons for this audience and for Eva's means; icon rules.
 6. **Directions**: 2–3 briefs, each with a name, 3–5 keywords, palette, type use, imagery, icon use,
@@ -59,9 +63,13 @@ specimen, the reference images (URLs) for the moodboard, the 3 applications with
 (French, from `constants.ts` or the approved positioning, marked "exemple").
 
 ## Task 2 (ui) — boards
+- `Type` page: the font candidates side by side, Museo as the reference line, each set in the same
+  specimen copy (hero promise, À propos paragraph, publication title + body with italics, a
+  button, French punctuation « » ’ œ), at 16px body and display sizes, next to the logo. Font
+  files go in your scratchpad, never in the repo. Export `design/type-specimens.png`.
 - `Moodboard` page: references grouped by theme (light, material, people, type, colour), credited.
 - `Directions` page: one frame per direction, same structure so they compare side by side: palette
-  with proportions and contrast labels, Museo specimen, imagery sample, icon sample, the 3
+  with proportions and contrast labels, specimen in the recommended font, imagery sample, icon sample, the 3
   applications. Direction name and keywords on top.
 - Export `design/moodboard.png`, `design/direction-a.png`, `design/direction-b.png`
   (`direction-c.png` if three), at 1× or 2× so they read in a GitHub issue.
