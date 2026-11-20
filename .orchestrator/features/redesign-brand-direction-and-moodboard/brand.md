@@ -28,7 +28,7 @@ Docs in English; French copy quoted as is. Sample copy is marked « exemple »: 
    look thinner than today's site (worse for A-12), and its "400" slightly sturdier. This is an argument
    for a **variable font** (any weight between) and for body at **400**, deliberately.
 3. **`primary-light` `#4a7a6f` fails as text on every warm paper** (4.40 on `#F6F3EC`, 4.18 on `#F3EDE0`;
-   it only passes on pure white, 4.88). Text and links on tinted surfaces use `primary` `#3f5b57` (6.3–6.8).
+   it only passes on pure white, 4.88). Text and links on tinted surfaces use `primary` `#3f5b57` (6.0–7.4).
 4. **Licence:** Aleo declares no Reserved Font Name, so we may subset or instance it ourselves. (Bitter's
    "Bitter Pro" RFN point is moot now that Aleo is chosen.)
 5. **Size is not the argument against Museo.** Museo subset to Latin is ~16 KB WOFF2 per weight. The
@@ -97,7 +97,7 @@ add the U+00A0); browsers fall back for any U+202F.
 - Not retained: Bitter (runner-up: sturdier, +4% x-height, RFN "Bitter Pro") and Zilla Slab (reads small at
   16px, ~100 KB static files). Scoring kept above for the record.
 
-### 1.5 Weight mapping Museo → Aleo (equal stem thickness)
+### 1.5 Weight mapping Museo → Aleo (equal-stem value, then the role actually used)
 | Museo on the site today | Stem | Aleo variable weight | Use in the new system |
 |---|---|---|---|
 | 300 (body, most text) | 67 | ≈ 350 | **Do not copy.** Body moves to 400 (stem 89): A-12. 300 is dropped (§1.6) |
@@ -106,7 +106,7 @@ add the U+00A0); browsers fall back for any U+202F.
 
 ### 1.6 Font plan (decided here, built in #79)
 - **Files**: Aleo roman + Aleo italic, variable `wght`, **WOFF2, Latin subset including French glyphs**
-  (Basic Latin, Latin-1, œ Œ Ÿ, ’ ‘ “ ” « » – — … €, U+00A0). Limit the axis to **300–700** if self-subsetting
+  (Basic Latin, Latin-1, œ Œ Ÿ, ’ ‘ “ ” « » – — … €, U+00A0). Limit the axis to **400–700** if self-subsetting (300 is dropped, §1.6)
   (saves ~7%). Measured subsets: roman 31.2 KB (300–700) / 33.6 KB (full 100–900); italic 32.6 / 35.3 KB.
 - **Delivery**: `next/font/google` (`Aleo`, `weight: "variable"`, `style: ["normal","italic"]`,
   `subsets: ["latin"]`, `display: "swap"`): Next downloads at build time and serves the files from our own
@@ -139,8 +139,8 @@ add the U+00A0); browsers fall back for any U+202F.
   - `frontend/src/app/globals.css`: three `@font-face` (lines 3–26) and `--font-museo` in `@theme` (line 35)
   - `frontend/src/app/layout.tsx:111` and `frontend/src/app/global-error.tsx:23`: `font-museo` on `<body>`
   - `frontend/src/components/ui/PublicationCard.tsx:32`: `font-museo` on the cover placeholder
-  - `frontend/src/components/publications/ArticleBody.tsx:9`: `prose-headings:font-museo`
-  - `frontend/src/components/backoffice/editor/RichEditor.tsx:113`: `prose-headings:font-museo`
+  - `frontend/src/components/publications/ArticleBody.tsx:9`: `prose-headings:font-museo` (and override the Typography plugin heading weights to §4: H1/H2 400, H3 600)
+  - `frontend/src/components/backoffice/editor/RichEditor.tsx:113`: `prose-headings:font-museo` (same weight override)
   - `frontend/public/fonts/Museo{100,300,500,700,900}-Regular.otf`: delete (5 files)
   - `README.md:172`: "fonts/ # Museo font family"
   - Logo SVGs (`logo-*.svg`, 5 files): inert `font-family:Museo` in Inkscape style attributes; the letters
@@ -163,8 +163,8 @@ The logo is **kept unchanged**. Five stacked variants (mark above "Eva Biezunski
 | Surface | File | Notes |
 |---|---|---|
 | White, paper, sand, any light tint | `logo-for-white-background` | `#618983` / `#264445` / `#3f5b57` on light. Primary use: navbar (solid), articles, legal, print |
-| Dark teal `#162729`, `#264445` | `logo-for-dark-green-background` | white lettering, `#618983` pans (3.99 on `#162729`, 2.71 on `#264445`, only 1.90 on `#3f5b57`: avoid the logo on `#3f5b57`, use it on the two darkest teals). Hero, `/carte`; footer (today `Footer.tsx` uses the `white-for-black` variant on dark teal: switch it in #79) |
-| Mid teal `#4a7a6f` (primary-light) and similar mid-tones | `logo-for-light-green-background` | `#264445` lettering + white details (lettering is only 2.16:1 on `#4a7a6f`: logotype, but use the variant only on that exact fill). Check contrast of the lettering on the actual fill; if the surface is darker than `#4a7a6f`, use the dark-green variant |
+| Dark teal `#162729`, `#264445` | `logo-for-dark-green-background` | white lettering, `#618983` pans (3.99 on `#162729`, 2.71 on `#264445`, only 1.90 on `#3f5b57`: avoid the logo on `#3f5b57`, use it on the two darkest teals). `/carte`, a dark band if one carries the logo (the home hero is paper under Direction A: `Hero.tsx` switches to the white-background variant in #79); footer (today `Footer.tsx` uses the `white-for-black` variant on dark teal: switch it in #79) |
+| Mid teal `#4a7a6f` (primary-light) and similar mid-tones | `logo-for-light-green-background` | `#264445` lettering + white details (lettering is only 2.16:1 on `#4a7a6f`: logotype, but use the variant only on that exact fill). **No logo on `primary` `#3f5b57`** (no variant works: dark-green 1.90:1, white-surface variant disappears): put the logo on paper or on a darkest teal, never on a `primary` band |
 | Photographs, near-black, any busy dark image | `logo-white-for-black-background` | all white; only over a **darkened area** of the photo (overlay so the logo has ≥ 4.5:1 against the average behind it) |
 | One-colour print (fax, stamp, B/W photocopy, embossing) | `logo-black-for-white-background` | `#191919`, never on colour |
 | Favicon, app icon, avatar ≤ 48px, `/carte` header on mobile if tight | `favicon.svg` (`favicon-white.svg` on dark) | mark only |
@@ -205,8 +205,8 @@ mark's teals lose contrast on dark chrome: keep `favicon-white.svg` for `prefers
 ### 3.1 Core (unchanged) and solid "muted on dark" tokens
 | Colour | Hex | vs `#FFFFFF` | vs `#191919` | vs `#162729` | Role |
 |---|---|---|---|---|---|
-| `primary` | `#3f5b57` | 7.38 | 2.38 | 2.10 | Text/links on any light surface (6.3–6.8 on papers), bands, buttons, focus ring on light |
-| `primary-light` | `#4a7a6f` | 4.88 | 3.60 | 3.17 | White-only: button fill (white label 4.88), icons. **Not as text on tinted paper (4.18–4.40)** |
+| `primary` | `#3f5b57` | 7.38 | 2.38 | 2.10 | Text/links on any light surface (6.0–6.7 on papers and sand tints), bands, buttons, focus ring on light |
+| `primary-light` | `#4a7a6f` | 4.88 | 3.60 | 3.17 | White-only: icons, small marks (white on it 4.88). **CTAs move from `primary-light` to `primary` (hover `dark-teal` `#264445`)**. **Not as text on tinted paper (4.18–4.40)** |
 | `dark-teal` | `#264445` | 10.53 | 1.67 | 1.47 | Hero gradient end, dark surfaces |
 | `darker-teal` | `#162729` | 15.48 | 1.14 | 1.00 | Hero gradient start, footer, theme-color |
 | `near-black` | `#191919` | 17.58 | 1.00 | 1.14 | Body text and headings on light |
@@ -216,7 +216,7 @@ mark's teals lose contrast on dark chrome: keep `favicon-white.svg` for `prefers
 
 These two `mist` solids replace the `text-white/60–80` alpha pattern (A-13); no muted text on
 `primary-light` other than pure white. **Focus ring** (A-14, raw values for #70): on light surfaces
-`primary` `#3f5b57` (≥ 6.3:1 on white and the papers); on dark surfaces `mist-100` `#E4ECEA` (6.15 on
+`primary` `#3f5b57` (≥ 6.0:1 on white, the papers and Sand 100); on dark surfaces `mist-100` `#E4ECEA` (6.15 on
 `#3f5b57`, 8.76 on `#264445`, 12.89 on `#162729`). Both ≥ 3:1 everywhere, unlike today's `#4a7a6f`
 (1.51 on the "Votre avis" band).
 
@@ -249,7 +249,7 @@ Muted text on paper: Sand 600 on Sand 100 = 4.55 (just passes; do not go lighter
 
 Rules: one accent per page region; no accent text below 4.5:1 **on the surface it sits on**: the "vs paper"
 column does not hold on Sand 100 (Success on Sand 100 = 4.13), so accent, success and error text go on paper
-or white only, and on tinted sections use `primary` (≥ 5.6) or Ambre profond (5.40 on Sand 100); no colour as
+or white only, and on tinted sections use `primary` (≥ 6.0) or Ambre profond (5.40 on Sand 100); no colour as
 the only carrier of meaning (links stay underlined, status has icon + text); tinted sections alternate with
 paper, not with each other; avoid more than one dark band between two light ones.
 
@@ -266,9 +266,9 @@ Sizes are A's starting scale; #70 owns the final type scale and token names. Bod
 | H3 / card title | 600 | 22 / 20 | 1.3 (22/28) | |
 | Body | **400** | 17 / 16–17 | 1.65 (17/28) | 60–70 characters per line; never 300 (was the A-12 problem) |
 | Lead / standfirst | 400 | 20–22 / 18–20 | 1.5 | |
-| Meta (dates, captions, tags) | 400 | 14 / 14 | 1.4 | Never below 14px; `sand-600`/`pierre-600`/`mist` on dark |
+| Meta (dates, captions, tags) | 400 | 14 / 14 | 1.4 | Never below 14px; `sand-600`, `mist-300` on dark |
 | Buttons, form labels, nav | 600 | 16 / 16 | 1.2 | |
-| Overline / kicker (uppercase) | 600 | 12–13, tracking +0.08em | 1.3 | Caps look larger in Aleo (cap height 0.737) |
+| Overline / kicker (uppercase) | 600 | 14, tracking +0.06em | 1.3 | Caps look larger in Aleo (cap height 0.737) |
 | Italic (emphasis, quotes, titles of works) | 400 italic | as parent | as parent | True italic, never synthesised |
 | Bold in prose | 700 | as parent | | |
 | Numbers in tables | 400, `tabular-nums` | 14–16 | | |
@@ -300,7 +300,7 @@ the design works **without** them and what changes when they arrive. The motif o
 - **Light and framing**: natural window light, soft shadows, eye-level, shallow depth of field on people,
   one subject per image, space for text where used as a hero (rule of thirds, 40% quiet area).
 - **Colour treatment**: natural colour, warm but not orange, no filters; one grade for the set (match the
-  paper warmth `#F6F3EC`). Photos used under type get a `darker-teal` overlay at 40–60% (or a gradient) so text stays ≥ 4.5:1.
+  paper warmth `#F6F3EC`). Photos used under type get a `darker-teal` overlay (start at 40–60%, or a gradient), then **measure**: text must reach ≥ 4.5:1 against the lightest area under it.
 - **Never**: gavels, scales, Lady Justice, columns, handshakes, stacks of legal books posed as stock,
   people pointing at laptops, suits-in-glass-offices stock, client faces or files, any photo that implies
   results ("winning") or comparison, stock photos of "lawyers" or of offices that are not Eva's. Unsplash
@@ -345,8 +345,8 @@ jacket, black top, soft frontal light. Vertical (3:4). It was shot for LinkedIn-
 - **Where it is used**: About (the person), OG image (§6.5), JSON-LD / Twitter (already), and **at most one
   per page**: the About page and the foot of the home page ("Eva Biezunski, avocate" block) or the contact
   page. **Never the home hero, never a card cover, never a background, never behind text.**
-- **Maximum display size** (so it stays sharp at 2× density): **420 CSS px wide × 560 tall** (835 px / 2). At
-  1× screens it could go to 835, but design for 420 max. **No full-bleed, no `object-fit: cover` stretch
+- **Maximum display size** (so it stays sharp at 2× density): **417 CSS px wide × 556 tall** in 3:4 (835 × 1112 / 2; 417 × 522 in the 4:5 crop). At
+  1× screens it could go to 835, but design for 417 max. **No full-bleed, no `object-fit: cover` stretch
   into a wider box**: use the frame in the next bullet. On mobile: full width of the content column, max 390 px
   wide, never scaled up past 100% of its natural pixels on a 2× phone (≤ 417 px).
 - **Frame**: 3:4 as is, or 4:5 crop (835 × 1044, drop the bottom 68 px), corner radius 8, no border, no shadow
@@ -374,7 +374,7 @@ Everything in §6.3 keeps working; photos **replace panels in these slots only**
 | Rule | Without photos (now) | With photos (after a session) |
 |---|---|---|
 | Home hero | Typographic, Sand 100 proof panel | Photo right (3:2 / 4:5 on mobile, from §7.2), one per page, Sand panel removed |
-| Portrait | One 420 px portrait on About | New 1600 × 2000 portrait; may appear at up to **560 px wide** and in the hero |
+| Portrait | One portrait (≤ 417 px wide) on About | New 1600 × 2000 portrait; may appear at up to **560 px wide** and in the hero |
 | Publication covers | Typographic cover | 3:2 detail photo, or keep the typographic cover for articles with no fitting detail |
 | Imagery share (§3.3) | 0–4% | up to 12% |
 | OG image | Portrait + type (§6.5) | Same layout, new portrait |
@@ -385,9 +385,9 @@ The design must stand without photos; photos raise the warmth, they do not carry
 - Left 55%: Paper `#F6F3EC`, logo `for-white-background` top-left (clear space respected, ≥ 160 px wide),
   display line in Aleo 400 at 56/62 (« Structurer votre exercice libéral. » (exemple), max 3 lines), an Ambre
   rule 64 × 3, then « biezunski-avocat.fr » in 600 at 24/32 `primary`.
-- Right 45%: the portrait in a **3:4 frame 420 px wide × 560 px tall** (native pixels /2, no enlargement), 8px
+- Right 45%: the portrait in a **3:4 frame 417 px wide × 556 px tall** (native pixels /2, no enlargement), 8px
   radius, vertically centred, 48 px from the right edge; navy background sits against paper like a framed
-  print. Contrast of text on paper ≥ 15:1.
+  print. Contrast on paper: display line ≥ 15:1, URL in `primary` 6.66:1.
 - The same template (Display left, portrait right) serves Twitter. Without the portrait (articles): left
   column full width on Sand 100 with the article title.
 
@@ -396,7 +396,7 @@ The design must stand without photos; photos raise the warmth, they do not carry
    H1 « Structurer votre exercice libéral, en accord avec votre Ordre et vos associés. » (exemple), sub « Avocate au Barreau de Lyon, j'accompagne les professionnels libéraux et les entrepreneurs, de la création de leur société aux démarches devant leur Ordre. » (exemple), button « Contacter le cabinet » + « 04 00 00 00 00 » (exemple). Right: Sand 100 proof panel (§6.3). **No portrait.**
 2. **Publication card**, typographic cover: Sand 100 3:2 panel with kicker « EXERCICE LIBÉRAL » (600 caps) and Ambre rule, title « Cession de patientèle : les points à vérifier avant de signer » (exemple), excerpt « Ce que prévoit le contrat, ce que votre Ordre examinera, et ce qu'il vaut mieux régler avant la signature. » (exemple), meta « Eva Biezunski · 20 novembre 2026 » (exemple). No photo.
 3. **Business card** (85 × 55 mm, recto and verso) **unchanged from the board** (it had no photo): verso `darker-teal` with the dark-green logo; recto paper with « Eva Biezunski », « Avocate au Barreau de Lyon », placeholders, small QR block to `/carte`, one Ambre rule.
-Plus a fourth, small: **About block** with the portrait at 420 × 560 on a `darker-teal` band next to the About text.
+Plus a fourth, small: **About block** with the portrait at 417 × 556 on a `darker-teal` band next to the About text.
 
 ### 6.7 Mood references (Unsplash, mood only, never site assets; credit "Photo by … on Unsplash")
 1. https://unsplash.com/photos/naL5IO2dT40 — Nathan Van Egmond: warm desk in daylight
@@ -452,7 +452,7 @@ section, deferred with its triggers).
   date (e.g. before a launch or a communication push); (3) the portrait is judged too small or too studio-like
   for a use that matters (hero, OG refresh, Google Business Profile); (4) a publication push needs card
   covers and typographic covers look repetitive.
-- **Until then**: interim rules in §6.2–6.3 (one portrait, ≤ 420 px, no hero, typographic panels, no stock).
+- **Until then**: interim rules in §6.2–6.3 (one portrait, ≤ 417 px wide, no hero, typographic panels, no stock).
 - **When triggered**: who (local Lyon photographer used to liberal professionals; 2–3 quotes; portfolio with
   natural light), format (half-day on site, portraits, then office, then details), timing (allow 2–3 weeks
   from brief to delivery; winter light is weak: a morning near a window, or late February–March), brief
@@ -507,12 +507,12 @@ Copy is « exemple ».
 ### 10.3 Type specimen and weights (§4, §1.6)
 Aleo only, weights **400, 600, 700 + italic 400** (500 optional H2). Show the role table: Display 48/54 w400
 (−0.01em), H1 40/46 w400, H2 32/38 w400, H3 22/28 w600, body 17/28 w400, lead 20/30 w400, meta 14/20 w400
-(`#5E6B67`), button 16/600, kicker 12–13/600 caps +0.08em. Include the French punctuation line (« », œ, é, U+00A0
+(`#5E6B67`), button 16/600, kicker 14/600 caps +0.06em. Include the French punctuation line (« », œ, é, U+00A0
 before : ; ? !) and the weights ladder 400/600/700. **No 300.** Show the logo beside it with clear space,
 labelled "different faces; kept apart" (§4.1).
 
 ### 10.4 Imagery do/don't, single-portrait rules (§5.2, §6.2)
-- Do: portrait ≤ **420 × 560 px**, 3:4 or 4:5, radius 8, one per page, on paper or on a `darker-teal` band;
+- Do: portrait ≤ **417 × 556 px** (4:5 crop: 417 × 522), 3:4 or 4:5, radius 8, one per page, on paper or on a `darker-teal` band;
   typographic panels (Sand 100, Ambre rule) for covers and heroes; real alt text.
 - Don't: enlarge or full-bleed the portrait; use it as a hero, card cover or background; overlay or recolour it;
   put the logo on it; stock people, stock offices, Unsplash images as assets; icons as decoration.
@@ -525,8 +525,8 @@ LinkedIn glyph stays the inline brand SVG. Functional only.
 
 ### 10.6 The 3 applications, redrawn without new photos (§6.6)
 Hero (typographic, Sand 100 proof panel, no portrait), publication card (typographic cover), business card
-(unchanged), plus the About block with the portrait at 420 × 560. Also the **OG image** (§6.5, 1200 × 630,
-portrait 420 × 560 right, type left). Export updated `design/direction-a.png` and the Foundations v2 frames.
+(unchanged), plus the About block with the portrait at 417 × 556. Also the **OG image** (§6.5, 1200 × 630,
+portrait 417 × 556 right, type left). Export updated `design/direction-a.png` and the Foundations v2 frames.
 Tell `ux` if a rule is unclear or needs a change.
 
 
