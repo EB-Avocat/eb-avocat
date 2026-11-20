@@ -37,9 +37,9 @@ URL, the new pages are new URLs, and the old home sections stay reachable throug
 
 | New URL | Old URL | Redirect | Indexable | Sitemap | Canonical | Notes |
 |---|---|---|---|---|---|---|
-| `/publications?category=<slug>` | same | none | follow; not meant to rank | no | `/publications` (as today) | Kept as today. Domaine pages, not category lists, target topic queries (ia §8 rule 2), so the list must not compete with them. Linked from domaine pages and article category chips |
+| `/publications?category=<slug>` | same | none | yes (`index, follow`), consolidated by the canonical; not meant to rank | no | `/publications` (as today) | Kept as today. Domaine pages, not category lists, target topic queries (ia §8 rule 2), so the list must not compete with them. Linked from domaine pages and article category chips |
 | `/publications?page=<n>` (n ≥ 2) | same | none | yes | no | **self** (`/publications?page=n`) — **change**: today canonical is `/publications` | Google treats page 2+ as distinct content; pointing them to page 1 hides older articles' list context. Articles are in the sitemap anyway |
-| `/publications?category=<slug>&page=<n>` | same | none | follow; not meant to rank | no | `/publications` | Same as `?category=` |
+| `/publications?category=<slug>&page=<n>` | same | none | yes (`index, follow`), consolidated by the canonical; not meant to rank | no | `/publications` | Same as `?category=` |
 | `/publications?page=1` | same | none | — | no | `/publications` | The pagination never emits `page=1`; canonical to the clean URL |
 | `/publications?page=<invalid or out of range>` | same | none | no (#78 picks: 404, or `noindex`) | no | `/publications` | Today `parsePage` falls back and the page answers 200 with the first page or the empty state |
 | `/contact?origin=…` | — | **not used** | — | — | — | The CTA origin travels in `sessionStorage` + same-origin referrer, not in the URL (ia §12). If such a URL is ever reached (hand-typed), it renders `/contact` with canonical `/contact` |
@@ -56,7 +56,7 @@ at the top, which is the right result for `#accueil`.
 | `/#accueil` | Top of home: id kept on the hero | none (id kept) | Low: the old logo link on home; not shared | — |
 | `/#a-propos` | Home À propos teaser (id `a-propos`), which links to `/a-propos` | none (id kept) | Low-medium: old nav link, could be in shares | — |
 | `/#domaines-intervention` | Home Domaines section (id kept), links to each domaine page | none (id kept) | Low-medium: old nav link | — |
-| `/#avis` | Footer « Le cabinet » group on home (id `avis` on the review link group) | none (id moved to the footer) | Medium: the old « Votre avis » nav link; Eva may have sent it to clients (ia Q6) | The home band is removed (ia §5) |
+| `/#avis` | Footer « Le cabinet » group on home (the group carries id `avis`, ia §5, §7) | none (id moved to the footer) | Medium: the old « Votre avis » nav link; Eva may have sent it to clients (ia Q6) | The home band is removed (ia §5) |
 | `/#contact` | Home contact band (id kept): CTA to `/contact`, phone, email | none (id kept) | **High**: the current 404 page links to it; likely in emails / signature / GBP (ia Q6) | From launch, the site itself links to `/contact`, never to `/#contact` |
 | `/publications#…`, `/mentions-legales#…` | Same page | none | Low | In-page headings only |
 
@@ -70,10 +70,11 @@ at the top, which is the right result for `#accueil`.
 | `/images/*` | none | no | no | **Keep paths**: `/images/icons/*` and logos are hot-linked by Eva's email signature (`scripts/generate-signature-images.ts`) |
 | `/fonts/*` | none | no | no | May change with #69 (WOFF2); not linked from outside |
 | `/media/*` | none | no | no | Covers and avatars (Vercel Blob); also served on `cdn.biezunski-avocat.fr/media/*` |
-| `cdn.biezunski-avocat.fr/<anything but media/>` | **301** → `https://biezunski-avocat.fr/<path>` (exists in `vercel.json`) | no | no | Existing redirect; `spec.md` says none exist: this is the one |
+| `cdn.biezunski-avocat.fr/<anything but media/>` | **301** → `https://biezunski-avocat.fr/<path>` (exists in `vercel.json`) | no | no | Existing redirect (the only one in `vercel.json`, besides the `/carte` 307 in §1) |
 | `/api/contact`, `/api/revalidate` | none | no | no | Next route handlers; `disallow: /api/` |
 | `/api/v1/*`, `/mcp` | none | no | no | Django (Vercel Services rewrite) |
-| `/backoffice/*` | none | no (`noindex, nofollow`, kept) | no | Not linked from the public site |
+| `/${BACKOFFICE_PATH}/*` (secret prefix) | none (`proxy.ts` rewrites it to `/backoffice/*`) | no (`X-Robots-Tag: noindex, nofollow` from `proxy.ts`, plus the `noindex, nofollow` meta, kept) | no | Not linked from the public site. **Never** list the secret prefix in `robots.txt` (it would publish it) |
+| `/backoffice/*` (direct) | none (`proxy.ts` rewrites it to the 404) | no (404, `noindex, follow`) | no | Internal route only |
 | `/_next/*` | none | no | no | Framework assets |
 
 ## 5. Legacy URLs (#78 must pull them)
