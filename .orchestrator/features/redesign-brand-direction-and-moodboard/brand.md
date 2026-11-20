@@ -66,7 +66,7 @@ Shortlist = 3 fonts (the brief allows 3–4; the other candidates fail a hard cr
 Scores 1–5 (5 best). Measured values are from the files (§1.7); closeness to Museo and to the logo are
 judgements from the render (side-by-side render of the candidates at 48px and 20px) and the stem measurement. All three cover é è ê à ç œ « »
 ’ and U+00A0. **None has U+202F (narrow no-break space), nor has Museo; only Bitter has U+2009 (thin space), and relying on it would make the font choice change the typography**: use U+00A0
-before « » : ; ? ! (the site does **not** do this today: `constants.ts` uses ordinary spaces there, so #68/#79
+before » : ; ? ! and after « (the site does **not** do this today: `constants.ts` uses ordinary spaces there, so #68/#79
 add the U+00A0); browsers fall back for any U+202F.
 
 | Criterion | Museo (reference) | **Aleo** | **Bitter** | **Zilla Slab** |
@@ -148,6 +148,9 @@ add the U+00A0); browsers fall back for any U+202F.
   - `text-primary-light` / `hover:text-primary-light` used as **text** on paper or tints (fails 4.5:1, §0 item 3): `ArticleBody.tsx:9`
     (`hover:prose-a:`), `Contact.tsx:88` and `:221`, `publications/[slug]/page.tsx:55`, `mentions-legales/page.tsx:16`,
     `politique-de-confidentialite/page.tsx:17`. Use `primary` or `dark-teal` (hover) instead; icons stay allowed (§3.1).
+  - `frontend/src/app/globals.css`: the `:focus-visible` outline (line 54) and the editor's selected-figure
+    outline (line 126) use `--color-primary-light` (1.51:1 on `primary` bands): switch to the focus ring of §3.1;
+    the `.skip-link` `font-weight: 500` (line 70) is raw CSS, not a `font-500` utility, so map it to 600 by hand.
   - Rename the token `--font-museo` → e.g. `--font-sans-serif`/`--font-display` (#70 decides the name).
 
 ### 1.7 Method
@@ -269,7 +272,7 @@ Sizes are A's starting scale; #70 owns the final type scale and token names. Bod
 | H3 / card title | 600 | 22 / 20 | 1.3 (22/28) | |
 | Body | **400** | 17 / 16–17 | 1.65 (17/28) | 60–70 characters per line; never 300 (was the A-12 problem) |
 | Lead / standfirst | 400 | 20–22 / 18–20 | 1.5 | |
-| Meta (dates, captions, tags) | 400 | 14 / 14 | 1.4 | Never below 14px; `sand-600`, `mist-300` on dark |
+| Meta (dates, captions, tags) | 400 | 14 / 14 | 1.4 | Never below 14px; `sand-600`; `mist-300` on `#162729` / `#264445` only, `mist-100` on `primary` (§3.1) |
 | Buttons, form labels, nav | 600 | 16 / 16 | 1.2 | |
 | Overline / kicker (uppercase) | 600 | 14, tracking +0.06em | 1.3 | Caps look larger in Aleo (cap height 0.737) |
 | Italic (emphasis, quotes, titles of works) | 400 italic | as parent | as parent | True italic, never synthesised |
@@ -346,8 +349,9 @@ Sample copy follows the approved positioning (#66, variant A), marked « exemple
 What it is: a studio bust on a **deep navy background**, face centred in the upper half, blue-teal textured
 jacket, black top, soft frontal light. Vertical (3:4). It was shot for LinkedIn-type use, not for a hero.
 - **Where it is used**: About (the person), OG image (§6.5), JSON-LD / Twitter (already), and **at most one
-  per page**: the About page and the foot of the home page ("Eva Biezunski, avocate" block) or the contact
-  page. **Never the home hero, never a card cover, never a background, never behind text.**
+  per page**: the About block (a section of the home page today; its own page if #67 creates one), or, when
+  About is not on the page, the foot of the home page ("Eva Biezunski, avocate" block) or the contact block.
+  On the current single-page home that means one slot only: About. **Never the home hero, never a card cover, never a background, never behind text.**
 - **Maximum display size** (so it stays sharp at 2× density): **417 CSS px wide × 556 tall** in 3:4 (835 × 1112 / 2; 417 × 522 in the 4:5 crop). At
   1× screens it could go to 835, but design for 417 max. **No full-bleed, no `object-fit: cover` stretch
   into a wider box**: use the frame in the next bullet. On mobile: full width of the content column, max 390 px
