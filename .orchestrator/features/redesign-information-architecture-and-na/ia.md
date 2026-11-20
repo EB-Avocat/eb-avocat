@@ -56,7 +56,7 @@ flowchart TD
   class avis printonly;
 ```
 
-Grey = reachable from the header on every page. Dashed = footer only. Dotted = print / email only:
+Grey = a top-level header item (the domaine pages are reached through the « Domaines » panel, so they are not grey). Dashed = footer only. Dotted = print / email only:
 `/avis` is never linked from the site (site review links point straight to Google, §5). `/carte` is
 reached only by the printed QR code. Every page (except `/carte`, `/carte/vcard`, `/avis`) has the
 header and footer, so every page links to `/contact`, the hub, the 4 domaine pages (header menu and
@@ -101,8 +101,12 @@ page · priority for the firm (positioning A, #66 §3).
 #72 template minimum: for whom, what Eva does, how it goes, ≥ 3 typical situations, ≥ 3 FAQ. A page
 that misses the gate is **not created** (no URL, no redirect needed): its content stays as a
 section of `/domaines` with an anchor (`#creation-de-societe`, etc., same slug as the future page),
-and its links in the header menu and footer point to that anchor. Each hub section keeps that id
-even after its page exists, so a link to the anchor never breaks.
+and **every** link to that domaine, wherever it sits (header panel, footer, home cards, hub cards,
+« Autres domaines », article « En savoir plus »), points to that anchor. Rule for #80: all these
+links are built from **one domaine list** (slug, label, `hasPage`); a link is `/domaines/<slug>`
+when the page exists and `/domaines#<slug>` when it does not, and no component hand-writes a domaine
+URL. Each hub section keeps that id even after its page exists, so an old link to the anchor never
+breaks.
 
 **Professions: no per-profession pages at launch.** #66 §1 confirms only health (« patientèle »);
 the other professions are to be confirmed by Eva, so there is nothing to fill a page with, and a
@@ -152,7 +156,7 @@ mobile, #66 §7) → form → address (link to the map) and access. No booking U
 One header model on every public page except `/carte` (which has no header). No overlay variant,
 no scroll-spy, no hero-logo trick (A-18): the header is the same on home and elsewhere, and every
 link is a route, never an anchor on the current page. The only fragments are cross-page ones:
-the launch-gate fallback `/domaines#<slug>` (§2), `/domaines#mecenat` and `/a-propos#formations`;
+the launch-gate fallback `/domaines#<slug>` (§2, used by every domaine link when a page is missing), `/domaines#mecenat` and `/a-propos#formations`;
 on `/domaines` a fallback link to its own section counts as the `/domaines` active state (§4.5).
 
 ### 4.1 Desktop header (≥ 1024 px)
@@ -343,8 +347,8 @@ Every content page ends with an exit toward contact; no dead end (A-09).
 | Page | Ends with (top to bottom, before the footer) |
 |---|---|
 | Home | Contact band (§6) |
-| `/domaines` | Domaine list (4 cards → pages) · Mécénat section (`#mecenat`) · « Pour qui » · pointer to Formations · contact band (`domaine`) |
-| Domaine page | Content (#72) · related publications · « Autres domaines » (the 3 others) · contact band (`domaine`) |
+| `/domaines` | Domaine list (4 cards → pages, or anchors on this page for a page that missed the gate) · Mécénat section (`#mecenat`) · « Pour qui » · pointer to Formations · contact band (`domaine`) |
+| Domaine page | Content (#72) · related publications · « Autres domaines » (the 3 others, from the domaine list, §2) · contact band (`domaine`) |
 | Article | **Author card** (photo, name, credential line, link → `/a-propos`, review text link §5) → **contact block** (CTA + phone, contextual line by #68, `article`) → **related articles** (2-3) → room for the `article_read_end` sentinel at the end of the body (#66 §6, #73 places it) |
 | `/publications` | List · pagination · contact band (`publications`) |
 | `/a-propos` | Formations · publications link · contact band (`about`) |
@@ -355,12 +359,14 @@ Every content page ends with an exit toward contact; no dead end (A-09).
 
 **Linking rules**
 
-1. **Home → domaines**: each core domaine card links to its page; the hub is linked once.
+1. **Home → domaines**: each core domaine card links to its page (or to its `/domaines#<slug>`
+   anchor if the page missed the launch gate, §2: links to a domaine always come from the one domaine
+   list); the hub is linked once.
 2. **Domaine ↔ publications via categories.** Each domaine page maps to one or more publication
    categories (`Category.slug`). The domaine page shows the 3 latest articles of its categories and
    « Voir les publications sur ce thème » → `/publications?category=<slug>` (hidden when there is
    no article). An article links back to the domaine of its first mapped category: one line « En
-   savoir plus : [domaine] » after the body (inside the contact block or just before it, #73
+   savoir plus : [domaine] » (built from the domaine list, §2) after the body (inside the contact block or just before it, #73
    decides). The mapping is data, not hand-written links (#76/#80: a `domaine` field on
    `Category` or a constant; see §16). Categories that map to no domaine (e.g. news) simply have no
    domaine link.
@@ -446,7 +452,7 @@ opens (`mailto:`), or the form is on screen. Typing the message is not counted.
 | 404 | header (1) · page links Contact / phone (1) | header call (1) · page link (1) |
 | Error page (`error.tsx`, with header) | header (1) | header call (1) |
 | `/carte` (no header) | call / email links on the card (1) — every platform | same (1) |
-| `global-error` (no header, root crash) | **fails today**: no phone shown. Follow-up: show phone and email as text links (0-1) | same |
+| `global-error` (no header, root crash) | **fails today**: no phone shown. Follow-up: show phone and email as plain links, **without `data-track`** (the click listener is mounted in the root layout, which `global-error` replaces), so these clicks carry no `location` (0-1) | same |
 
 All page types pass at ≤ 2 once the header of §4 ships, `/carte` shows the links on every platform,
 and `global-error` gets the phone (#80, §16).
@@ -456,39 +462,52 @@ and `global-error` gets the phone (#80, §16).
 ## 12. How the CTA `origin` reaches the form
 
 Need (#66 §6): `/api/contact` records `origin` = path of the page where the contact CTA was
-clicked, else `direct`, without creating indexable URLs.
+clicked, else `direct`, without creating indexable URLs and **without storing anything on the
+device** (#66's "no banner" analysis rests on "nothing stored or read on the device").
 
-**Decision: no query parameter. The click listener stores the path in `sessionStorage`; the form
-reads it, with the same-origin referrer as fallback.**
+**Decision: no query parameter and no browser storage. The click listener keeps the path in
+in-memory client state; the form reads it, with the same-origin referrer as a fallback only on a
+first full load.**
 
-1. The single delegated listener that already sends `link_click` (#66 §6) also writes, on a
-   `data-track="contact_cta"` click, `sessionStorage["contact_origin"]` = **the origin the page
-   declares**. One rule, set once in the shared page layout: by default a page declares its
-   pathname (path only: no query, no hash); the 404 declares `/404` (its pathname is the unknown
-   URL); `/contact` declares none, so a click on its own header CTA never overwrites the real
-   origin. The listener writes nothing when the page declares none. Storage access is wrapped in
-   try/catch: blocked storage must never stop `link_click` or the navigation.
-2. The `/contact` form reads that value when it submits. If it is empty, it uses
-   `document.referrer` **only if** same-origin, reduced to its pathname. Else `direct`.
+1. The single delegated listener (specified by #66 §6, built by #80; it does not exist yet) that
+   sends `link_click` also sets, on a `data-track="contact_cta"` click, the in-memory origin =
+   **the origin the page declares**. The state is a module-level variable (or a context in the root
+   layout) that survives Next.js soft navigation and is gone on a reload or in a new tab. One rule,
+   set once in the shared page layout: by default a page declares its pathname (path only: no
+   query, no hash); the 404 declares `/404` (its pathname is the unknown URL); `/contact` declares
+   none, so a click on its own header CTA never overwrites the real origin. The listener sets
+   nothing when the page declares none.
+2. The `/contact` form reads that value when it submits. If it is empty **and `/contact` was the
+   tab's first full page load**, it uses `document.referrer` if same-origin, reduced to its
+   pathname. Otherwise `direct`. (After a soft navigation `document.referrer` still holds the
+   referrer of the first full load, so it is never used then: full load of `/a-propos` from `/`,
+   then an untracked soft link to `/contact`, must give `direct`, not `/`.)
 3. The value is cleared after a successful send and overwritten by the next CTA click.
 4. The server keeps it only if it matches a known public route pattern (`/`, `/domaines…`,
    `/a-propos`, `/publications…`, legal, `/404`); anything else is stored as `direct`.
+
+**Nothing is written to cookies or Web Storage (`sessionStorage`, `localStorage`), so #66's consent
+analysis stands.**
 
 Why not the alternatives:
 - `/contact?origin=/publications/x`: works without JS and across tabs, but every CTA creates a new
   URL variant that is shared, bookmarked and crawled; it needs `noindex` or a canonical on each,
   shows a path in the address bar, and leaks into analytics as separate pages. The spec asks to
   avoid indexable URLs; the cleanest way is not to create them.
+- `sessionStorage`: survives reloads and is shared with same-tab navigation, but it is a write to
+  the device, which would break #66's "nothing stored or read" premise.
 - `document.referrer` alone: Next.js client-side navigation does not update `document.referrer`
   (it keeps the referrer of the first full page load), so after any in-site soft navigation it
-  points to the wrong page or to Google. It is fine only as the fallback for full page loads
-  (e.g. a CTA opened in a new tab, where `sessionStorage` is empty).
+  points to the wrong page or to Google. It is used only as the fallback when `/contact` is the
+  tab's first full load (e.g. a CTA opened in a new tab, where the in-memory state is empty).
 
 Constraints for #80 / #83: the form needs JS anyway (BotID, client submit), so no loss. Keep the
 browser default `Referrer-Policy` (`strict-origin-when-cross-origin`) or `same-origin`; never
 `no-referrer`. Name the body field `origin` but do not confuse it with the HTTP `Origin` header
-that `lib/contact.ts` already checks for same-site posts. Known inaccuracy: a visitor who clicks a
-CTA, leaves `/contact`, browses, then types `/contact` keeps the old origin — acceptable for a
+that `lib/contact.ts` already checks for same-site posts. Known inaccuracy: in-memory state is lost
+on a reload, so a visitor who clicks a CTA and then reloads `/contact` is recorded as `direct`;
+and one who clicks a CTA, goes back, browses, then reaches `/contact` by an untracked soft link
+keeps the old origin (cleared only by a send or the next CTA click). Both are acceptable for a
 count.
 
 ---
@@ -509,7 +528,7 @@ count.
 | Formations on À propos as proof | §3 proof list (trainings given) |
 | Review out of the main nav and off home; `/avis` short URL | §1 rule; §2 J3; A-02 |
 | Hero: promise + audience + CTA + phone above the fold on mobile | §3; §7 (#71 line) |
-| Origin via `sessionStorage` + referrer fallback; path only, never query string | §6 (event values: paths, never query strings) |
+| Origin via in-memory client state + first-load referrer fallback; nothing stored on the device; path only, never query string | §6 (event values: paths, never query strings) |
 | `/carte` keeps its URL and shows call/email on every platform; review link added | §2 J4 rank 2; §1 audience 3; K6, K7 |
 | Domaine pages must rank on domaine queries | §5 K9 (domaine vs brand split) |
 
@@ -553,7 +572,7 @@ band adds a value here first.
 | Breadcrumbs | domaine pages and articles | Same, level-2 only; replaces the article back link | §9 |
 | `/avis` | optional | **Yes**, 302 | §5 |
 | Hash anchors | kept or client-side | **Kept as ids**, no client-side redirect | Simpler, works without JS (`url-table.md`) |
-| `origin` | parameter, sessionStorage or referrer | sessionStorage + same-origin referrer fallback | §12 |
+| `origin` | parameter, sessionStorage or referrer | in-memory client state (no Web Storage) + same-origin referrer on a first full load | §12 |
 | `location` enum | adds `domaine`, `menu`, drops `home_review` | also adds `about`, `publications` | Every page type ends with a contact band (§8, §13) |
 | `/carte` | unchanged | URL unchanged; contact links on every platform, no desktop redirect, review link | A-11, J4 rank 2 (§10) |
 | `?page=` canonical | (not covered) | self-canonical, not `/publications` | `url-table.md` (for #78) |
