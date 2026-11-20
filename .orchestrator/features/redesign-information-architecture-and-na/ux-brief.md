@@ -2,8 +2,10 @@
 
 Read `spec.md` first, then **#66's decisions** in
 `.orchestrator/features/redesign-objectives-audience-and-kpis/objectives.md` (audiences and
-journeys ranked, positioning, primary conversion and CTA, KPI events, hand-offs to #67). This
-task starts only once that file is merged; every IA decision that rests on it cites its section.
+journeys ranked, positioning, primary conversion and CTA, KPI events, hand-offs to #67). It is on
+`main` (PR #89) but not yet on this branch: read it with
+`git show 89eb4f3:.orchestrator/features/redesign-objectives-audience-and-kpis/objectives.md`.
+Its decisions are settled; every IA decision that rests on one cites its section.
 Then the audit:
 `.orchestrator/features/plan-redesign/audit.md` (A-02, A-03, A-06, A-09, A-18, A-31, A-32, §1 site
 map, §2 journeys) and the baseline PNGs in `.orchestrator/features/plan-redesign/design/current/`
@@ -41,14 +43,17 @@ Sources of truth in the code: `frontend/src/lib/constants.ts` (`NAV_LINKS`, `SER
 9. **URLs**: final slugs; per old URL (pages, query parameters, hash anchors, `/carte`,
    technical routes) what happens. Hash anchors cannot be redirected by HTTP: decide per anchor
    whether the id stays on the new home or a small client-side redirect is needed, and say which
-   old anchors are likely in use (QR card, 404, emails, LinkedIn).
+   old anchors are likely in use (QR card, 404, emails, LinkedIn). Decide how the contact CTA's
+   `origin` (#66 §6) reaches the form without creating indexable URLs.
+10. **≤ 2 actions**: walk every page type (home, domaine, article, publications list, À propos,
+   legal, 404, `/carte`) and show a contact request is reachable in two actions (#66 §1).
 
 ## Output
 
 - `ia.md` and `url-table.md` in the feature folder, structure as listed in `spec.md`
   "Deliverables". Mermaid for the site map diagram.
-- A section "Depends on #66" that lists each decision resting on `objectives.md` (with the
-  section it cites) and, for anything #66 left open, the default the IA uses; a section "Open
+- A section "From #66" that lists each decision resting on `objectives.md` (with the section it
+  cites) and the final `location` enum (values added or removed); a section "Open
   questions for Eva" (content availability per domaine, Formations, Mécénat).
 - Name the header, footer and article slots consistently: they become the `location` values of
   #66's KPI events (`contact_cta_click`, `tel_click`, `mailto_click`, `review_click`).
