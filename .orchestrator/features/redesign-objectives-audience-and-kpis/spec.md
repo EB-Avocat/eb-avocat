@@ -56,9 +56,9 @@ criterion of #66.
    Baselines that exist today and must be collected before launch: contact emails in Eva's inbox
    (form emails come from Brevo with a fixed subject), Google Business Profile insights (calls,
    site clicks), Search Console history if the property exists, a Lighthouse/CrUX snapshot.
-   Everything else is "unknown, measure from launch" — the redesign launch must therefore be
-   preceded by **at least 4 weeks of measurement on the current site** (recorded as a dependency
-   for #80/#86).
+   Everything else is "unknown, measure from launch". (A 4-week measurement window on the current
+   site before launch was proposed, then dropped on 2026-11-20: tracking ships with the redesign in
+   #80, see `objectives.md` §5 and §8.)
 6. **Measurement approach** — tools, event plan, privacy.
    Recommendation (reuse existing vendors, no cookie banner):
    - **Vercel Web Analytics** (the site already runs on Vercel) for page views and custom events:
