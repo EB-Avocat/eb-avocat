@@ -372,7 +372,7 @@ Every content page ends with an exit toward contact; no dead end (A-09).
 6. **Domaine → domaine**: « Autres domaines » lists the other 3.
 7. **À propos → publications**: link to her articles (the list; author filter not needed: single
    author).
-8. **Every CTA → `/contact`**. No CTA points to an anchor or to another page.
+8. **Every CTA → `/contact`**. No CTA points to an anchor or to any page other than `/contact`.
 9. **404 → hub and contact** (spec), plus home and publications.
 10. In-body links written by Eva (article Markdown) to a domaine page are encouraged (#76 editor
     tip), not required by the IA.
@@ -462,12 +462,12 @@ clicked, else `direct`, without creating indexable URLs.
 reads it, with the same-origin referrer as fallback.**
 
 1. The single delegated listener that already sends `link_click` (#66 §6) also writes, on a
-   `data-track="contact_cta"` click, `sessionStorage["contact_origin"] = location.pathname`
-   (path only: no query, no hash). Two exceptions: on `/contact` itself (the header CTA is
-   current there) it writes nothing, so a click on it never overwrites the real origin; on the
-   404 page, where `location.pathname` is the unknown path, it writes `/404` (the not-found page
-   marks itself, e.g. a `data-origin="/404"` attribute the listener reads first). Storage access
-   is wrapped in try/catch: blocked storage must never stop `link_click` or the navigation.
+   `data-track="contact_cta"` click, `sessionStorage["contact_origin"]` = **the origin the page
+   declares**. One rule, set once in the shared page layout: by default a page declares its
+   pathname (path only: no query, no hash); the 404 declares `/404` (its pathname is the unknown
+   URL); `/contact` declares none, so a click on its own header CTA never overwrites the real
+   origin. The listener writes nothing when the page declares none. Storage access is wrapped in
+   try/catch: blocked storage must never stop `link_click` or the navigation.
 2. The `/contact` form reads that value when it submits. If it is empty, it uses
    `document.referrer` **only if** same-origin, reduced to its pathname. Else `direct`.
 3. The value is cleared after a successful send and overwritten by the next CTA click.
