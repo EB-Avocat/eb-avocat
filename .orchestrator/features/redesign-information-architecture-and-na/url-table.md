@@ -18,10 +18,10 @@ URL, the new pages are new URLs, and the old home sections stay reachable throug
 |---|---|---|---|---|---|---|
 | `/` | `/` | none | yes | yes | `/` | Home, new section order (ia §6) |
 | `/domaines` | — (was `/#domaines-intervention`) | none (new) | yes | yes | `/domaines` | Hub; holds `#mecenat` and, for any domaine page that misses the launch gate, its section (ia §2) |
-| `/domaines/creation-de-societe` | — | none (new) | yes | yes | self | Only if it passes the launch gate (ia §2); else not created and links go to `/domaines#creation-de-societe` |
-| `/domaines/cession-clientele-patientele` | — | none (new) | yes | yes | self | Same gate |
-| `/domaines/contrats-professionnels` | — | none (new) | yes | yes | self | Same gate |
-| `/domaines/ordre-et-deontologie` | — | none (new) | yes | yes | self | Same gate; replaces the « Contentieux » card (ia §2) |
+| `/domaines/creation-de-societe` | — | none (new) | yes | yes | self | Only if it passes the launch gate (ia §2); else not created and **every** link to it (header, footer, home, hub, « Autres domaines », article) goes to `/domaines#creation-de-societe` |
+| `/domaines/cession-clientele-patientele` | — | none (new) | yes | yes | self | Same gate and same anchor fallback for all links |
+| `/domaines/contrats-professionnels` | — | none (new) | yes | yes | self | Same gate and same anchor fallback for all links |
+| `/domaines/ordre-et-deontologie` | — | none (new) | yes | yes | self | Same gate and anchor fallback; replaces the « Contentieux » card (ia §2) |
 | `/a-propos` | — (was `/#a-propos`) | none (new) | yes | yes | `/a-propos` | Holds `#formations` |
 | `/contact` | — (was `/#contact`) | none (new) | yes | yes | `/contact` | The only form; no query parameter (origin: ia §12) |
 | `/publications` | `/publications` | none | yes | yes | `/publications` | Unchanged |
@@ -42,7 +42,7 @@ URL, the new pages are new URLs, and the old home sections stay reachable throug
 | `/publications?category=<slug>&page=<n>` | same | none | yes (`index, follow`), consolidated by the canonical; not meant to rank | no | `/publications` | Same as `?category=` |
 | `/publications?page=1` | same | none | — | no | `/publications` | The pagination never emits `page=1`; canonical to the clean URL |
 | `/publications?page=<invalid or out of range>` | same | none | no (#78 picks: 404, or `noindex`) | no | `/publications` | Today `parsePage` falls back and the page answers 200 with the first page or the empty state |
-| `/contact?origin=…` | — | **not used** | — | — | — | The CTA origin travels in `sessionStorage` + same-origin referrer, not in the URL (ia §12). If such a URL is ever reached (hand-typed), it renders `/contact` with canonical `/contact` |
+| `/contact?origin=…` | — | **not used** | — | — | — | The CTA origin travels in in-memory client state (+ same-origin referrer on a first full load), not in the URL and not in browser storage (ia §12). If such a URL is ever reached (hand-typed), it renders `/contact` with canonical `/contact` |
 | Any other parameter (`utm_*`, `fbclid`, `gclid`…) on any page | same | none | follows the page | no | the page's clean URL | Canonicals never include query strings, except `?page=n` above |
 
 ## 3. Old hash anchors (home)
@@ -70,7 +70,7 @@ at the top, which is the right result for `#accueil`.
 | `/images/*` | none | no | no | **Keep paths**: `/images/icons/*` and logos are hot-linked by Eva's email signature (`scripts/generate-signature-images.ts`) |
 | `/fonts/*` | none | no | no | May change with #69 (WOFF2); not linked from outside |
 | `/media/*` | none | no | no | Covers and avatars (Vercel Blob); also served on `cdn.biezunski-avocat.fr/media/*` |
-| `cdn.biezunski-avocat.fr/<anything but media/>` | **301** → `https://biezunski-avocat.fr/<path>` (exists in `vercel.json`) | no | no | Existing redirect (the only one in `vercel.json`, besides the `/carte` 307 in §1) |
+| `cdn.biezunski-avocat.fr/<anything but media/>` | **301** → `https://biezunski-avocat.fr/<path>` (exists in `vercel.json`) | no | no | Existing redirect (the only redirect in `vercel.json`; the `/carte` 307 in §1 lives in `app/carte/page.tsx`) |
 | `/api/contact`, `/api/revalidate` | none | no | no | Next route handlers; `disallow: /api/` |
 | `/api/v1/*`, `/mcp` | none | no | no | Django (Vercel Services rewrite) |
 | `/${BACKOFFICE_PATH}/*` (secret prefix) | none (`proxy.ts` rewrites it to `/backoffice/*`) | no (`X-Robots-Tag: noindex, nofollow` from `proxy.ts`, plus the `noindex, nofollow` meta, kept) | no | Not linked from the public site. **Never** list the secret prefix in `robots.txt` (it would publish it) |
