@@ -1,9 +1,18 @@
 # Redesign: information architecture and navigation — spec
 
 Issue: [#67](https://github.com/EB-Avocat/eb-avocat/issues/67), part of epic #65.
-**Blocked by #66** (objectives, audience, KPIs, feature `redesign-objectives-audience-and-kpis`).
-No task of this feature starts before #66's `objectives.md` is approved and merged: see
-"Blocked by #66" below.
+Built on **#66** (objectives, audience, KPIs), now closed: its decisions are in
+`.orchestrator/features/redesign-objectives-audience-and-kpis/objectives.md`, merged to `main`
+through PR #89 (decided 2026-11-20). See "Inputs from #66" below.
+
+**State of `main`.** This integration branch was cut at `aa79811` (PR #64, plan-redesign), before
+PR #89 merged. The sandbox cannot fetch `origin`, and the orchestrator brings `main` in only at
+integration time, so this spec was checked against #66's final pushed head
+`origin/orch/redesign-objectives-audience-and-kpis/integration` = `89eb4f3`, the head of PR #89.
+Until the branch is synced, nodes read the file with
+`git show 89eb4f3:.orchestrator/features/redesign-objectives-audience-and-kpis/objectives.md`.
+No other redesign feature had been pushed: #69 (brand direction) has no commit yet.
+The orchestrator merges `main` into this branch at integration time (rebase before the PR).
 
 ## Goal
 
@@ -40,13 +49,23 @@ copy issue (#68) owns the final wording.
 `frontend/src/lib/constants.ts`, `components/Navbar.tsx`, `components/Footer.tsx`,
 `hooks/useScrollSpy.ts`. No redirects exist in `next.config.ts` or `vercel.json`.
 
-## Lead's starting proposal (ux validates, changes with a reason, or rejects)
+## Inputs from #66 (decided, not reopened here)
 
-This is a hypothesis, written before #66 exists. The lead revises it against #66's
-`objectives.md` before creating tasks; `ux` then stress-tests it against the audiences, the ranked
-journeys and the audit and records the final decision with its reason. #66's spec already points
-the same way (prospects first, J1 and J2 priority 1, a contact request rather than a booking,
-phone beside the CTA, review ask out of the main nav).
+| #66 decision (`objectives.md`) | Consequence for the IA |
+|---|---|
+| §1 Audiences: prospects → clients → QR contacts → Eva. Prospects drive every trade-off; the others get their paths without taking room from prospects | Nav items and home order serve prospects only; client and QR tasks live in the footer, the article end and `/carte` |
+| §1 Success for a prospect: a contact request sent in **≤ 2 actions from any page** | Hard rule for the nav: CTA and phone in the header of every page; ux checks it on every page type |
+| §1 Professions: "patientèle" wording = health; other professions to confirm with Eva | No per-profession pages at launch (not enough known to fill them) |
+| §2 J1 home → contact and J2 publication → contact are priority 1; J4 `/carte` 2; J3 review 3; J5 back-office 4 | J1 and J2 get the shortest paths; the article end is a first-class exit (A-09) |
+| §3 Positioning A (approved by Eva): structure (société, statuts), contrats, opérations sur la clientèle ou patientèle, anticipating associate friction, relations with the Ordre, déontologie, Conseils de l'Ordre | Core domaines = the four the positioning names; Mécénat and Formations are absent from it, so they are secondary |
+| §4 Primary conversion = contact request by form, phone or email; **no booking**; CTA in the "Contacter le cabinet" family (words: #68) leading to the form "on the page or `/contact`, per #67"; phone beside it, `tel:` on mobile; every article ends with a contact CTA | The IA decides where the form lives and the CTA target; no booking page |
+| §6 One tracking mechanism: `data-track` + `data-location`; `location` enum = header, hero, article, contact_section, contact_page, home_review, footer, carte, legal, not_found; **#67 may add values**; every contact CTA passes its `origin` path to `/api/contact` | `ia.md` names every slot that holds a tracked link and gives the final `location` list (e.g. adds `domaine`, `menu`, drops `home_review` if the band leaves home). How `origin` reaches the form is an IA/URL question (see below) |
+| §7 Hand-off to #67: audience ranking, J1/J2, one contact action in the header on every page, phone on mobile, review ask out of the main nav, whether `/contact` exists | All answered in `ia.md`, one line each |
+
+## Lead's proposal (ux validates, changes with a reason, or rejects)
+
+Revised against #66. `ux` stress-tests it against the audiences, the ranked journeys and the audit,
+and records each final decision with its reason and the #66 section it rests on.
 
 ### Site map
 
@@ -57,28 +76,32 @@ phone beside the CTA, review ask out of the main nav).
 | Création de sociétés (SEL, SCM, SCI, SPFPL, SARL/SAS) | `/domaines/creation-de-societe` | core offer, strong search intent ("créer une SEL Lyon") |
 | Clientèle / patientèle (cession, prêt, apport) | `/domaines/cession-clientele-patientele` | high-intent searches ("cession de patientèle") |
 | Contrats professionnels | `/domaines/contrats-professionnels` | collaboration / remplacement / exercice contracts are searched |
-| Contentieux ordinal | `/domaines/contentieux-ordinal` | distinct need and searches ("avocat conseil de l'ordre") |
-| Mécénat (associations, fonds de dotation) | section of `/domaines` | secondary offer; own page only if Eva can supply enough content (avoid a thin page) |
-| Formations | section of `/a-propos` (or `/domaines`) | different buyer (organisations); low volume |
+| Ordre professionnel: relations, déontologie, contentieux ordinal | `/domaines/ordre-et-deontologie` (ux may prefer `contentieux-ordinal`) | positioning A frames it as one accompaniment (relations with the Ordre, déontologie, Conseils de l'Ordre), wider than litigation; searches "contentieux ordinal", "avocat conseil de l'ordre" |
+| Mécénat (associations, fonds de dotation) | section of `/domaines` | secondary (absent from the approved positioning); own page only if Eva can supply enough content (avoid a thin page) |
+| Formations | section of `/a-propos` (or `/domaines`) | different buyer (organisations), absent from the positioning; also proof of expertise (trainings given are on #66's proof list) |
 | À propos | `/a-propos` | credentials and proof (A-04), author page that articles link to |
-| Contact | `/contact` | one target for every CTA from any page, one trackable conversion URL |
+| Contact | `/contact` | one target for every CTA from any page (#66 §4 leaves form placement to #67); `contact_page` already exists in the `location` enum; the CTA's `origin` travels with the click (mechanism: ux, see Old URLs) |
 | Publications | `/publications`, `/publications/[slug]` | unchanged: these URLs rank today |
 | Legal | `/mentions-legales`, `/politique-de-confidentialite` | unchanged |
 | QR card | `/carte`, `/carte/vcard` | unchanged: the QR code is printed |
 
 Per-profession pages (médecins, dentistes, pharmaciens, kinés, vétérinaires, avocats…): **not at
-launch**. Professions appear as "pour qui" blocks on domaine pages; revisit with the KPIs once
-the domaine pages have traffic. ux confirms or overturns this.
+launch**. #66 records that only health is confirmed by the copy and the other professions are to
+be confirmed by Eva. Professions appear as "pour qui" blocks on domaine pages; revisit with K9
+(domaine queries in Search Console) once the domaine pages have traffic.
 
 ### Navigation
 
 - **Desktop header**: logo (→ `/`, replaces "Accueil") · Domaines (→ `/domaines`, with the 4-5
   domaine pages as a disclosure menu) · À propos · Publications · phone number as a link · one
-  primary CTA button (→ `/contact`, action from #66 §4, wording from #68).
+  primary CTA button (→ `/contact`, contact request per #66 §4, "Contacter le cabinet" family,
+  final words from #68).
 - **Mobile header**: logo · call button (`tel:`, visible without opening the menu) · menu button.
-  Menu: the same items + the CTA + email; Domaines expands in place.
+  Menu: the same items + the CTA + email; Domaines expands in place. With the header CTA or
+  call button, every page meets #66's "≤ 2 actions to a contact request".
 - **"Votre avis" leaves the main nav**: footer link, end of articles (after the author block),
-  `/carte`. Optional `/avis` short URL (302 to the Google review link) that can be printed.
+  `/carte` (#66 §2, J3 rank 3). The home "Votre avis" band goes, so the `home_review` location
+goes with it. Optional `/avis` short URL (302 to the Google review link) that can be printed.
 - **One nav model on every page**: same header everywhere (no overlay / scroll-spy variant),
   route-aware active state (`aria-current="page"`; `/domaines/*` marks Domaines, `/publications/*`
   marks Publications). Sticky or not: ux decides with the mobile cost in mind.
@@ -86,7 +109,8 @@ the domaine pages have traffic. ux confirms or overturns this.
 
 ### Home section order
 
-Hero (promise, audience, CTA + phone) → Domaines (core first, each linking to its page) → Proof /
+Hero (positioning A promise and audience, CTA + phone, above the fold on mobile per #66 §7)
+→ Domaines (core first, each linking to its page) → Proof /
 À propos teaser (credentials, testimonials when available) → How it works / first meeting →
 Publications teaser (role: **credibility**, placed before the contact block) → Contact block
 (CTA, phone, email; whether the full form stays on home or only on `/contact` is a ux decision)
@@ -104,7 +128,13 @@ Every current URL above stays valid; nothing needs a 301 unless ux changes a slu
 (`/#contact`, `/#a-propos`, `/#domaines-intervention`, `/#avis`, `/#accueil`) never reach the
 server, so they cannot be redirected by HTTP: the table records, per anchor, whether the id is
 kept on the new home or handled client-side. URLs that existed before this codebase (older site)
-are unknown here: the table flags that #78 must pull them from Search Console.
+are unknown here, and there is no Search Console property yet (#66 K9, to be created): the table
+flags that #78 must pull them once it exists.
+
+The CTA's `origin` (#66 §6) must not create new indexable URLs: if it travels as a query
+parameter (`/contact?origin=/publications/x`), the table marks `/contact?origin=*` noindex with a
+canonical to `/contact`; a `sessionStorage` or referrer approach avoids the parameter. ux picks one
+with the reason; #80/#83 implement it.
 
 ## Deliverables
 
@@ -114,7 +144,7 @@ All under `.orchestrator/features/redesign-information-architecture-and-na/`:
    - site map with a Mermaid diagram (renders on GitHub);
    - **decision per domaine** (own page or section) and per profession, each with its reason;
    - À propos and Contact: page or section, with the reason;
-   - navigation items, CTA (target, placeholder label), phone/email placement, mobile behaviour
+   - navigation items, CTA (target and position; label family from #66 §4), phone/email placement, mobile behaviour
      (header, menu content and order, what is visible without opening the menu), active-state
      rules, sticky or not, breadcrumbs;
    - placement of the review ask;
@@ -123,11 +153,12 @@ All under `.orchestrator/features/redesign-information-architecture-and-na/`:
    - internal linking rules (home → domaines, domaine ↔ publications via categories, article →
      domaine / contact / author, 404 → hub and contact);
    - how the IA maps to the journeys J1-J5 (each journey in the new structure, step by step);
-   - "Depends on #66": each decision that rests on `objectives.md`, with the section it cites;
+   - "From #66": each decision that rests on `objectives.md`, with the section it cites, and the
+     final `location` enum (§6) with the values this IA adds or removes;
    - open questions for Eva, and follow-ups for later issues.
 2. **`url-table.md`** (owner `ux`): one row per URL, columns *new URL · old URL · redirect
    (none / 301 / 302 / client-side) · indexable · in sitemap · canonical · notes*. Covers pages,
-   query parameters (`?category=`, `?page=`), hash anchors, `/carte`, `/avis` if adopted, and
+   query parameters (`?category=`, `?page=`, the CTA `origin` if it is one), hash anchors, `/carte`, `/avis` if adopted, and
    technical routes (excluded from the sitemap). This is the input of #78.
 3. **Low-fidelity wireframes** (owner `ui`), greyscale boxes and working labels only, in a new page
    `IA — Wireframes` of the Figcraft file `EB-Avocat.figcraft`, exported as PNG to
@@ -144,43 +175,12 @@ All under `.orchestrator/features/redesign-information-architecture-and-na/`:
 
 | # | Node | Task | Depends on |
 |---|---|---|---|
-| 0 | lead | Sync with `main` once #66 is merged; revise the proposal against `objectives.md`; create tasks 1-2 | #66 merged |
-| 1 | ux | `ia.md` and `url-table.md`: validate or revise the lead's proposal against `objectives.md`, record every decision with its reason | 0 |
+| 1 | ux | `ia.md` and `url-table.md`: validate or revise the lead's proposal against `objectives.md`, record every decision with its reason | — |
 | 2 | ui | Low-fi wireframes from `ia.md` in Figcraft + PNG exports to `design/` | 1 |
 | — | lead | Review, merge, tick the #67 acceptance criteria, comment on #78 with the URL table link, PR | 2 |
 
 ux may hand a draft site map to ui early (handoff) so the wireframes start before the URL table is
 final; ui only draws what `ia.md` decides.
-
-## Blocked by #66
-
-#66 decides the inputs this IA is built on. Its deliverable is
-`.orchestrator/features/redesign-objectives-audience-and-kpis/objectives.md`; today only its spec
-exists. This feature consumes, from that file:
-
-| #66 section | What the IA takes from it | Where it lands here |
-|---|---|---|
-| 1. Audiences and priorities | which audience the header, home order and footer serve first; what clients, QR contacts and Eva need without costing prospects | nav items, home order, footer columns |
-| 2. Journeys J1-J5 ranked | the journeys the IA must make shortest (J1 home → contact, J2 publication → contact) | journey walkthrough in `ia.md`, article exits, review-ask placement (J3) |
-| 3. Positioning | the promise and the differentiators the home order must put first; which domaines are core | home order, core vs secondary domaines, own page vs section |
-| 4. Primary conversion and CTA (A-05) | the CTA's real action and its target, the channels (form, phone, email) and their weight | CTA target and position, `/contact` page or section, phone/email in the header |
-| 5. KPIs | events that need a distinct, trackable page or location (`contact_submit {origin_path}`, `tel_click {location}`, `review_click {location}`, `vcard_save`) | URL choices (one contact URL), `location` values = named header/footer/article slots |
-| 7. Hand-offs | anything #66 explicitly asks #67 to decide | checked one by one in `ia.md` |
-
-**Sequencing**
-
-1. This spec is approved now as the plan; the lead's proposal below is a hypothesis, not a
-   decision.
-2. When #66 is merged (or its `objectives.md` is approved on its integration branch), the lead
-   syncs this integration branch with `main` so `objectives.md` is in the worktree, revises the
-   lead's proposal where #66 contradicts it (commit + short note to the user if anything material
-   changes, e.g. a booking path instead of a contact request), and only then creates the tasks.
-3. `ux` cites the #66 section behind each IA decision that depends on it. Anything #66 leaves
-   open (e.g. Eva's approval still pending) is listed in `ia.md` under "Depends on #66" with the
-   default the IA uses.
-
-If #66 ends with a real booking path rather than a contact request, the `/contact` row, the CTA
-target and the home contact block change; everything else stands.
 
 ## Acceptance (maps to #67)
 
