@@ -1,8 +1,10 @@
 # Brand direction and moodboard (#69) — brand.md
 
-Status: **draft from task #93 (ux), 2026-11-20.** Sections 1–7 and the handoff are complete; section 8
-(decisions log) stays empty until Eva chooses a font and a direction. Task 3 finalises this file for the
-chosen font and direction.
+Status: **final, 2026-11-20 (task #96, ux).** Eva chose **Aleo** and **Direction A, Documentaire**, with
+**no photo session for now** (decisions log, §8). The rules below are final for Aleo + A only; B and C are
+kept for the record in Appendix A, marked "not retained". Source of truth for #70 (design system v2) and
+`Foundations v2`; the last section is the hand-off to ui.
+
 
 Inputs: `spec.md`, `ux-brief.md`, `plan-redesign/audit.md` (§3, §5, A-08, A-12, A-13, A-27, A-28),
 `redesign-objectives-audience-and-kpis/objectives.md` (#66, positioning variant A), and measurements on
@@ -10,6 +12,7 @@ the real font files and logo files (method in §1.7). Contrast ratios are WCAG 2
 relative luminance, not estimated.
 
 Docs in English; French copy quoted as is. Sample copy is marked « exemple »: #68 owns the final wording.
+
 
 ## 0. What the analysis found (read this first)
 
@@ -26,20 +29,19 @@ Docs in English; French copy quoted as is. Sample copy is marked « exemple »: 
    for a **variable font** (any weight between) and for body at **400**, deliberately.
 3. **`primary-light` `#4a7a6f` fails as text on every warm paper** (4.40 on `#F6F3EC`, 4.18 on `#F3EDE0`;
    it only passes on pure white, 4.88). Text and links on tinted surfaces use `primary` `#3f5b57` (6.3–6.8).
-4. **Licence trap with Bitter:** its OFL declares the Reserved Font Name "Bitter Pro". Self-subsetting is
-   a modification, so our own subset could not keep that name. Aleo, Zilla Slab, Hepta Slab, Podkova
-   declare no Reserved Font Name. (Serving Google's own subset through `next/font/google` is fine.)
+4. **Licence:** Aleo declares no Reserved Font Name, so we may subset or instance it ourselves. (Bitter's
+   "Bitter Pro" RFN point is moot now that Aleo is chosen.)
 5. **Size is not the argument against Museo.** Museo subset to Latin is ~16 KB WOFF2 per weight. The
    reason to replace it is the licence (decided by the user), not performance. The current 3 × ~127 KB
    OTF (~381 KB) does become ~31 KB for the replacement (variable roman, §1.6).
 
-## 1. Font: replacing Museo (A-28)
+
+## 1. Font: replacing Museo with Aleo (A-28) — decided
 
 ### 1.1 Status of Museo
 Not under a free licence, no web licence held, **decided: replace** (user, 2026-11-20). The five OTFs in
-`frontend/public/fonts` are served by the site and published in the GitHub repo: removal is code work for
-#79 (§1.6), and whether to purge them from git history is a decision for lead and the user (spec,
-Question 3). The logo is unaffected: its letters are outlined paths (§2). Open point for lead, low
+`frontend/public/fonts` are served by the site and published in the GitHub repo: **#79 removes them together
+with the font swap** (no earlier removal, **no purge of git history**: user decision, spec Question 3, §8). The logo is unaffected: its letters are outlined paths (§2). Open point for lead, low
 priority: whether outlining Museo(-Sans) letters into the logo artwork was within the purchase terms; that
 is normal practice for a logotype but is not recorded anywhere (Eva or the logo designer would know).
 
@@ -49,14 +51,14 @@ rendered next to Museo 300/500 at 48px and 20px, and measured.
 
 | Candidate | Decision | Reason |
 |---|---|---|
-| **Aleo** | **Shortlist** | Same x-height (+1%) and width (−1 to −4%) as Museo; open round shapes, low contrast, soft bracketed slabs; variable 100–900 with true italic; no Reserved Font Name |
+| **Aleo** | **Shortlist** | Same x-height (+1%) and width (−1 to −3%) as Museo; open round shapes, low contrast, soft bracketed slabs; variable 100–900 with true italic; no Reserved Font Name |
 | **Bitter** | **Shortlist** | Built for screen reading, best 16px body; width equal to Museo; slightly taller x-height (+4%) and sturdier, more "newspaper" than Museo; variable + italic; RFN "Bitter Pro" |
 | **Zilla Slab** | **Shortlist** | Closest to Museo's quirky, friendly slab personality; but x-height −11% and width −6 to −8% (needs a size bump and changes line breaks), 5 static weights, no variable file, heaviest WOFF2 |
 | Hepta Slab | Dropped | 19% wider than Museo (0.52 vs 0.43 em avg.), no italic: every line break and card would change; 22 KB per weight; default axis value is 200, not a text weight |
 | Podkova | Dropped | Weights 400–800 only (no light), x-height −14%, cap height −16% (looks small and low-contrast at 16px), no italic |
 | Rokkitt | Dropped | x-height −20%, condensed: reads as a different, narrower voice |
 | Arvo | Dropped | Two weights only (400/700), geometric and mechanical rather than humanist; RFN "Arvo" |
-| *A humanist sans (Nunito Sans, Mulish…)* | Not shortlisted | Would match the logo lettering better but is not "close to Museo" (the user's brief) and changes the site's personality from slab to sans. Raised as a question for lead (§9, Q2) |
+| *A humanist sans (Nunito Sans, Mulish…)* | Not shortlisted | Would match the logo lettering better but is not "close to Museo" (the user's brief) and changes the site's personality from slab to sans. Question closed: one family (§9) |
 
 Shortlist = 3 fonts (the brief allows 3–4; the other candidates fail a hard criterion).
 
@@ -64,7 +66,8 @@ Shortlist = 3 fonts (the brief allows 3–4; the other candidates fail a hard cr
 Scores 1–5 (5 best). Measured values are from the files (§1.7); closeness to Museo and to the logo are
 judgements from the render (side-by-side render of the candidates at 48px and 20px) and the stem measurement. All three cover é è ê à ç œ « »
 ’ and U+00A0. **None has U+202F (narrow no-break space), nor has Museo; only Bitter has U+2009 (thin space), and relying on it would make the font choice change the typography**: use U+00A0
-before « » : ; ? ! as the site does today; browsers fall back for any U+202F.
+before « » : ; ? ! (the site does **not** do this today: `constants.ts` uses ordinary spaces there, so #68/#79
+add the U+00A0); browsers fall back for any U+202F.
 
 | Criterion | Museo (reference) | **Aleo** | **Bitter** | **Zilla Slab** |
 |---|---|---|---|---|
@@ -81,26 +84,24 @@ before « » : ; ? ! as the site does today; browsers fall back for any U+202F.
 | OFL 1.1, Reserved Font Name | n/a (not free) | OFL 1.1, **no RFN** → 5 | OFL 1.1, **RFN "Bitter Pro"** → 3 | OFL 1.1 (Mozilla), no RFN → 5 |
 | **Total (/50)** | | **46** | 42 | 33 |
 
-### 1.4 Recommendation: **Aleo** (variable roman + italic)
+### 1.4 Decision: **Aleo** (variable roman + italic), chosen by Eva 2026-11-20
 - It is the only candidate that keeps Museo's **proportions**, so layouts, line lengths and card heights
-  hold (x-height +1%, width within 4%), and fallback metrics stay simple (§1.6).
+  hold (x-height +1%, width within 3%), and fallback metrics stay simple (§1.6).
 - One variable file replaces three static ones: any weight 300–700 in ~31 KB, so the Museo-300 colour
   can be matched (Aleo ≈ 350) while body goes to 400 for legibility (A-12).
 - True italic for articles; no Reserved Font Name, so we can instance or subset it ourselves if
   `next/font/google` is ever not wanted.
 - Honest limits: Aleo is a little more **calligraphic** than Museo (the `a`, `e` terminals), and its
   caps are 5% taller (0.737 vs 0.700), so all-caps labels look slightly bigger; it will not match the
-  logo lettering (no slab can). The specimen board (task 2) makes this visible to Eva before she chooses.
-- **Runner-up: Bitter** if Eva finds Aleo too delicate or wants the strongest body text: choose it knowing
-  about the RFN rule (use `next/font/google`, never a self-made subset) and the +4% x-height (body can drop
-  to 16px without losing size; headings need slightly smaller sizes). Zilla Slab is third: the right
-  personality, but at 16px it reads small and its static files cost ~100 KB.
+  logo lettering (no slab can). Eva saw this on the `Type` board before choosing.
+- Not retained: Bitter (runner-up: sturdier, +4% x-height, RFN "Bitter Pro") and Zilla Slab (reads small at
+  16px, ~100 KB static files). Scoring kept above for the record.
 
 ### 1.5 Weight mapping Museo → Aleo (equal stem thickness)
 | Museo on the site today | Stem | Aleo variable weight | Use in the new system |
 |---|---|---|---|
-| 300 (body, most text) | 67 | ≈ 350 | **Do not copy.** Body moves to 400 (stem 89): A-12 |
-| 500 | 97 | ≈ 480 | 500 for h3 / UI labels if wanted; 600 for stronger labels |
+| 300 (body, most text) | 67 | ≈ 350 | **Do not copy.** Body moves to 400 (stem 89): A-12. 300 is dropped (§1.6) |
+| 500 | 97 | ≈ 480 | Existing `font-500` uses (61) map to 600 for H3, buttons, nav and labels (§4); 500 stays available only as an optional H2 weight |
 | 700 | 127 | 700 | 700 for bold emphasis in prose and the strongest headings |
 
 ### 1.6 Font plan (decided here, built in #79)
@@ -111,23 +112,29 @@ before « » : ; ? ! as the site does today; browsers fall back for any U+202F.
   `subsets: ["latin"]`, `display: "swap"`): Next downloads at build time and serves the files from our own
   domain, so **no runtime request to Google and no new vendor** (rule: prefer existing vendors). Fallback:
   `next/font/local` with the files in the repo, adding `OFL.txt` next to them. Latin subset from Google
-  includes œ « » ’ (verify in the built CSS `unicode-range`).
-- **Preload**: roman only (body + headings), via `next/font`'s default `preload: true`. **Italic is not
-  preloaded** (articles only, not above the fold).
+  includes œ « » ’ but not Ÿ (U+0178 is in Google's `latin-ext`, loaded on demand only); verify in the built CSS
+  `unicode-range`.
+- **Preload**: roman only (body + headings). **Italic is not preloaded** (articles only, not above the fold).
+  Caution: `next/font` preloads every file a loader declares, so a single `Aleo({ style: ["normal","italic"] })`
+  call preloads the italic too. To keep it off the preload list, use two loaders (roman with `preload: true`,
+  italic with `preload: false`, e.g. `next/font/local`) and map `em, i, cite` in prose to the italic loader's
+  family; or accept both files preloaded (~69 KB). #79 decides.
 - **Fallback metrics** (kills the Georgia-then-font reflow, A-28): use `adjustFontFallback` (automatic for
   `next/font/google`, `"Times New Roman"` for `next/font/local`). Indicative values to check the output
   against (computed on a French sample, regular weight): vs Times New Roman `size-adjust` ≈ 113%,
   `ascent-override` ≈ 80%, `descent-override` ≈ 26%, `line-gap-override` 0%; vs Georgia 103% / 88% / 29% / 0%.
   Remove `ui-serif, Georgia` as the *first* fallback if it creates a second reflow; keep `serif` last.
-- **Weights kept**: one variable axis, used at **300 (display only ≥ 40px), 400, 500 (display / H2 in
-  direction C, optional h3 and UI labels elsewhere), 600, 700** plus italic 400 (§4). No 100/900 (dead files
-  today). **The existing `font-300/500/700` utilities (32/61/31 uses) do not carry over as they are**: Aleo 300
-  is thinner than Museo 300 (stem 50 vs 67), so the 32 `font-300` body-text uses (`carte`, error pages,
-  `publications`, privacy page…) would get thinner, which is the A-12 problem. #79 maps them to 400 and keeps
-  300 only for display; 500 maps to ≈ 480 (§1.5), 700 to 700.
+- **Weights kept** (final, one variable axis): **400** (body, H1, H2, lead, meta), **600** (H3, card titles,
+  buttons, nav, form labels, kickers), **700** (bold in prose), plus **italic 400**. **500** is optional for
+  H2 only (A's scale uses 400). **300 and italic 300 are dropped**: A's display is 400 and B's light pull
+  quote is not retained. No 100/200/300/800/900. When self-subsetting, limit the axis to **400–700**. **The
+  existing `font-300/500/700` utilities (32/61/31 uses) do not carry over as they are**: Aleo 300 is thinner
+  than Museo 300 (stem 50 vs 67), so #79 maps `font-300` to 400, `font-500` to 600 (§1.5) and `font-700` to 700.
 - **`font-feature-settings`**: leave defaults (kerning, ligatures on); use `font-variant-numeric:
   tabular-nums` only in tables and back-office lists.
-- **Budget**: ~31 KB preloaded + 33 KB on demand, versus ~381 KB of OTF today.
+- **Budget**: ~31 KB preloaded + 33 KB on demand when self-subset to 400–700 (measured at 300–700, so an
+  upper bound); via `next/font/google` the full 100–900 axis is served (~34 KB roman + ~35 KB italic). Either
+  way versus ~381 KB of OTF today.
 - **Code places that name Museo** (to change in #79, with the files, together):
   - `frontend/src/app/globals.css`: three `@font-face` (lines 3–26) and `--font-museo` in `@theme` (line 35)
   - `frontend/src/app/layout.tsx:111` and `frontend/src/app/global-error.tsx:23`: `font-museo` on `<body>`
@@ -155,7 +162,7 @@ The logo is **kept unchanged**. Five stacked variants (mark above "Eva Biezunski
 ### 2.1 Variant per surface
 | Surface | File | Notes |
 |---|---|---|
-| White, paper, sand, any light tint (all directions) | `logo-for-white-background` | `#618983` / `#264445` / `#3f5b57` on light. Primary use: navbar (solid), articles, legal, print |
+| White, paper, sand, any light tint | `logo-for-white-background` | `#618983` / `#264445` / `#3f5b57` on light. Primary use: navbar (solid), articles, legal, print |
 | Dark teal `#162729`, `#264445` | `logo-for-dark-green-background` | white lettering, `#618983` pans (3.99 on `#162729`, 2.71 on `#264445`, only 1.90 on `#3f5b57`: avoid the logo on `#3f5b57`, use it on the two darkest teals). Hero, `/carte`; footer (today `Footer.tsx` uses the `white-for-black` variant on dark teal: switch it in #79) |
 | Mid teal `#4a7a6f` (primary-light) and similar mid-tones | `logo-for-light-green-background` | `#264445` lettering + white details (lettering is only 2.16:1 on `#4a7a6f`: logotype, but use the variant only on that exact fill). Check contrast of the lettering on the actual fill; if the surface is darker than `#4a7a6f`, use the dark-green variant |
 | Photographs, near-black, any busy dark image | `logo-white-for-black-background` | all white; only over a **darkened area** of the photo (overlay so the logo has ≥ 4.5:1 against the average behind it) |
@@ -193,9 +200,9 @@ icons, not app icons); #79 regenerates them only if the teal background changes.
 mark's teals lose contrast on dark chrome: keep `favicon-white.svg` for `prefers-color-scheme: dark` via
 `<link media>` (small change for #79).
 
-## 3. Palette
+## 3. Palette (core + Direction A)
 
-### 3.1 Core (all directions, unchanged) and solid "muted on dark" tokens
+### 3.1 Core (unchanged) and solid "muted on dark" tokens
 | Colour | Hex | vs `#FFFFFF` | vs `#191919` | vs `#162729` | Role |
 |---|---|---|---|---|---|
 | `primary` | `#3f5b57` | 7.38 | 2.38 | 2.10 | Text/links on any light surface (6.3–6.8 on papers), bands, buttons, focus ring on light |
@@ -213,13 +220,12 @@ These two `mist` solids replace the `text-white/60–80` alpha pattern (A-13); n
 `#3f5b57`, 8.76 on `#264445`, 12.89 on `#162729`). Both ≥ 3:1 everywhere, unlike today's `#4a7a6f`
 (1.51 on the "Votre avis" band).
 
-### 3.2 Neutrals, accent, error, success: per direction
+### 3.2 Neutrals, accent, error, success: Direction A (final)
 Warm neutrals are tinted toward teal (the darker steps pick up green-grey) so they sit with the core.
 Each ramp has six steps. Sand/pierre 200 is decorative (hairlines, never the only boundary); step 400 is
 the one for **input borders and icons** (≥ 3:1 on white and paper, WCAG 1.4.11). "vs paper" is the contrast
 against the direction's own page background, which is what text actually sits on.
 
-#### Direction A — Documentaire
 | Colour | Hex | vs `#FFFFFF` | vs `#191919` | vs `#162729` | vs paper | Role / allowed use |
 |---|---|---|---|---|---|---|
 | Paper | `#F6F3EC` | 1.11 | 15.87 | 13.97 | 1.00 | Page background (warm white) |
@@ -236,6 +242,299 @@ against the direction's own page background, which is what text actually sits on
 
 Muted text on paper: Sand 600 on Sand 100 = 4.55 (just passes; do not go lighter).
 
+### 3.3 Proportions (of visible area on a typical page)
+| Surfaces (paper, sand tints, white) | Teal (text, bands, nav, footer) | Imagery | Ambre |
+|---|---|---|---|
+| **60%** | **25%** | **12% when photos exist; today 0–4% (one portrait), the 8–12% goes to paper/sand panels** | **≤ 3%** (links, one rule, tiny marks); the CTA stays `primary` teal |
+
+Rules: one accent per page region; no accent text below 4.5:1 **on the surface it sits on**: the "vs paper"
+column does not hold on Sand 100 (Success on Sand 100 = 4.13), so accent, success and error text go on paper
+or white only, and on tinted sections use `primary` (≥ 5.6) or Ambre profond (5.40 on Sand 100); no colour as
+the only carrier of meaning (links stay underlined, status has icon + text); tinted sections alternate with
+paper, not with each other; avoid more than one dark band between two light ones.
+
+
+## 4. Typography (Aleo, variable; Direction A's scale)
+
+Sizes are A's starting scale; #70 owns the final type scale and token names. Body ≥ 16px, meta ≥ 14px (A-12).
+
+| Role | Weight | Size (desktop / mobile) | Line height | Notes |
+|---|---|---|---|---|
+| Display (hero promise) | 400 | 48 (max 56) / 34–36 | 1.1 (48/54), tracking −0.01em | No light weight (§1.6) |
+| H1 (page title) | 400 | 40 / 30–32 | 1.15 | |
+| H2 (section) | 400 (500 optional) | 32 / 26–28 | 1.2 (32/38) | |
+| H3 / card title | 600 | 22 / 20 | 1.3 (22/28) | |
+| Body | **400** | 17 / 16–17 | 1.65 (17/28) | 60–70 characters per line; never 300 (was the A-12 problem) |
+| Lead / standfirst | 400 | 20–22 / 18–20 | 1.5 | |
+| Meta (dates, captions, tags) | 400 | 14 / 14 | 1.4 | Never below 14px; `sand-600`/`pierre-600`/`mist` on dark |
+| Buttons, form labels, nav | 600 | 16 / 16 | 1.2 | |
+| Overline / kicker (uppercase) | 600 | 12–13, tracking +0.08em | 1.3 | Caps look larger in Aleo (cap height 0.737) |
+| Italic (emphasis, quotes, titles of works) | 400 italic | as parent | as parent | True italic, never synthesised |
+| Bold in prose | 700 | as parent | | |
+| Numbers in tables | 400, `tabular-nums` | 14–16 | | |
+
+Rule summary: **400 is the floor for any text** (no 300, no italic 300); 600 for H3, buttons, nav and labels; 700 for
+bold in prose. Headings in the same family, no second typeface. H1 and Display are the same style on
+different pages (Display = home hero only).
+
+### 4.1 With the logo
+The lettering of the logo is a light sans; the slab is the voice of the site. They are never set
+together at the same scale; the logo stays in its clear space (§2).
+
+## 5. Imagery and icons (Direction A)
+
+### 5.1 Imagery options
+| Option | Pros | Cons | For this audience / Eva's means |
+|---|---|---|---|
+| **Documentary photography** (Eva, her office, details, natural light) | Trust through a real person (the positioning is first person); answers A-04 (proof) and the person-led firm; reusable for OG, GBP, cards; no stock clichés | Needs a shoot (cost, timing); weak or generic photos hurt more than none; consent and rights to manage; must be refreshed | Strongest for prospects aged 35–70 choosing a person; budget is a half-day session (§7) |
+| **Graphic motif / illustration** (derived from the logo or from Lyon) | Distinctive, ownable, no people to photograph, works at small sizes and on OG; cheap to extend | Does not show Eva (trust gap); needs a designer to draw it well; risk of looking decorative or "agency" | Good complement and good interim; lower trust yield alone |
+| **Typography only** | Zero cost, fast, very sober, strongest hierarchy; fits an expertise/publications story | Looks cold or "template" if not very well set; no face of the firm; OG images become repetitive | Fits Eva's means; needs excellent type and rhythm (A-08) |
+
+Retained for A: **documentary photography of the person (few, good) is the lead, with typography and
+paper/sand panels for everything else**. Photos do not exist yet beyond one portrait, so §6.2–6.4 define how
+the design works **without** them and what changes when they arrive. The motif option (C) is not retained.
+
+### 5.2 Rules
+- **Subjects**: Eva (portrait, working), the office (entrance, meeting room, desk), hands and documents,
+  books, Lyon stone, light. People are real and consenting.
+- **Light and framing**: natural window light, soft shadows, eye-level, shallow depth of field on people,
+  one subject per image, space for text where used as a hero (rule of thirds, 40% quiet area).
+- **Colour treatment**: natural colour, warm but not orange, no filters; one grade for the set (match the
+  paper warmth `#F6F3EC`). Photos used under type get a `darker-teal` overlay at 40–60% (or a gradient) so text stays ≥ 4.5:1.
+- **Never**: gavels, scales, Lady Justice, columns, handshakes, stacks of legal books posed as stock,
+  people pointing at laptops, suits-in-glass-offices stock, client faces or files, any photo that implies
+  results ("winning") or comparison, stock photos of "lawyers" or of offices that are not Eva's. Unsplash
+  images are **mood references only, never site assets** (spec); neither in the interim (§6.3).
+- **Single-portrait rules** (until a session): see §6.2. One photo, one place at a time; never enlarged, never
+  stretched, never cropped tighter than the original crop below, never recoloured.
+- **Alt text**: describes the content ("Eva Biezunski à son bureau, face à la fenêtre"), not "image of".
+  Decorative motifs get `alt=""`.
+
+### 5.3 Icons
+- **Keep `lucide-react`** (ISC licence, already installed, consistent family, tree-shaken).
+- **One stroke width: 1.5** at every size (today: 1.5 on cards, 2 elsewhere, which reads as inconsistent).
+  Sizes: **16** inline with text, **20** UI controls (menu, chevrons, external link), **24** contact
+  channels (phone, mail, map-pin). No icon above 24px as decoration. Colour `currentColor`; on dark
+  `mist-100`. Rounded caps and joins (lucide default). The LinkedIn glyph stays the inline brand SVG.
+- **When icons are used**: **function only** — contact channels, navigation controls, status (with text),
+  external-link and download hints. **Not** as ornament on cards: the six identical icon cards of the
+  current services section are the template look (A-08). Services get typographic numbering or a short label instead.
+- Touch targets ≥ 44 × 44 px (24px icon in a 44px hit area); icon-only buttons need an accessible name.
+
+## 6. Direction A — **Documentaire** (final)
+
+**Keywords**: personne, lumière naturelle, chaleur, confiance, calme.
+**Idea**: trust through the person. The page is a warm paper, the teal speaks in text, nav and one dark
+band, a very discreet Ambre mark. Eva appears in natural light when photos exist; **until then the page is
+typographic and calm, and the one portrait does the work of "a person".**
+Keeps: logo unchanged, teal core and `#191919`, Aleo in the roles of §4, WCAG 2.2 AA, no results claims.
+Sample copy follows the approved positioning (#66, variant A), marked « exemple »: #68 writes the final wording.
+
+### 6.1 Rules
+- **Palette**: §3. Paper `#F6F3EC`, Sand ramp, teal core, Ambre (≤ 3%), CTA `primary` `#3f5b57` with white label.
+- **Type**: §4 (display 48/54 w400, H2 32/38 w400, H3 22/28 w600, body 17/28 w400, meta 14/20 w400).
+- **Icons**: functional only (§5.3).
+- **Density / rhythm**: calm and airy, 96–120px between sections, one idea per screen. With photos: image
+  alternates left/right. Without: **panels alternate** (paper, Sand 100, one `darker-teal` band) and a
+  Sand 200 hairline separates blocks.
+- **Radius / shadow**: 8 on images and cards, soft shadow on cards only; buttons radius 4.
+
+### 6.2 The one portrait (`frontend/public/images/portrait.jpeg`, 835 × 1112)
+What it is: a studio bust on a **deep navy background**, face centred in the upper half, blue-teal textured
+jacket, black top, soft frontal light. Vertical (3:4). It was shot for LinkedIn-type use, not for a hero.
+- **Where it is used**: About (the person), OG image (§6.5), JSON-LD / Twitter (already), and **at most one
+  per page**: the About page and the foot of the home page ("Eva Biezunski, avocate" block) or the contact
+  page. **Never the home hero, never a card cover, never a background, never behind text.**
+- **Maximum display size** (so it stays sharp at 2× density): **420 CSS px wide × 560 tall** (835 px / 2). At
+  1× screens it could go to 835, but design for 420 max. **No full-bleed, no `object-fit: cover` stretch
+  into a wider box**: use the frame in the next bullet. On mobile: full width of the content column, max 390 px
+  wide, never scaled up past 100% of its natural pixels on a 2× phone (≤ 417 px).
+- **Frame**: 3:4 as is, or 4:5 crop (835 × 1044, drop the bottom 68 px), corner radius 8, no border, no shadow
+  beyond the card shadow. The navy background is dark and saturated, so it reads as **a dark panel**: pair
+  it with a `darker-teal` band or sit it as a framed object on paper with 32px clear space; do not tint
+  or colour-match the navy to the teal (no overlay, no filter, no recolour).
+- **Never**: enlarge above the max, crop to a face-only square under 835 × 835 source or to a banner
+  (3:1) crop, blur it as a background, duplicate it on the same page, use a different crop of it as "second
+  photo", put the logo on it.
+- **Alt text**: « Eva Biezunski, avocate au Barreau de Lyon ». Decorative repeats get `alt=""`.
+- **When it is replaced** (session delivered): same slot, new file.
+
+### 6.3 What replaces photos (interim rules, valid until a session happens)
+| Place | Interim |
+|---|---|
+| **Home hero** | Typographic. Paper, logo top-left, Ambre rule 64 × 3 px, display H1, sub, button + phone. **Right column: a Sand 100 panel** with a short proof block (« Barreau de Lyon », « Droit des sociétés, exercice libéral », contact line), set in type, 8px radius, no image. Becomes a text-led two-column hero, still calm. |
+| **Publication cards and article covers** | **Typographic cover**: Sand 100 panel (3:2), category in 600 caps (kicker), Ambre rule, no image. Article without cover: no placeholder photo. Replaces the current `PublicationCard.tsx` placeholder, with the same shape. |
+| **Section breaks / "about" blocks** | Sand 100 or `darker-teal` full-width band with large type (a figure or a short statement); hairline rules. |
+| **`/carte`** | `darker-teal`, dark-green logo, type only (no portrait). |
+| **Stock people, stock offices, Unsplash images** | **Not used.** The Unsplash moodboard was mood only. No phone snapshots of the office either. |
+| **Icons as decoration** | Not used (§5.3); do not fill empty image slots with icons. |
+
+### 6.4 When photos exist: what changes
+Everything in §6.3 keeps working; photos **replace panels in these slots only**, nothing else is redrawn:
+| Rule | Without photos (now) | With photos (after a session) |
+|---|---|---|
+| Home hero | Typographic, Sand 100 proof panel | Photo right (3:2 / 4:5 on mobile, from §7.2), one per page, Sand panel removed |
+| Portrait | One 420 px portrait on About | New 1600 × 2000 portrait; may appear at up to **560 px wide** and in the hero |
+| Publication covers | Typographic cover | 3:2 detail photo, or keep the typographic cover for articles with no fitting detail |
+| Imagery share (§3.3) | 0–4% | up to 12% |
+| OG image | Portrait + type (§6.5) | Same layout, new portrait |
+| Moodboard Unsplash images | not used | still not used (own photos only) |
+The design must stand without photos; photos raise the warmth, they do not carry the layout.
+
+### 6.5 OG image (1200 × 630), built from the portrait and typography
+- Left 55%: Paper `#F6F3EC`, logo `for-white-background` top-left (clear space respected, ≥ 160 px wide),
+  display line in Aleo 400 at 56/62 (« Structurer votre exercice libéral. » (exemple), max 3 lines), an Ambre
+  rule 64 × 3, then « biezunski-avocat.fr » in 600 at 24/32 `primary`.
+- Right 45%: the portrait in a **3:4 frame 420 px wide × 560 px tall** (native pixels /2, no enlargement), 8px
+  radius, vertically centred, 48 px from the right edge; navy background sits against paper like a framed
+  print. Contrast of text on paper ≥ 15:1.
+- The same template (Display left, portrait right) serves Twitter. Without the portrait (articles): left
+  column full width on Sand 100 with the article title.
+
+### 6.6 The 3 applications (ui redraws without new photos)
+1. **Hero crop** (1440 × 720), **typographic**: paper left, logo `for-white-background` top-left, Ambre rule,
+   H1 « Structurer votre exercice libéral, en accord avec votre Ordre et vos associés. » (exemple), sub « Avocate au Barreau de Lyon, j'accompagne les professionnels libéraux et les entrepreneurs, de la création de leur société aux démarches devant leur Ordre. » (exemple), button « Contacter le cabinet » + « 04 00 00 00 00 » (exemple). Right: Sand 100 proof panel (§6.3). **No portrait.**
+2. **Publication card**, typographic cover: Sand 100 3:2 panel with kicker « EXERCICE LIBÉRAL » (600 caps) and Ambre rule, title « Cession de patientèle : les points à vérifier avant de signer » (exemple), excerpt « Ce que prévoit le contrat, ce que votre Ordre examinera, et ce qu'il vaut mieux régler avant la signature. » (exemple), meta « Eva Biezunski · 20 novembre 2026 » (exemple). No photo.
+3. **Business card** (85 × 55 mm, recto and verso) **unchanged from the board** (it had no photo): verso `darker-teal` with the dark-green logo; recto paper with « Eva Biezunski », « Avocate au Barreau de Lyon », placeholders, small QR block to `/carte`, one Ambre rule.
+Plus a fourth, small: **About block** with the portrait at 420 × 560 on a `darker-teal` band next to the About text.
+
+### 6.7 Mood references (Unsplash, mood only, never site assets; credit "Photo by … on Unsplash")
+1. https://unsplash.com/photos/naL5IO2dT40 — Nathan Van Egmond: warm desk in daylight
+2. https://unsplash.com/photos/loX3-DtMSVg — Khanh Do: window with greenery and books (light, calm)
+3. https://unsplash.com/photos/4tKkBX4PvwA — Romina Mosquera: desk with lamp and book (warm, intimate)
+4. https://unsplash.com/photos/lJc44o_I1hg — X F: sunlight through a window into a dark room
+5. https://unsplash.com/photos/0Zx1bDv5BNY — WOCinTech Chat: portrait, shallow focus (framing only)
+6. https://unsplash.com/photos/PlikkWB79qs — WOCinTech Chat: seated, natural light (framing only; do not copy the posture)
+They describe the target for a future session (light, desk, window), not the interim site.
+
+
+## 7. Photography needs
+
+### 7.1 Shot list
+| Set | Shots | Notes |
+|---|---|---|
+| **Portrait** (2–3 setups) | (1) Frontal bust, neutral wall, natural light — About, OG, cards, GBP, LinkedIn; (2) **environmental** at the desk or window, reading a file, three-quarter — hero (A, once photos exist); (3) candid, listening or looking at a document, shallow depth of field | Same clothes plus one change; a square-safe crop and a vertical 4:5 for each |
+| **Office** | Entrance and door plate; meeting-room table, wide and detail; Eva's desk with the window; waiting or reception corner if any; view from a window | No client documents legible; no screens with data; ask co-tenants if shared parts appear |
+| **Details** | Hands with a pen or document (Eva's hands only); a book or code, a notebook; documents with out-of-focus text; Lyon stone or doorway near the office; light on a surface | 10–15 images; usable as card covers and section breaks |
+| **Total** | **25–30 retouched images**, plus originals | One consistent grade |
+
+### 7.2 Formats and sizes the site needs
+| Use | Ratio | Minimum size | Notes |
+|---|---|---|---|
+| Hero | 3:2 or 16:9 | 2400 px wide | quiet area for text; deliver a 4:5 crop for mobile |
+| About / portrait | 4:5 | 1600 × 2000 | replaces `portrait.jpeg` (835 × 1112) |
+| Publication cards and article covers | 3:2 | 1200 × 800 | 16:9 crops also ok |
+| Open Graph / Twitter | 1.91:1 | 1200 × 630 | text-safe centre; today the portrait is reused (A-29) |
+| Google Business Profile | 1:1 and 16:9 | 720 × 720 min; cover 1024 × 576 | verify against Google's current guidelines when uploading |
+| Business card / print | any | 300 dpi at final size (business card 85 × 55 mm, plus 3 mm bleed) | deliver full-resolution originals |
+Deliver sRGB JPEG, full resolution plus web-ready versions; keep the grade consistent.
+
+### 7.3 Rights to secure
+- **Written contract with the photographer, assigning exploitation rights** with each right, scope, place
+  and duration spelled out (French IP code art. L131-3): reproduction and communication to the public;
+  media: website, social networks (LinkedIn, Google Business Profile), print (cards, brochures), press and
+  third parties (Ordre, conferences, publishers); territory: world; duration: **at least 10 years**
+  (unlimited if the photographer accepts); modification (crop, colour grade, overlay) permitted;
+  exclusivity for these images; credit: none required on the site (state it, because moral rights remain).
+- **Image rights**: Eva signs her own release for all uses above. **No other identifiable person** in the
+  frame without a written release (employees, clients, passers-by). Premises: release from the building
+  owner or co-tenants if common areas appear.
+- **Data**: faces are personal data; keep releases and contracts with the photographer's invoice; originals
+  stored by the firm.
+- **Ethics**: nothing implying results or comparison; no client matter visible.
+
+### 7.4 Deferred plan (decision: no session for now)
+**Decision (user, 2026-11-20): no photo session now; "we'll do with the current one"** (`portrait.jpeg`,
+835 × 1112, the only photo). Acceptance for this task = needs listed (§7.1–7.3) + a plan to obtain them (this
+section, deferred with its triggers).
+- **Triggers to schedule the session** (any one): (1) #71 (home page design) needs a photo to work, which the
+  interim rules (§6.3) should avoid, so the trigger is a **ux/ui call at #71 start**; (2) Eva sets a target
+  date (e.g. before a launch or a communication push); (3) the portrait is judged too small or too studio-like
+  for a use that matters (hero, OG refresh, Google Business Profile); (4) a publication push needs card
+  covers and typographic covers look repetitive.
+- **Until then**: interim rules in §6.2–6.3 (one portrait, ≤ 420 px, no hero, typographic panels, no stock).
+- **When triggered**: who (local Lyon photographer used to liberal professionals; 2–3 quotes; portfolio with
+  natural light), format (half-day on site, portraits, then office, then details), timing (allow 2–3 weeks
+  from brief to delivery; winter light is weak: a morning near a window, or late February–March), brief
+  (this section, §5.2 "never" list, §7.2 formats).
+- **Budget range to confirm with Eva** (ux estimate from general French market ranges, not a quote): roughly
+  **500–1 200 € HT** for a half-day, 20–30 retouched images, web + print + social licence; about 250–500 € HT
+  for a portrait-only session. Get quotes first.
+- **Cheaper partial option** if the trigger is only the portrait or OG: a portrait-only session (setup 1 and
+  3 of §7.1), which also upgrades the hero for §6.4.
+- **What changes when it happens**: §6.4.
+
+
+## 8. Decisions log
+| Date | Decision | Chosen by | Reasons | What Eva changed |
+|---|---|---|---|---|
+| 2026-11-20 | **Font: Aleo** (variable roman + italic, `next/font/google` or local, §1.6) | Eva, relayed by the user | Only candidate that keeps Museo's proportions (x-height +1%, width within 3%): layouts, line lengths and card heights hold; one variable file, ~31 KB vs ~381 KB OTF; true italic; OFL 1.1, no RFN; scored 46/50 (§1.3, §1.4) | Nothing; the recommendation was kept |
+| 2026-11-20 | **Direction: A Documentaire** (palette §3, scale §4, rules §6; B and C not retained, Appendix A) | Eva, relayed by the user | Trust through the person fits the positioning (#66 variant A, first person) and the audiences choosing an avocat by person; warm paper keeps the site calm and distinct from the template look (A-08) | Chose A over ux's recommendation (B with A's portrait); the cost is that A is photo-led, handled by §6.2–6.4 |
+| 2026-11-20 | **Photography: no session for now**, use the current portrait | Eva, relayed by the user | Cost and timing; "we'll do with the current one". Deferred plan with triggers in §7.4; interim rules in §6.2–6.3 | Direction A made to work without new photos |
+| 2026-11-20 | **Museo files**: removed by #79 with the new font; no early removal; **no purge of git history** | User | Spec Question 3: removal is code work together with the font swap (§1.6); history purge not worth the disruption | |
+
+## 9. Open points
+1. **Logo artwork** (low priority, for the record): does Eva hold the vector master, and was outlining
+   Museo(-Sans) letters in the logo within the font purchase? Not blocking.
+2. **Trigger date for a photo session** (§7.4): none set; ux/ui revisit at #71 start.
+3. **Sans companion for small labels** (was a question): ux recommends no; one family, so not pursued.
+
+
+## 10. Handoff to ui — Foundations v2
+
+Everything ui needs to draw `Foundations v2` (Figcraft file `EB-Avocat.figcraft`, baseline pages not
+touched; download Aleo into your scratchpad, never into the repo). Fonts: Aleo variable roman and italic
+from https://github.com/google/fonts/tree/main/ofl/aleo (OFL 1.1). If your tool does not drive variable
+axes, instance static weights first: `uvx --from fonttools fonttools varLib.instancer "Aleo[wght].ttf" wght=600 -o Aleo-600.ttf`.
+Copy is « exemple ».
+
+### 10.1 Logo (§2)
+- Variants: `logo-for-white-background` (paper, white, sand), `logo-for-dark-green-background` (`#162729`,
+  `#264445` only; never `#3f5b57`), `logo-for-light-green-background` (only on exactly `#4a7a6f`),
+  `logo-white-for-black-background` (only over a darkened photo area), `logo-black-for-white-background` (one-colour
+  print), `favicon.svg` / `favicon-white.svg` (mark only).
+- Sizes: stacked min **96 px** (30 mm in print); mark only min **16 px** (8 mm). Clear space **1/6 of the
+  logo width** on all sides. Show the do/don't: no redraw, no recolour, no logo on `#3f5b57`, no headline
+  directly beside the lettering (§2.3, §2.4).
+
+### 10.2 Palette with roles and proportions (§3)
+- **Core**: `primary #3f5b57`, `primary-light #4a7a6f` (white-on-it only), `dark-teal #264445`, `darker-teal #162729`, `near-black #191919`, `mist-100 #E4ECEA`, `mist-300 #B9CBC7`; logo teal `#618983` shown as reference, "never text".
+- **A neutrals**: Paper `#F6F3EC`, Sand 100 `#ECE8DE`, 200 `#DAD8CC` (decorative), 400 `#7F877F` (borders, icons), 600 `#5E6B67` (muted text), 800 `#2D3A39`.
+- **Accent**: Ambre `#B07A22` (fills, rules, icons; never text), Ambre profond `#7F5413` (text, links), Ambre clair `#E3B35B` (on dark only). **Error** `#A8322D`, **Success** `#2F7D4B`.
+- **Proportions**: surfaces 60%, teal 25%, imagery 12% (0–4% now, panels fill the rest), Ambre ≤ 3% (§3.3).
+- Label each swatch with its contrast (use the §3 tables) as "AA text" / "AA large/UI" / "decorative". Focus ring: `#3f5b57` on light, `#E4ECEA` on dark.
+
+### 10.3 Type specimen and weights (§4, §1.6)
+Aleo only, weights **400, 600, 700 + italic 400** (500 optional H2). Show the role table: Display 48/54 w400
+(−0.01em), H1 40/46 w400, H2 32/38 w400, H3 22/28 w600, body 17/28 w400, lead 20/30 w400, meta 14/20 w400
+(`#5E6B67`), button 16/600, kicker 12–13/600 caps +0.08em. Include the French punctuation line (« », œ, é, U+00A0
+before : ; ? !) and the weights ladder 400/600/700. **No 300.** Show the logo beside it with clear space,
+labelled "different faces; kept apart" (§4.1).
+
+### 10.4 Imagery do/don't, single-portrait rules (§5.2, §6.2)
+- Do: portrait ≤ **420 × 560 px**, 3:4 or 4:5, radius 8, one per page, on paper or on a `darker-teal` band;
+  typographic panels (Sand 100, Ambre rule) for covers and heroes; real alt text.
+- Don't: enlarge or full-bleed the portrait; use it as a hero, card cover or background; overlay or recolour it;
+  put the logo on it; stock people, stock offices, Unsplash images as assets; icons as decoration.
+- Show one frame "now" (no photos) and one "with photos" (§6.4) side by side.
+
+### 10.5 Icons (§5.3)
+`lucide-react`, **stroke 1.5 at all sizes**, sizes **16** (inline), **20** (controls), **24** (contact), colour
+`currentColor`, `mist-100` on dark; set shown: `phone`, `mail`, `map-pin`, `arrow-right`; touch area ≥ 44 × 44;
+LinkedIn glyph stays the inline brand SVG. Functional only.
+
+### 10.6 The 3 applications, redrawn without new photos (§6.6)
+Hero (typographic, Sand 100 proof panel, no portrait), publication card (typographic cover), business card
+(unchanged), plus the About block with the portrait at 420 × 560. Also the **OG image** (§6.5, 1200 × 630,
+portrait 420 × 560 right, type left). Export updated `design/direction-a.png` and the Foundations v2 frames.
+Tell `ux` if a rule is unclear or needs a change.
+
+
+## Appendix A — Directions B and C (**not retained**, kept for the record)
+Eva chose A (§8). The three boards are in `design/` (`direction-a.png`, `direction-b.png`, `direction-c.png`,
+`moodboard.png`, `type-specimens.png`). Nothing below applies to the site.
+
+### A.1 Palettes B and C
 #### Direction B — Éditorial
 | Colour | Hex | vs `#FFFFFF` | vs `#191919` | vs `#162729` | vs paper | Role / allowed use |
 |---|---|---|---|---|---|---|
@@ -271,113 +570,7 @@ icon, a text message and a border, not a colour alone.
 Risk: Beaujolais (wine) is in the same red family as the error. Same rule as B; the accent never marks a
 status. `primary-light` text on Pierre 50 is 4.18: use `primary`.
 
-### 3.3 Proportions (of visible area on a typical page)
-| Direction | Surfaces (white, paper, tints) | Teal (text, bands, nav, footer) | Imagery / motif | Accent |
-|---|---|---|---|---|
-| A Documentaire | 60% | 25% | 12% (photos) | **≤ 3%** (links, one rule, tiny marks); CTA stays `primary` teal |
-| B Éditorial | 65% | 25% (mostly text in `near-black` / `primary`) | 3% (rare photo) | **≤ 7%** (CTA, rules, pull-quote marks, drop element) |
-| C Lyon & matière | 55% | 30% | 12% (motif) | Beaujolais **≤ 3%**; ochre is motif only, ≤ 5% inside the motif |
-
-Rules for all: one accent per page region; no accent text below 4.5:1 **on the surface it sits on**: the
-"vs paper" columns above do not hold on the 100 tints (Terre cuite on Sand 100 = 4.28; Success on Sand 100 =
-4.13 (A) / 4.38 (B), on Pierre 100 = 4.26 (C)), so accent, success and error text go on paper or white only,
-and on tinted sections use `primary` (≥ 5.6) or the darker accent variant (Ambre profond on Sand 100 = 5.40); no colour as the only carrier of
-meaning (links stay underlined, status has icon + text); tinted section backgrounds alternate with white,
-not with each other; avoid more than one dark band between two light ones.
-
-## 4. Typography role (recommended font: Aleo, variable)
-
-Sizes are a starting point for the specimens; the type scale is #70's. Body ≥ 16px, meta ≥ 14px (A-12).
-
-| Role | Weight | Size (desktop / mobile) | Line height | Notes |
-|---|---|---|---|---|
-| Display (hero promise) | **300 allowed** (≥ 40px only), or 400 | 48–64 / 34–40 | 1.1 | Light weight only here (thin strokes survive at this size) |
-| H1 (page title) | 400 | 40–48 / 30–34 | 1.15 | |
-| H2 (section) | 400, or 500 | 30–36 / 26–28 | 1.2 | |
-| H3 / card title | 600 | 20–24 / 20 | 1.3 | |
-| Body | **400** | 17–18 / 16–17 | 1.6–1.7 | 60–70 characters per line; never 300 (was the A-12 problem) |
-| Lead / standfirst | 400 (300 only if ≥ 40px) | 20–24 / 18–20 | 1.5 | |
-| Meta (dates, captions, tags) | 400 | 14 / 14 | 1.4 | Never below 14px; `sand-600`/`pierre-600`/`mist` on dark |
-| Buttons, form labels, nav | 600 | 16 / 16 | 1.2 | |
-| Overline / kicker (uppercase) | 600 | 12–13, tracking +0.08em | 1.3 | Caps look larger in Aleo (cap height 0.737) |
-| Italic (emphasis, quotes, titles of works) | 400 italic; 300 italic only ≥ 28px | as parent | as parent | True italic, never synthesised |
-| Bold in prose | 700 | as parent | | |
-| Numbers in tables | 400, `tabular-nums` | 14–16 | | |
-
-Rule summary: **300 only at ≥ 40px (display) or ≥ 28px italic pull quotes**; 400 is the floor for any text
-under 28px. No weight below 400 in the back-office. Headings in the same family, no second typeface.
-
-### 4.1 With the logo
-The lettering of the logo is a light sans; the slab is the voice of the site. They are never set
-together at the same scale; the logo stays in its clear space (§2).
-
-## 5. Imagery and icons
-
-### 5.1 Imagery options
-| Option | Pros | Cons | For this audience / Eva's means |
-|---|---|---|---|
-| **Documentary photography** (Eva, her office, details, natural light) | Trust through a real person (the positioning is first person); answers A-04 (proof) and the person-led firm; reusable for OG, GBP, cards; no stock clichés | Needs a shoot (cost, timing); weak or generic photos hurt more than none; consent and rights to manage; must be refreshed | Strongest for prospects aged 35–70 choosing a person; budget is a half-day session (§7) |
-| **Graphic motif / illustration** (derived from the logo or from Lyon) | Distinctive, ownable, no people to photograph, works at small sizes and on OG; cheap to extend | Does not show Eva (trust gap); needs a designer to draw it well; risk of looking decorative or "agency" | Good complement and good interim; lower trust yield alone |
-| **Typography only** | Zero cost, fast, very sober, strongest hierarchy; fits an expertise/publications story | Looks cold or "template" if not very well set; no face of the firm; OG images become repetitive | Fits Eva's means; needs excellent type and rhythm (A-08) |
-
-Recommended combination: **photography for the person (few, good), motif or typography for everything
-else**; a direction picks the lead.
-
-### 5.2 Rules (all directions)
-- **Subjects**: Eva (portrait, working), the office (entrance, meeting room, desk), hands and documents,
-  books, Lyon stone, light. People are real and consenting.
-- **Light and framing**: natural window light, soft shadows, eye-level, shallow depth of field on people,
-  one subject per image, space for text where used as a hero (rule of thirds, 40% quiet area).
-- **Colour treatment**: natural colour, warm but not orange, no filters; one grade for the set (match the
-  paper warmth of the direction). B may use a desaturated, slightly warm grade for archive-like details.
-  Photos used under type get a `darker-teal` overlay at 40–60% (or a gradient) so text stays ≥ 4.5:1.
-- **Never**: gavels, scales, Lady Justice, columns, handshakes, stacks of legal books posed as stock,
-  people pointing at laptops, suits-in-glass-offices stock, client faces or files, any photo that implies
-  results ("winning") or comparison, stock photos of "lawyers" or of offices that are not Eva's. Unsplash
-  images are **mood references only, never site assets** (spec).
-- **Alt text**: describes the content ("Eva Biezunski à son bureau, face à la fenêtre"), not "image of".
-  Decorative motifs get `alt=""`.
-
-### 5.3 Icons
-- **Keep `lucide-react`** (ISC licence, already installed, consistent family, tree-shaken).
-- **One stroke width: 1.5** at every size (today: 1.5 on cards, 2 elsewhere, which reads as inconsistent).
-  Sizes: **16** inline with text, **20** UI controls (menu, chevrons, external link), **24** contact
-  channels (phone, mail, map-pin). No icon above 24px as decoration. Colour `currentColor`; on dark
-  `mist-100`. Rounded caps and joins (lucide default). The LinkedIn glyph stays the inline brand SVG.
-- **When icons are used**: **function only** — contact channels, navigation controls, status (with text),
-  external-link and download hints. **Not** as ornament on cards: the six identical icon cards of the
-  current services section are the template look (A-08). Services get typographic numbering, a short label
-  or the direction's motif instead.
-- Touch targets ≥ 44 × 44 px (24px icon in a 44px hit area); icon-only buttons need an accessible name.
-
-## 6. Directions
-
-All three keep: logo unchanged, teal core and `#191919`, Aleo (or the chosen font) in the roles of §4,
-WCAG 2.2 AA, no results claims. Sample copy follows the approved positioning (#66, variant A) and is marked
-« exemple »: the hero promise candidate is from #66, #68 writes the final wording.
-
-### Direction A — **Documentaire**
-**Keywords**: personne, lumière naturelle, chaleur, confiance, calme.
-**Idea**: trust through the person. Eva and her office in natural light; the page is a warm paper, the
-teal speaks only in text, nav and one dark band; a very discreet ambre mark.
-- **Palette**: §3.2 A. Paper `#F6F3EC`, Sand ramp, teal core, Ambre (≤ 3%), CTA `primary` `#3f5b57` with white label.
-- **Type use**: Aleo 400 display 48/54 (hero), H2 32/38 w400, H3 22/28 w600, body 17/28 w400, meta 14/20 w400.
-  Light 300 only on a 56px hero line if wanted.
-- **Imagery**: documentary photography, 3:2 and 4:5, natural grade; one hero image per page at most.
-- **Icons**: functional only (contact, nav).
-- **Density / rhythm**: calm and airy, 96–120px between sections, one idea per screen, photo alternates left/right.
-- **Moodboard references** (Unsplash, mood only; credits as "Photo by … on Unsplash"):
-  1. https://unsplash.com/photos/naL5IO2dT40 — Nathan Van Egmond: warm desk in daylight
-  2. https://unsplash.com/photos/loX3-DtMSVg — Khanh Do: window with greenery and books (light, calm)
-  3. https://unsplash.com/photos/4tKkBX4PvwA — Romina Mosquera: desk with lamp and book (warm, intimate)
-  4. https://unsplash.com/photos/lJc44o_I1hg — X F: sunlight through a window into a dark room (light and shadow)
-  5. https://unsplash.com/photos/0Zx1bDv5BNY — WOCinTech Chat: portrait with shallow focus (framing only)
-  6. https://unsplash.com/photos/PlikkWB79qs — WOCinTech Chat: seated, smiling, natural light (framing only; stock-like, do not copy the posture)
-- **3 applications** (ui draws):
-  1. **Hero crop** (1440 × 720): paper left, portrait of Eva right (use `portrait.jpeg` as a placeholder on the board only, or a mood crop; on the site it is never a hero, §7.4), logo `for-white-background` top-left. Copy: H1 « Structurer votre exercice libéral, en accord avec votre Ordre et vos associés. » (exemple). Sub: « Avocate au Barreau de Lyon, j'accompagne les professionnels libéraux et les entrepreneurs, de la création de leur société aux démarches devant leur Ordre. » (exemple). Button « Contacter le cabinet » + « 04 00 00 00 00 » (exemple, placeholder number).
-  2. **Publication card** (3:2 photo of a desk detail, category chip « Exercice libéral », title « Cession de patientèle : les points à vérifier avant de signer » (exemple), excerpt « Ce que prévoit le contrat, ce que votre Ordre examinera, et ce qu'il vaut mieux régler avant la signature. » (exemple), meta « Eva Biezunski · 20 novembre 2026 » (exemple)).
-  3. **Business card** (85 × 55 mm, recto and verso): verso `darker-teal` with the dark-green logo; recto paper with « Eva Biezunski », « Avocate au Barreau de Lyon », « [adresse du cabinet] · 04 00 00 00 00 · contact@… » (exemple placeholders), a small QR block (to `/carte`), one Ambre rule.
-
+### A.2 Directions B and C
 ### Direction B — **Éditorial**
 **Keywords**: expertise, rigueur, typographie, publications, sobriété.
 **Idea**: trust through expertise. A print-like hierarchy (kicker, display, standfirst, rule), generous
@@ -442,169 +635,3 @@ tones; photography minimal; a deep wine accent.
 Recommendation from ux: **B Éditorial as the base, with the person from A** (one good portrait) and the
 motif of C reserved for OG and `/carte`; it matches the strongest KPI path (publications → trust → contact,
 J2) and does not wait for a shoot. This is a recommendation, not a decision: the three boards decide.
-
-## 7. Photography needs
-
-### 7.1 Shot list
-| Set | Shots | Notes |
-|---|---|---|
-| **Portrait** (2–3 setups) | (1) Frontal bust, neutral wall, natural light — About, OG, cards, GBP, LinkedIn; (2) **environmental** at the desk or window, reading a file, three-quarter — hero (direction A); (3) candid, listening or looking at a document, shallow depth of field | Same clothes plus one change; a square-safe crop and a vertical 4:5 for each |
-| **Office** | Entrance and door plate; meeting-room table, wide and detail; Eva's desk with the window; waiting or reception corner if any; view from a window | No client documents legible; no screens with data; ask co-tenants if shared parts appear |
-| **Details** | Hands with a pen or document (Eva's hands only); a book or code, a notebook; documents with out-of-focus text; Lyon stone or doorway near the office; light on a surface | 10–15 images; usable as card covers and section breaks |
-| **Total** | **25–30 retouched images**, plus originals | One consistent grade |
-
-### 7.2 Formats and sizes the site needs
-| Use | Ratio | Minimum size | Notes |
-|---|---|---|---|
-| Hero | 3:2 or 16:9 | 2400 px wide | quiet area for text; deliver a 4:5 crop for mobile |
-| About / portrait | 4:5 | 1600 × 2000 | replaces `portrait.jpeg` (835 × 1112) |
-| Publication cards and article covers | 3:2 | 1200 × 800 | 16:9 crops also ok |
-| Open Graph / Twitter | 1.91:1 | 1200 × 630 | text-safe centre; today the portrait is reused (A-29) |
-| Google Business Profile | 1:1 and 16:9 | 720 × 720 min; cover 1024 × 576 | verify against Google's current guidelines when uploading |
-| Business card / print | any | 300 dpi at final size (business card 85 × 55 mm, plus 3 mm bleed) | deliver full-resolution originals |
-Deliver sRGB JPEG, full resolution plus web-ready versions; keep the grade consistent.
-
-### 7.3 Rights to secure
-- **Written contract with the photographer, assigning exploitation rights** with each right, scope, place
-  and duration spelled out (French IP code art. L131-3): reproduction and communication to the public;
-  media: website, social networks (LinkedIn, Google Business Profile), print (cards, brochures), press and
-  third parties (Ordre, conferences, publishers); territory: world; duration: **at least 10 years**
-  (unlimited if the photographer accepts); modification (crop, colour grade, overlay) permitted;
-  exclusivity for these images; credit: none required on the site (state it, because moral rights remain).
-- **Image rights**: Eva signs her own release for all uses above. **No other identifiable person** in the
-  frame without a written release (employees, clients, passers-by). Premises: release from the building
-  owner or co-tenants if common areas appear.
-- **Data**: faces are personal data; keep releases and contracts with the photographer's invoice; originals
-  stored by the firm.
-- **Ethics**: nothing implying results or comparison; no client matter visible.
-
-### 7.4 Plan to get them (to confirm with Eva)
-- **Who**: a local photographer in Lyon used to portraits of liberal professionals; 2–3 quotes; check
-  portfolio for natural light and for lawyers/doctors rather than studio headshots.
-- **When**: shoot **before #71 (home page design)** starts if direction A is chosen; for B or C the shoot can
-  follow the design and is not blocking. Winter light in Lyon is weak: plan a morning shoot near a window,
-  or accept a small light kit, or schedule late February–March. Allow 2–3 weeks from brief to delivery
-  (selection, shoot, retouching).
-- **Format**: one **half-day** on site (about 3–4 hours): portraits first, then office, then details.
-- **Budget range to confirm with Eva** (ux estimate from general French market ranges, not a quote):
-  roughly **500–1 200 € HT** for a half-day with 20–30 retouched images and a web, print and social
-  licence; lower for a portrait-only session (about 250–500 € HT). Get quotes before committing.
-- **Brief to give the photographer**: this section, the direction board, three references, the "never"
-  list (§5.2), the formats (§7.2).
-- **Interim plan** (until the photos exist): keep `portrait.jpeg` for About and OG only, never enlarged as a
-  hero; build the first designs on direction B or C (typography and motif), which do not need photos; no
-  stock people and no stock office photos; for cards and covers use the motif or typography (no phone
-  snapshots of the office for hero use). Replace images once the session is delivered; the design must
-  not depend on a specific photo to work.
-
-## 8. Decisions log
-_Filled in task 3, after Eva's choice. Leave empty until then._
-
-| Date | Decision | Chosen by | Reasons | What Eva changed |
-|---|---|---|---|---|
-| | Font | | | |
-| | Direction | | | |
-| | Photography (session yes/no, budget, timing) | | | |
-| | Museo files (remove now or with #79, purge history) | | | |
-
-## 9. Open questions for Eva (to lead; the team does not ask the user)
-1. **Font**: Aleo recommended (runner-up Bitter). Eva should see the `Type` board with the logo before
-   choosing; she should know the logo lettering will not match any slab, as with Museo today.
-2. **Logo lettering is a sans**: is a sans companion (for UI and small labels only) worth discussing? ux
-   recommendation: no, one family; asked only so the question is on the record.
-3. **Direction**: A, B or C (ux recommendation: B as the base with one good portrait, C's motif for OG and
-   `/carte`). What would she change?
-4. **Photography**: is a photo session acceptable (budget 500–1 200 € HT to confirm), when, does she have
-   office photos already, may a photographer enter the office, and can neighbours/co-tenants appear?
-5. **Museo files in the repo** (spec Q3): remove the OTFs now or with #79; purge from git history or not.
-6. **Logo artwork**: does Eva hold the vector master, and does she know if outlining Museo letters in the
-   logo was covered by the font purchase? (low risk, for the record).
-
-## 10. Handoff to ui
-
-Everything ui needs to draw the `Type`, `Moodboard` and `Directions` pages. The Figcraft file stays
-`~/Library/CloudStorage/GoogleDrive-…/EB-Avocat.figcraft`; baseline pages are not touched. Download fonts
-into your scratchpad, never into the repo.
-
-### 10.1 `Type` board: candidates, downloads, copy
-Candidates, left to right, with **Museo as the reference line** (local files in the repo, not for
-publication): `frontend/public/fonts/Museo300-Regular.otf`, `…500…`, `…700…`.
-
-| Font | Download (Google Fonts repo, raw files) | Foundry / source | Weights to set |
-|---|---|---|---|
-| **Aleo** (recommended) | https://github.com/google/fonts/raw/main/ofl/aleo/Aleo%5Bwght%5D.ttf and https://github.com/google/fonts/raw/main/ofl/aleo/Aleo-Italic%5Bwght%5D.ttf (page: https://fonts.google.com/specimen/Aleo) | https://github.com/AlessioLaiso/aleo | variable: show 300, 350, 400, 600, 700 and italic 400 |
-| **Bitter** | https://github.com/google/fonts/raw/main/ofl/bitter/Bitter%5Bwght%5D.ttf and https://github.com/google/fonts/raw/main/ofl/bitter/Bitter-Italic%5Bwght%5D.ttf (page: https://fonts.google.com/specimen/Bitter) | https://github.com/solmatas/BitterPro | variable: 300, 400, 600, 700 and italic 400 |
-| **Zilla Slab** | https://github.com/google/fonts/tree/main/ofl/zillaslab (files `ZillaSlab-Light.ttf`, `-Regular`, `-Medium`, `-SemiBold`, `-Bold`, `-Italic`) (page: https://fonts.google.com/specimen/Zilla+Slab) | https://github.com/mozilla/zilla-slab | 300, 400, 500, 600, 700 and Italic |
-| Museo (reference) | repo files above | exljbris (not free) | 300, 500, 700 |
-
-If your tool does not drive variable axes, instance static weights first (example, in a scratchpad):
-`uvx --from fonttools fonttools varLib.instancer "Aleo[wght].ttf" wght=350 -o Aleo-350.ttf` (repeat per
-weight). Aleo 350 is the weight that matches Museo 300's stem thickness.
-
-**Specimen copy** (same for every font; each at **16px body** and display sizes; lay the logo
-`logo-for-white-background` at the top-left of the board, with clear space):
-- **Hero promise** (display, 56px, then 40px): « Structurer votre exercice libéral, en accord avec votre Ordre et vos associés. » (exemple)
-- **À propos paragraph** (16px/26 and 18px/30), adapted from `ABOUT` and #66 variant A, not verbatim from `constants.ts` (exemple): « Avocate au Barreau de Lyon, j'aide les professionnels libéraux et les entrepreneurs à structurer leur activité : choix de la société, statuts, contrats, opérations sur leur clientèle ou patientèle. J'anticipe dès la création les ambitions de chacun et je traite en amont les points de friction entre associés. »
-- **Publication title** (32px) and **body with italics** (17px/28): title « Cession de patientèle : les points à vérifier avant de signer » (exemple). Body (exemple): « Avant toute signature, le contrat doit tenir compte de la *déontologie* de votre profession et du contrôle de votre Ordre. Il faut aussi anticiper le départ d'un associé, *avant* que la question ne se pose, et prévoir comment la clientèle sera présentée. »
-- **Button** (16px, 600): « Contacter le cabinet » and « Enregistrer le contact »
-- **French punctuation line** (24px): « Œuvres, cœur, être, où ? — d'accord ; l'Ordre » ’ « guillemets » : à é è ê ë ç î ô û ù, Ç É À, œ Œ, 1 250 € (with no-break spaces before : ; ? ! » and after «).
-- **Weights ladder** (one line each, 24px): « Avocate au Barreau de Lyon » at each weight listed above.
-- **Small sizes**: meta line at 14px: « Eva Biezunski · 20 novembre 2026 · Exercice libéral » (exemple).
-- Annotate under each candidate: x-height (Aleo 0.507, Bitter 0.522, Zilla 0.445, Museo 0.500 em) and
-  WOFF2 size (§1.3). Export `design/type-specimens.png`.
-
-### 10.2 `Moodboard` board
-Group the references by theme and credit each as "Photo by NAME on Unsplash" with its link. Mood only,
-never site assets.
-- **Light**: naL5IO2dT40, loX3-DtMSVg, 4tKkBX4PvwA, lJc44o_I1hg
-- **Material**: XFWiZTa2Ub0 (parchment), qv05FvdE26k (recycled paper), vS3idIiYxX0 (watercolour paper), 9wqYOKC7oBg (newspapers)
-- **Books**: KNfj7yDVMF0, aT88kga0g_M, _YzGQvASeMk
-- **Place (Lyon)**: EdRc5_g-qxo, L-MO5D0NUr0
-- **People (framing only)**: 0Zx1bDv5BNY, PlikkWB79qs
-- **Type and colour**: the three palettes of §3.2 as swatches next to the logo; no extra images needed.
-Page URLs are `https://unsplash.com/photos/<id>`; photographers: Nathan Van Egmond (naL5IO2dT40), Khanh Do
-(loX3-DtMSVg), Romina Mosquera (4tKkBX4PvwA), X F (lJc44o_I1hg), SJ Objio (XFWiZTa2Ub0), Kiwihug
-(qv05FvdE26k), Olga Thelavart (vS3idIiYxX0), T (9wqYOKC7oBg), Prateek Katyal (KNfj7yDVMF0, _YzGQvASeMk),
-Peter Herrmann (aT88kga0g_M), Kristina Bekher (EdRc5_g-qxo), Lucas Gallone (L-MO5D0NUr0), WOCinTech Chat
-(0Zx1bDv5BNY, PlikkWB79qs). Use Unsplash's own image URLs (`urls.regular`) to place them; the image IDs
-resolve at `https://unsplash.com/photos/<id>/download`.
-
-### 10.3 `Directions` board: one frame per direction, same structure
-Each frame: **name + keywords on top**; **palette with proportions** (bar of the §3.3 split + swatches with
-hex and the three contrast values: use the tables of §3.2 and the core of §3.1, labelled "AA text" /
-"AA large/UI" / "decorative"); **type specimen in Aleo** (display, H2, H3, body, meta, a button); **imagery
-sample** (2 reference crops or the motif); **icon sample** (4 lucide icons at 24px, stroke 1.5: `phone`,
-`mail`, `map-pin`, `arrow-right`, in the direction's tint); then the **3 applications**. Same frame size
-(1600 wide) so they compare side by side. Export `design/direction-a.png`, `direction-b.png`,
-`direction-c.png`.
-
-Per direction, specimens (Aleo; all text `#191919` unless noted):
-
-| | A Documentaire | B Éditorial | C Lyon & matière |
-|---|---|---|---|
-| Page bg | `#F6F3EC` | `#F8F5EF` | `#F3EDE0` |
-| Tint / hairline | `#ECE8DE` / `#DAD8CC` | `#EFEBE2` / `#DEDACF` | `#E9E0CC` / `#D5CAB0` |
-| UI border / muted text | `#7F877F` / `#5E6B67` | `#7F8680` / `#5B6663` | `#85806D` / `#625E50` |
-| Strong alt. text | `#2D3A39` | `#2A3534` | `#2E332F` |
-| Accent / text variant / on dark | `#B07A22` / `#7F5413` / `#E3B35B` | `#B4502D` / (same) / `#E8A184` | `#8C3447` / (same) / `#E2A2AE` |
-| Motif only | — | — | `#C8982F` |
-| Error / success | `#A8322D` / `#2F7D4B` | `#8F1D2C` / `#2D7A55` | `#B3361C` / `#2A7550` |
-| Core | `#3f5b57`, `#4a7a6f`, `#264445`, `#162729`, `#191919`, `mist-100 #E4ECEA`, `mist-300 #B9CBC7` | same | same |
-| Display | Aleo 400, 48/54, −0.01em | Aleo 300, 64/66 | Aleo 500, 52/56 |
-| H2 | 32/38, 400 | 36/42, 400 | 32/38, 500 |
-| H3 | 22/28, 600 | 24/30, 600 | 22/28, 600 |
-| Body | 17/28, 400 | 18/30, 400 | 17/28, 400 |
-| Kicker / meta | meta 14/20, 400 | kicker 13, 600, caps, +0.08em; meta 14 | meta 14/20, 400 |
-| Button | `#3f5b57` fill, white label 16/600, radius 4 | `#B4502D` fill, white label 16/600, radius 2 | `#3f5b57` fill (or `#8C3447`), white label 16/600, radius 4 |
-| Radius / shadow | 8 on images, soft shadow | 0–2, none, hairlines | 4, none, panels |
-| Imagery | photography 3:2, 4:5 | typography, rare portrait | motif + texture |
-
-The 3 applications per direction, with their sample copy, are in §6 (hero crop, publication card, and the
-third item: A business card, B OG image, C `/carte` screen). Copy is « exemple »: keep the label small on the
-board ("exemple"). Use the real logo files from `frontend/public/images`; the portrait placeholder is
-`frontend/public/images/portrait.jpeg`.
-
-### 10.4 Sizes for the exports
-`design/type-specimens.png`, `moodboard.png`, `direction-a.png`, `direction-b.png`, `direction-c.png` at 1×
-or 2× so they read in a GitHub issue (≈ 1600 px wide minimum). Tell `ux` if any rule here is unclear or
-needs a change: ux messages ui on any rule change during task 3.
