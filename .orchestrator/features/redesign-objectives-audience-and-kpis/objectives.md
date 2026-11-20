@@ -61,11 +61,10 @@ votre Ordre et vos associés. » — B-style alternative: « Avocate des profess
 création de votre société aux démarches devant votre Ordre. » #68 writes the final wording;
 acronyms in B must be glossed on first use (#68 rule).
 
-**Proof to ask Eva** (none of this is invented here): year of oath / years of practice; professions
-actually served (santé? droit? chiffre? which ones first); number or share of clients, if she wants
-to publish it; trainings given (organisers, audiences); memberships, mandates, diplomas; testimonials
-with written consent; whether the Google rating may be shown; first-meeting format, response time
-and fee information she accepts to state.
+**Proof to ask Eva** (none of this is invented here; #68 owns the collection list, consent and
+deadlines): year of oath / years of practice; professions actually served (santé? droit? chiffre?
+which first); trainings given (organisers, audiences); memberships, mandates, diplomas; plus the
+#68 proof layer (testimonials with consent, Google rating, figures, first-meeting/delay/fee info).
 
 ## 4. Primary conversion and CTA (A-05)
 
@@ -91,61 +90,76 @@ a privacy-policy update.
 
 ## 5. KPIs
 
-Window: calendar month (Europe/Paris) unless stated. "Article" = `/publications/<slug>`.
+Window: calendar month (Europe/Paris) unless stated. "Article" = `/publications/<slug>`. Target ↑
+unless noted. "Pre-launch window" = the dependency below. `location` = the enum of §6.
 
 | # | KPI | Definition (counting rule) | Source | Baseline | Target | Owner |
 |---|---|---|---|---|---|---|
-| K1 | Contact requests / month | Form: POST `/api/contact` that returns `ok: true` **and** sent the email (honeypot drops excluded). Plus calls and emails from new people that Eva logs (count only) | Server-side counter (§6); Eva's monthly count | Form: count Brevo emails with subject starting "Contact site —" in Eva's inbox, last 6–12 months. Calls/emails: ask Eva, else unknown, measure from launch | ↑ | #80 (counter), #83, #86 |
-| K2 | tel / mailto clicks | Clicks on a `tel:` link to `CONTACT.phone` or a `mailto:` link to `CONTACT.email` (not privacy@vercel.com, the médiateur, etc.), by `location` (event plan enum); 1 per click | Vercel custom events | Unknown, measure ≥ 4 weeks before launch. GBP "calls" as partial proxy | ↑ | #80, #83 |
-| K3 | Contact-CTA clicks | Clicks on the primary contact CTA, by `location` | Vercel custom events | Hero "Prendre rendez-vous" today: unknown, measure before launch | ↑ | #80 |
-| K4 | Publication reads | Page views of article pages; "engaged read" = `article_read_end` (end-of-body sentinel visible), once per page view | Vercel Web Analytics (+ custom event) | Page views: from Analytics once enabled (≥ 4 weeks pre-launch). Engaged: unknown, measure from launch | ↑ | #80, #73 |
-| K5 | Reads → contact | (a) K1 form requests with `origin` = an article path; (b) `contact_cta_click` with `location=article` / article page views | Server counter + custom events | 0 by construction today (no article CTA, A-09); measure from launch | ↑ (a) count, (b) rate | #73, #80, #83 |
-| K6 | `/carte` visits | Page views of `/carte` (mobile only today: desktop UA is redirected, A-11) | Vercel Web Analytics | Measure ≥ 4 weeks before launch | → / ↑ (depends on cards handed out) | #80 |
-| K7 | vCard saves | Successful GET `/carte/vcard` (200), 1 per request (the route must run per request, not be prerendered or CDN-cached: #80 checks the build output and forces it dynamic if needed) | Server-side counter | Unknown, measure before launch (needs the counter) | ↑ as share of K6 | #80 |
-| K8 | Review-link clicks | Clicks on `REVIEW_URL` links, by `location`. Proxy: GBP review count per month | Custom events; GBP | GBP: current review count (Eva) | ↑ | #80 |
-| K9 | Search | Impressions, clicks, average position, monthly, split: brand queries (contain "biezunski") vs domaine queries (SEL, SCM, patientèle, Ordre, contentieux ordinal, "avocat … Lyon") | Search Console | Export 16 months of history if the property exists; else create it now (unknown until then) | Brand ≥ baseline (SEO protected); domaine ↑ | #78, #86 |
-| K10 | Core Web Vitals | LCP, INP, CLS at p75, mobile and desktop, 28-day field data | Vercel Speed Insights | Lighthouse + CrUX snapshot of `/`, one article, `/carte` now (CrUX may lack data for a small site); Speed Insights ≥ 4 weeks pre-launch | Within #77 budgets, no regression | #77, #86 |
-| K11 | GBP actions | Calls, website clicks, direction requests, monthly | Google Business Profile insights | Export last 6 months now (Eva) | ↑ | #86 |
+| K1 | Contact requests / month | Form: POST `/api/contact` that returns `ok: true` **and** sent the email (honeypot drops excluded). Plus calls and emails from new people that Eva logs (count only) | Server counter (§6); Eva's monthly count | Form: count the Brevo emails carrying the subject prefix of `buildBrevoPayload` (`lib/contact.ts`, today « Contact site — ») in Eva's inbox, last 6–12 months. Calls/emails: ask Eva, else unknown, measure from launch | ↑ | #80 (counter), #83, #86 |
+| K2 | tel / mailto clicks | `link_click` with `kind` = tel \| mailto, i.e. links to `CONTACT.phone` / `CONTACT.email` only (other addresses carry no `data-track`), by `location`; 1 per click | `link_click` (§6) | Pre-launch window. Partial proxy: GBP calls (K11) | ↑ | #80 |
+| K3 | Contact-CTA clicks | `link_click` with `kind=contact_cta`, by `location` | `link_click` | Pre-launch window (hero « Prendre rendez-vous » today) | ↑ | #80 |
+| K4 | Publication reads | Page views of article pages; "engaged read" = `article_read_end` (end-of-body sentinel visible), once per page view | Vercel Web Analytics (+ custom event) | Page views: pre-launch window. Engaged: unknown, measure from launch (sentinel comes with #73) | ↑ | #80, #73 |
+| K5 | Reads → contact | (a) K1 form requests whose `origin` is an article path; (b) `link_click` `kind=contact_cta`, `location=article` / article page views | Server counter; `link_click` | 0 by construction today (no article CTA, A-09); measure from launch | ↑ (a) count, (b) rate | #73, #80 |
+| K6 | `/carte` visits | Page views of `/carte` (mobile only today: desktop UA is redirected, A-11) | Vercel Web Analytics | Pre-launch window | → / ↑ (depends on cards handed out) | #80 |
+| K7 | vCard saves | Successful GET `/carte/vcard` (200), 1 per request (the route must run per request, not be prerendered or CDN-cached: #80 checks the build output and forces it dynamic if needed) | Server counter | Pre-launch window (needs the counter) | ↑ as share of K6 | #80 |
+| K8 | Review-link clicks | `link_click` with `kind=review`, by `location`. Proxy: GBP review count | `link_click`; GBP | GBP: current review count (Eva) | ↑ | #80 |
+| K9 | Search | Impressions, clicks, average position, monthly, split: brand queries (contain "biezunski") vs domaine queries (SEL, SCM, patientèle, Ordre, contentieux ordinal, "avocat … Lyon") | Search Console | 16 months of history if the property exists; else create it now (unknown until then) | Brand ≥ baseline (SEO protected); domaine ↑ | #78, #86 |
+| K10 | Core Web Vitals | LCP, INP, CLS at p75, mobile and desktop, 28-day field data | Vercel Speed Insights | Lighthouse + CrUX snapshot of `/`, one article, `/carte` now (CrUX may lack data for a small site); Speed Insights over the pre-launch window | Within #77 budgets, no regression | #77, #86 |
+| K11 | GBP actions | Calls, website clicks, direction requests, monthly | Google Business Profile insights | Last 6 months (Eva) | ↑ | #86 |
 
-**Pre-launch measurement (dependency):** the redesign must not launch before **≥ 4 full weeks** of
-K1, K4 (page views), K6, K7, K10, plus K2 and K3 on Pro (custom events; on Hobby they do not exist,
-see the fallback below), on the current site. The tracking part of #80 (analytics, counters, events on the
-current components) must therefore ship first, ahead of the redesign; recommended as its own small
-issue blocking #86 (lead to decide). Reports at launch +1 and +3 months compare with that window (#86).
+**Pre-launch window (dependency, stated only here):** the redesign must not launch before **≥ 4
+full weeks** of K1–K4 (K4 page views only), K6, K7 and K10 on the current site. These work on any
+Vercel plan (§6). So the tracking part of #80 (analytics, counter, `data-track` on the current
+components, policy edits) must ship first, ahead of the redesign. Recommended as its own small issue
+blocking #86 (lead to decide). The +1 and +3 month reports (#86) compare with this window.
+
+**Reporting cadence:** one monthly row (Vercel figures + server counter + Eva's count) in a single
+place on the epic. Search Console and GBP keep 16+ months of history, so they are pulled only for the
+baseline and the +1 / +3 month reports.
 
 ## 6. Measurement approach
 
 **Tools** (existing vendors only, no cookie):
 
-| Tool | Measures | Notes |
-|---|---|---|
-| Vercel Web Analytics | Page views (K4, K6), custom events (K2, K3, K5b, K8) | First-party script path, no cookie; visitor hash salted daily, not stored. Custom events need **Pro** |
-| Vercel Speed Insights | K10 | Field data, no cookie |
-| Server-side counter | K1, K5a, K7 | Counted in our own code, immune to ad blockers. Proposed: daily aggregate rows (date, event, origin path) in the Django backend (UUID pk), written by `/api/contact` after a successful send and by `/carte/vcard`. No personal data |
-| Brevo | K1 cross-check | Add a tag (e.g. `contact-site`) to the transactional email; compare Brevo's monthly count with the counter |
-| Search Console, GBP | K9, K11 | No code on the site; Eva or Guillaume exports monthly |
+| Tool | Notes |
+|---|---|
+| Vercel Web Analytics | Page views; custom events on **Pro** only. First-party script path, no cookie; visitor hash salted daily, not stored |
+| Vercel Speed Insights | Field data, no cookie |
+| Server counter | Counted in our own code, immune to ad blockers and independent of the plan. Proposed: daily aggregate rows (date, event, `kind`, `location` or `origin` path) in the Django backend (UUID pk), no personal data. Written with `after()` (`next/server`) so the write never delays or fails the response of `/api/contact` or `/carte/vcard` |
+| Brevo | Cross-check of K1: add a tag (e.g. `contact-site`) to the transactional email and compare Brevo's monthly count with the counter |
+| Search Console, GBP | No code on the site |
 
-**Event plan** (#80 implements). Property values are fixed enums or site paths, never form content,
-email, phone, name, query string or identifier.
+**One tracking mechanism.** Every tracked link carries `data-track="<kind>"` and `data-location`;
+one delegated click listener sends `link_click {kind, location}`. `kind`: contact_cta \| tel \|
+mailto \| review \| vcard. Only links rendered from `CONTACT`, `REVIEW_URL` and the CTA component
+carry the attribute, so new pages are tracked by reuse, not by remembering an event. Sink: Vercel
+custom event on Pro; on Hobby the same listener posts to the server counter with `sendBeacon`. No
+KPI is lost on either plan.
+
+**Event plan** (#80 implements). Values are fixed enums or site paths, never form content, email,
+phone, name, query string or identifier.
 
 | Event | Properties | Fired when |
 |---|---|---|
-| `contact_cta_click` | `location`: header \| hero \| article \| contact_section (home `#contact`, current site) \| contact_page \| footer \| not_found | Primary contact CTA clicked |
-| `contact_submit` | `origin`: path of the page the visitor came from (article CTA passes it), else `direct` | `/api/contact` answered `ok: true` (client event; close to the server count but not equal: a honeypot drop also answers `ok: true`, so the server counter is the reference) |
+| `link_click` | `kind` (above), `location` | A `data-track` link is clicked |
 | `contact_error` | `kind`: validation \| verification \| server | Form shows an error (diagnoses lost requests) |
-| `tel_click` / `mailto_click` | `location` (as above + carte + legal for mentions légales / politique) | `tel:` / `mailto:` link clicked |
-| `vcard_save` | none | "Enregistrer le contact" tapped (server count is the reference) |
-| `review_click` | `location`: home_review (current « Votre avis » section) \| footer \| article \| carte | Review link clicked |
 | `article_read_end` | `slug` | End-of-body sentinel enters the viewport, once per view |
+| (server) `contact` | `origin`: path of the page the CTA was clicked on (every contact CTA passes it), else `direct` | `/api/contact` sent the email |
+| (server) `vcard` | none | `/carte/vcard` answered 200 |
 
-**Consent (no banner).** Vercel Web Analytics and Speed Insights store nothing on the device and do
-not read device storage, so art. 82 loi Informatique et Libertés consent is not triggered; even if
-it were, the use fits the CNIL audience-measurement exemption: strictly the site's own statistics,
-anonymous aggregates, no cross-site tracking or cross-referencing, no use by Vercel for its own
-purposes (processor under Vercel's DPA), retention ≤ 25 months. Conditions kept: inform visitors in
-the privacy policy and give a way to object. A banner becomes necessary only if a cookie,
-identifier, fingerprint or ad/third-party tag is added (not planned). The server counter holds no
-personal data.
+`location` (one enum for all): header \| hero \| article \| contact_section (home `#contact`) \|
+contact_page \| home_review (current « Votre avis ») \| footer \| carte \| legal \| not_found. #67
+may add values; they are added here, once. No client `contact_submit` / `vcard_save` events: the
+server counts are the single source.
+
+**Consent (no banner):**
+- Vercel Web Analytics and Speed Insights neither store nor read anything on the device: art. 82 loi
+  Informatique et Libertés consent is not triggered.
+- Even if it were, the CNIL audience-measurement exemption fits: the site's own statistics only,
+  aggregates, no cross-site tracking or cross-referencing, Vercel as processor (DPA), ≤ 25 months.
+- Still required: inform visitors in the policy and offer a right to object. A banner is needed only
+  if a cookie, identifier, fingerprint or third-party tag is added (not planned). The server counter
+  holds no personal data.
 
 **Privacy-policy edits** (`politique-de-confidentialite/page.tsx`, with #80; Eva approves wording):
 1. §3 table: add row « Mesure d'audience du Site » | « Données techniques de navigation (pages
@@ -165,29 +179,31 @@ personal data.
 5. New short paragraph: right to object to audience measurement (contact email), and that no cookie
    is used. Update « Date de dernière mise à jour ».
 
-**Hobby vs Pro fallback.** Pro: everything above. Hobby: page views (K4, K6) and Speed Insights
-(K10) only, no custom events. Then K1, K5a, K7 still come from the server counter; K2/K3/K8 are
-lost, so the server counter also records CTA-originated contacts (`origin`) and K2 falls back to
-GBP calls + Eva's call count. Check the plan's analytics retention either way; #86 keeps a monthly
-snapshot in the epic so history survives it.
+**Hobby vs Pro.** Only the sink of `link_click` and `article_read_end` changes (above). Check the
+plan's analytics retention either way; the monthly row (§5) keeps the history.
 
 ## 7. Hand-offs
 
 | Issue | Takes as input |
 |---|---|
-| #67 IA & navigation | Audience ranking (§1), J1/J2 priority 1 (§2); one contact action in the header on every page, phone on mobile; review ask out of the main nav; whether `/contact` exists (sets `contact_cta_click` targets and `location` values) |
-| #68 Copy & proof | Positioning A/B + hero candidate (§3) once Eva picks; CTA family without "rendez-vous" (§4); proof list to collect from Eva (§3); privacy-policy wording (§6) for Eva's approval |
+| #67 IA & navigation | Audience ranking (§1), J1/J2 priority 1 (§2); one contact action in the header on every page, phone on mobile; review ask out of the main nav; whether `/contact` exists (adds `location` values to the §6 enum) |
+| #68 Copy & proof | Positioning A/B + hero candidate (§3) once Eva picks; CTA family without "rendez-vous" (§4); proof list (§3); privacy-policy wording (§6) for Eva's approval |
 | #71 Home design | Hero = promise + audience + primary CTA + phone, above the fold on mobile; secondary paths (review, `/carte`) never compete with the CTA |
-| #73 Publications design | Article end: author card, contextual contact CTA carrying `origin`, related/next article; room for the `article_read_end` sentinel (K4, K5) |
+| #73 Publications design | Article end: author card, contextual contact CTA, related/next article; room for the `article_read_end` sentinel (K4, K5) |
 | #74 Contact design | Three channels shown as equals, tel/mail first on mobile; states incl. error kinds (`contact_error`); no booking UI |
-| #80 Home implementation | Ship tracking **first** on the current site (§5 dependency): Analytics, Speed Insights, server counter, event plan (§6), privacy-policy edits, Brevo tag |
-| #83 Contact implementation | Fire `contact_submit`/`contact_error`; pass `origin` to the counter; tel/mailto events on contact links |
-| #86 QA & launch | Gate launch on ≥ 4 weeks of baseline; KPI report at +1 and +3 months vs baseline (K1–K11); Search Console brand-query watch |
+| #80 Home implementation | Ship tracking **first** (§5 pre-launch window): Analytics, Speed Insights, server counter, `data-track` mechanism and events (§6), privacy-policy edits, Brevo tag |
+| #83 Contact implementation | Fire `contact_error`; forward the CTA's `origin` to `/api/contact`; contact links reuse the tracked components (no wiring of their own) |
+| #86 QA & launch | Gate launch on the §5 pre-launch window; KPI reports at +1 and +3 months vs baseline (K1–K11); Search Console brand-query watch |
 
-**Eva must provide:** approval of variant A or B (or her edits) and of the CTA decision; the proof
-items in §3; past contact requests (form emails, calls, emails from new people) per month for 6–12
-months; a monthly count of new calls/emails from launch (K1); GBP insights export and access;
-Search Console access (or confirm none exists); approval of the privacy-policy wording.
+**Eva must provide:**
+
+| Item | Needed for |
+|---|---|
+| Choice of variant A/B (or edits), CTA approval | §3, §4 |
+| Proof items | §3 → #68 |
+| Past contact requests per month, 6–12 months; monthly count of new calls/emails from launch | K1 |
+| GBP insights export and access; Search Console access (or confirm none exists) | K8, K9, K11 |
+| Approval of the privacy-policy wording | §6 |
 
 ## Open questions (for the user / Eva)
 
@@ -195,6 +211,6 @@ Search Console access (or confirm none exists); approval of the privacy-policy w
 |---|---|
 | Positioning: A, B or edits? | A (audience first, current voice); B's opening line can feed the hero |
 | CTA: contact request, no booking? | Yes; booking as a follow-up with the §4 conditions |
-| Vercel plan: Hobby or Pro? | Pro if already paid (custom events); else Hobby + server counter fallback, no new vendor |
-| Search Console property and past contact counts? | Create/verify the property now; Eva counts "Contact site —" emails for 6–12 months |
-| Split the tracking part of #80 into an early issue? | Yes, so the 4-week baseline runs while design work happens |
+| Vercel plan: Hobby or Pro? | Either works (§6 sink switch); Pro if already paid, no plan change just for analytics |
+| Search Console property and past contact counts? | Create/verify the property now; Eva counts the form emails (K1 baseline) |
+| Split the tracking part of #80 into an early issue? | Yes, so the pre-launch window runs while design work happens |
