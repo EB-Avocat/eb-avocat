@@ -135,11 +135,12 @@ Tasks 3 and 4 are created once the direction is chosen, so their brief carries t
    every `Museo` reference in the same change; no early removal, no git-history purge.
 
 ## Acceptance criteria (from #69)
-- [ ] Museo licence status recorded (not free, not licensed for the web: replaced); free-licence font
+Status 2026-11-20: all met (see `brand.md` §1, §8, §2–§6, §7 and `design/foundations-v2.png`).
+- [x] Museo licence status recorded (not free, not licensed for the web: replaced); free-licence font
   chosen from a scored shortlist; font plan decided (WOFF2, weights kept).
-- [ ] Moodboard and chosen direction approved by Eva.
-- [ ] Rules for logo, colour, imagery, icons documented (`brand.md` + `Foundations v2`).
-- [ ] Photography needs listed (portrait, office, details), with a plan to obtain them.
+- [x] Moodboard and chosen direction approved by Eva.
+- [x] Rules for logo, colour, imagery, icons documented (`brand.md` + `Foundations v2`).
+- [x] Photography needs listed (portrait, office, details), with a plan to obtain them.
 
 ## Out of scope
 Semantic tokens, type scale and components (#70), page layouts (#71–#76), copywriting (#68),

@@ -190,7 +190,7 @@ Never use a variant on a surface it was not made for (e.g. the white-surface var
 ### 2.3 Don'ts
 Do not: redraw, re-colour, outline or add a shadow/gradient; stretch or rotate; recreate the lettering in
 the web font (the new font will **not** match: they sit side by side, §4.1); put the logo on a photo
-without the overlay; place it on `primary-light` text-like patterns; crop the mark from the lettering
+without the overlay; place it on a busy or patterned background (motifs, textures, text); crop the mark from the lettering
 except via the official mark-only files; change the lettering colours (`#618983` lettering on white is
 3.88:1 — it is a logotype so exempt, but **never reuse `#618983` as a text colour**).
 
@@ -318,7 +318,8 @@ the design works **without** them and what changes when they arrive. The motif o
 
 ### 5.3 Icons
 - **Keep `lucide-react`** (ISC licence, already installed, consistent family, tree-shaken).
-- **One stroke width: 1.5** at every size (today: 1.5 on cards, 2 elsewhere, which reads as inconsistent).
+- **One stroke width: 1.5 px** at every size (today: 1.5 on cards, 2 elsewhere, which reads as inconsistent):
+  in code `strokeWidth={1.5}` **with `absoluteStrokeWidth`**, so the line stays 1.5 px at 16, 20 and 24 (lead decision, 2026-11-20).
   Sizes: **16** inline with text, **20** UI controls (menu, chevrons, external link), **24** contact
   channels (phone, mail, map-pin). No icon above 24px as decoration. Colour `currentColor`; on dark
   `mist-100`. Rounded caps and joins (lucide default). The LinkedIn glyph stays the inline brand SVG.
@@ -535,7 +536,9 @@ LinkedIn glyph stays the inline brand SVG. Functional only.
 ### 10.6 The 3 applications, redrawn without new photos (§6.6)
 Hero (typographic, Sand 100 proof panel, no portrait), publication card (typographic cover), business card
 (unchanged), plus the About block with the portrait at 417 × 556. Also the **OG image** (§6.5, 1200 × 630,
-portrait 417 × 556 right, type left). Export updated `design/direction-a.png` and the Foundations v2 frames.
+portrait 417 × 556 right, type left). Drawn on `Foundations v2` §6 (`design/foundations-v2.png`), which is the
+reference. **`design/direction-a.png` is kept as the board Eva chose from and is superseded** where it shows a
+portrait hero or an Unsplash card cover (lead decision, 2026-11-20).
 Tell `ux` if a rule is unclear or needs a change.
 
 
