@@ -26,7 +26,7 @@ associates, accompany in front of the Ordre. Proof: Barreau de Lyon, Ordre work.
 1. **Font**: Museo is out (not free, not licensed for the web). Shortlist 3–4 OFL fonts close to
    Museo (start from Aleo, Zilla Slab, Bitter, Hepta Slab, Podkova; add or drop with reasons) and
    score them on the criteria in `spec.md` §1: closeness to Museo and to the logo lettering
-   (Museo 300, outlined), 16px body legibility, weights / variable axis, true italics, French
+   (a light humanist sans, outlined, not Museo's slab: brand.md §0), 16px body legibility, weights / variable axis, true italics, French
    glyphs, x-height and width vs Museo, WOFF2 size, licence (OFL 1.1). Recommend one. Write the font
    plan (WOFF2, subset, preload, fallback metrics, weights kept) and the list of code places that
    name Museo, for #79. Give ui, for the `Type` board, the candidates, where to download them

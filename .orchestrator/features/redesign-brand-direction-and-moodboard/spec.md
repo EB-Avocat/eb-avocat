@@ -29,7 +29,7 @@ happens in the Figcraft file.
   **The user confirmed Museo is not under a free licence**: it has to be replaced.
 - **Imagery**: one portrait (`portrait.jpeg`, 835×1112) reused for About, OG, Twitter, JSON-LD.
 - **Icons**: `lucide-react`, stroke 1.5 on cards, 2 elsewhere, plus an inline LinkedIn glyph.
-- **Figcraft**: `~/Library/CloudStorage/GoogleDrive-…/My Drive/EB-Avocat.figcraft`,
+- **Figcraft**: `EB-Avocat.figcraft` in the user's Google Drive (`~/Library/CloudStorage/GoogleDrive-…/My Drive/`),
   pages `Cover`, `Foundations`, `Components`, `Site — Desktop`, `Site — Mobile`, `Back-office`
   (baseline, do not modify). PNGs in `.orchestrator/features/plan-redesign/design/current/`.
 
@@ -43,8 +43,8 @@ web. The site moves to a font under a free licence (SIL OFL) that is close to Mu
   soft or rounded serifs, open counters, generous x-height. Starting candidates to evaluate, not a
   decision: **Aleo**, **Zilla Slab**, **Bitter**, **Hepta Slab**, **Podkova**. Avoid "MuseoModerno"
   (unrelated design, confusing name).
-- **Criteria**, scored in `brand.md`: closeness to Museo and to the logo lettering (the logo was set
-  in Museo 300, see below); legibility of body text at 16px on screen; weights available, at least
+- **Criteria**, scored in `brand.md`: closeness to Museo and to the logo lettering (the logo lettering is a
+  light humanist sans, likely Museo Sans Light, not Museo's slab: see brand.md §0); legibility of body text at 16px on screen; weights available, at least
   regular / medium / bold, or a variable axis; true italics (articles need them); French glyphs
   (é è ê à ç œ « » ’, non-breaking spaces); x-height and width close to Museo, so layouts and
   fallback metrics stay stable; WOFF2 size per weight; licence text checked (OFL 1.1, no Reserved
