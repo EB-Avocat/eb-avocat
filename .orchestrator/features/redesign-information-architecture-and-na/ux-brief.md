@@ -56,7 +56,7 @@ Sources of truth in the code: `frontend/src/lib/constants.ts` (`NAV_LINKS`, `SER
   cites) and the final `location` enum (values added or removed); a section "Open
   questions for Eva" (content availability per domaine, Formations, Mécénat).
 - Name the header, footer and article slots consistently: they become the `location` values of
-  #66's KPI events (`contact_cta_click`, `tel_click`, `mailto_click`, `review_click`).
+  #66's single `link_click {kind, location}` event (§6).
 - Hand off to `ui` (mcp__orch__handoff) once the site map, header/menu, footer and home order are
   decided, even if the URL table is still being finished. Tell ui which file and sections to draw.
 
