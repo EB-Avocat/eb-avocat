@@ -50,7 +50,7 @@ rendered next to Museo 300/500 at 48px and 20px, and measured.
 | Candidate | Decision | Reason |
 |---|---|---|
 | **Aleo** | **Shortlist** | Same x-height (+1%) and width (−1 to −4%) as Museo; open round shapes, low contrast, soft bracketed slabs; variable 100–900 with true italic; no Reserved Font Name |
-| **Bitter** | **Shortlist** | Built for screen reading, best 16px body; width equal to Museo; slightly taller x-height (+6%) and sturdier, more "newspaper" than Museo; variable + italic; RFN "Bitter Pro" |
+| **Bitter** | **Shortlist** | Built for screen reading, best 16px body; width equal to Museo; slightly taller x-height (+4%) and sturdier, more "newspaper" than Museo; variable + italic; RFN "Bitter Pro" |
 | **Zilla Slab** | **Shortlist** | Closest to Museo's quirky, friendly slab personality; but x-height −11% and width −6 to −8% (needs a size bump and changes line breaks), 5 static weights, no variable file, heaviest WOFF2 |
 | Hepta Slab | Dropped | 19% wider than Museo (0.52 vs 0.43 em avg.), no italic: every line break and card would change; 22 KB per weight; default axis value is 200, not a text weight |
 | Podkova | Dropped | Weights 400–800 only (no light), x-height −14%, cap height −16% (looks small and low-contrast at 16px), no italic |
@@ -63,20 +63,20 @@ Shortlist = 3 fonts (the brief allows 3–4; the other candidates fail a hard cr
 ### 1.3 Scoring (shortlist, Museo as reference)
 Scores 1–5 (5 best). Measured values are from the files (§1.7); closeness to Museo and to the logo are
 judgements from the render (side-by-side render of the candidates at 48px and 20px) and the stem measurement. All three cover é è ê à ç œ « »
-’ and U+00A0. **None has U+202F (narrow no-break space) or U+2009, and neither has Museo**: use U+00A0
+’ and U+00A0. **None has U+202F (narrow no-break space), nor has Museo; only Bitter has U+2009 (thin space), and relying on it would make the font choice change the typography**: use U+00A0
 before « » : ; ? ! as the site does today; browsers fall back for any U+202F.
 
 | Criterion | Museo (reference) | **Aleo** | **Bitter** | **Zilla Slab** |
 |---|---|---|---|---|
 | Closeness to Museo (shape, feel) | — | **4** — same geometry and rhythm, softer slabs | 3 — sturdier, more editorial | 3 — friendly but narrow and quirky (`a`, `g`) |
-| Closeness to the logo lettering (light humanist sans, §0.1) | 5 for the sans variant only | 3 — open round bowls, low contrast | 2 | 2 |
+| Closeness to the logo lettering (light humanist sans, §0 item 1) | 5 for the sans variant only | 3 — open round bowls, low contrast | 2 | 2 |
 | Body legibility at 16px on screen | Weak at 300 (A-12) | 4 at 400 | **5** at 400 | 3 at 16px (x-height), fine at 17–18px |
 | Weights / axis | 300/500/700 loaded | **5** — variable 100–900 | **5** — variable 100–900 | 3 — static 300/400/500/600/700, no axis |
 | True italics | none loaded | 5 (variable italic) | 5 (variable italic) | 5 (static italics, all weights) |
 | French glyphs and punctuation | ok | 5 | 5 | 5 |
-| x-height (Museo 0.500 em) | 0.500 | **0.507 (+1%)** → 5 | 0.528 (+6%) → 4 | 0.445 (−11%) → 2 |
+| x-height (Museo 0.500 em) | 0.500 | **0.507 (+1%)** → 5 | 0.522 (+4%) → 4 | 0.445 (−11%) → 2 |
 | Width, avg. French text, em (Museo 300 / 500 = 0.435 / 0.447) | 0.435 | 400: 0.430 (−1%); 500: 0.435 (−3%) → **5** | 400: 0.440 (+1%); 500: 0.443 (−1%) → 5 | 400: 0.409 (−6%); 500: 0.412 (−8%) → 3 |
-| Cap height (Museo 0.700) | 0.700 | 0.737 | 0.698 | 0.650 |
+| Cap height (Museo 0.700) | 0.700 | 0.737 | 0.692 | 0.650 |
 | WOFF2, Latin + French subset | 16 KB / weight (reference) | variable 300–700: **31 KB** roman, 33 KB italic (static 400: 13 KB) → **5** | variable 300–700: 29 KB roman, 28 KB italic (static 400: 17 KB) → 5 | static: 24–26 KB each; 4 files ≈ 100 KB → 2 |
 | OFL 1.1, Reserved Font Name | n/a (not free) | OFL 1.1, **no RFN** → 5 | OFL 1.1, **RFN "Bitter Pro"** → 3 | OFL 1.1 (Mozilla), no RFN → 5 |
 | **Total (/50)** | | **46** | 42 | 33 |
@@ -92,7 +92,7 @@ before « » : ; ? ! as the site does today; browsers fall back for any U+202F.
   caps are 5% taller (0.737 vs 0.700), so all-caps labels look slightly bigger; it will not match the
   logo lettering (no slab can). The specimen board (task 2) makes this visible to Eva before she chooses.
 - **Runner-up: Bitter** if Eva finds Aleo too delicate or wants the strongest body text: choose it knowing
-  about the RFN rule (use `next/font/google`, never a self-made subset) and the +6% x-height (body can drop
+  about the RFN rule (use `next/font/google`, never a self-made subset) and the +4% x-height (body can drop
   to 16px without losing size; headings need slightly smaller sizes). Zilla Slab is third: the right
   personality, but at 16px it reads small and its static files cost ~100 KB.
 
@@ -119,8 +119,12 @@ before « » : ; ? ! as the site does today; browsers fall back for any U+202F.
   against (computed on a French sample, regular weight): vs Times New Roman `size-adjust` ≈ 113%,
   `ascent-override` ≈ 80%, `descent-override` ≈ 26%, `line-gap-override` 0%; vs Georgia 103% / 88% / 29% / 0%.
   Remove `ui-serif, Georgia` as the *first* fallback if it creates a second reflow; keep `serif` last.
-- **Weights kept**: one variable axis, used at **300 (display only ≥ 40px), 400, 600, 700** plus italic 400
-  (§4). No 100/900 (dead files today). `font-300/500/700` utilities (32/61/31 uses) keep working.
+- **Weights kept**: one variable axis, used at **300 (display only ≥ 40px), 400, 500 (display / H2 in
+  direction C, optional h3 and UI labels elsewhere), 600, 700** plus italic 400 (§4). No 100/900 (dead files
+  today). **The existing `font-300/500/700` utilities (32/61/31 uses) do not carry over as they are**: Aleo 300
+  is thinner than Museo 300 (stem 50 vs 67), so the 32 `font-300` body-text uses (`carte`, error pages,
+  `publications`, privacy page…) would get thinner, which is the A-12 problem. #79 maps them to 400 and keeps
+  300 only for display; 500 maps to ≈ 480 (§1.5), 700 to 700.
 - **`font-feature-settings`**: leave defaults (kerning, ligatures on); use `font-variant-numeric:
   tabular-nums` only in tables and back-office lists.
 - **Budget**: ~31 KB preloaded + 33 KB on demand, versus ~381 KB of OTF today.
@@ -152,8 +156,8 @@ The logo is **kept unchanged**. Five stacked variants (mark above "Eva Biezunski
 | Surface | File | Notes |
 |---|---|---|
 | White, paper, sand, any light tint (all directions) | `logo-for-white-background` | `#618983` / `#264445` / `#3f5b57` on light. Primary use: navbar (solid), articles, legal, print |
-| Dark teal `#162729`, `#264445`, `#3f5b57` | `logo-for-dark-green-background` | white lettering, teal pans. Hero, footer, `/carte`, `global-error` |
-| Mid teal `#4a7a6f` (primary-light) and similar mid-tones | `logo-for-light-green-background` | `#264445` lettering + white details. Check contrast of the lettering on the actual fill; if the surface is darker than `#4a7a6f`, use the dark-green variant |
+| Dark teal `#162729`, `#264445` | `logo-for-dark-green-background` | white lettering, `#618983` pans (3.99 on `#162729`, 2.71 on `#264445`, only 1.90 on `#3f5b57`: avoid the logo on `#3f5b57`, use it on the two darkest teals). Hero, `/carte`; footer (today `Footer.tsx` uses the `white-for-black` variant on dark teal: switch it in #79) |
+| Mid teal `#4a7a6f` (primary-light) and similar mid-tones | `logo-for-light-green-background` | `#264445` lettering + white details (lettering is only 2.16:1 on `#4a7a6f`: logotype, but use the variant only on that exact fill). Check contrast of the lettering on the actual fill; if the surface is darker than `#4a7a6f`, use the dark-green variant |
 | Photographs, near-black, any busy dark image | `logo-white-for-black-background` | all white; only over a **darkened area** of the photo (overlay so the logo has ≥ 4.5:1 against the average behind it) |
 | One-colour print (fax, stamp, B/W photocopy, embossing) | `logo-black-for-white-background` | `#191919`, never on colour |
 | Favicon, app icon, avatar ≤ 48px, `/carte` header on mobile if tight | `favicon.svg` (`favicon-white.svg` on dark) | mark only |
@@ -172,7 +176,7 @@ Never use a variant on a surface it was not made for (e.g. the white-surface var
 
 ### 2.3 Don'ts
 Do not: redraw, re-colour, outline or add a shadow/gradient; stretch or rotate; recreate the lettering in
-the web font (the new font will **not** match: they sit side by side, §4.4); put the logo on a photo
+the web font (the new font will **not** match: they sit side by side, §4.1); put the logo on a photo
 without the overlay; place it on `primary-light` text-like patterns; crop the mark from the lettering
 except via the official mark-only files; change the lettering colours (`#618983` lettering on white is
 3.88:1 — it is a logotype so exempt, but **never reuse `#618983` as a text colour**).
@@ -183,8 +187,9 @@ space), never set a headline directly under or over the lettering at a similar s
 **a rule or a change of surface** rather than with type. Contact blocks may sit to its right, in 400 weight.
 
 ### 2.5 Favicon
-`favicon.svg` (mark on transparent) stays. Raster sizes and PWA icons exist (`/images/icons`, 192/512,
-maskable, monochrome); #79 regenerates them only if the teal background changes. In dark-mode tabs the
+`favicon.svg` (mark on transparent) stays. Raster sizes and PWA icons exist (`frontend/public/icon-192.png`, `icon-512`,
+`icon-maskable-512`, `icon-monochrome-512`, and `src/app/apple-icon.png`; `/images/icons` holds the contact
+icons, not app icons); #79 regenerates them only if the teal background changes. In dark-mode tabs the
 mark's teals lose contrast on dark chrome: keep `favicon-white.svg` for `prefers-color-scheme: dark` via
 `<link media>` (small change for #79).
 
@@ -273,7 +278,10 @@ status. `primary-light` text on Pierre 50 is 4.18: use `primary`.
 | B Éditorial | 65% | 25% (mostly text in `near-black` / `primary`) | 3% (rare photo) | **≤ 7%** (CTA, rules, pull-quote marks, drop element) |
 | C Lyon & matière | 55% | 30% | 12% (motif) | Beaujolais **≤ 3%**; ochre is motif only, ≤ 5% inside the motif |
 
-Rules for all: one accent per page region; no accent text below 4.5:1; no colour as the only carrier of
+Rules for all: one accent per page region; no accent text below 4.5:1 **on the surface it sits on**: the
+"vs paper" columns above do not hold on the 100 tints (Terre cuite on Sand 100 = 4.28; Success on Sand 100 =
+4.13 (A) / 4.38 (B), on Pierre 100 = 4.26 (C)), so accent, success and error text go on paper or white only,
+and on tinted sections use `primary` (≥ 5.6) or the darker accent variant (Ambre profond on Sand 100 = 5.40); no colour as the only carrier of
 meaning (links stay underlined, status has icon + text); tinted section backgrounds alternate with white,
 not with each other; avoid more than one dark band between two light ones.
 
@@ -288,7 +296,7 @@ Sizes are a starting point for the specimens; the type scale is #70's. Body ≥ 
 | H2 (section) | 400, or 500 | 30–36 / 26–28 | 1.2 | |
 | H3 / card title | 600 | 20–24 / 20 | 1.3 | |
 | Body | **400** | 17–18 / 16–17 | 1.6–1.7 | 60–70 characters per line; never 300 (was the A-12 problem) |
-| Lead / standfirst | 400 (or 300 ≥ 24px) | 20–24 / 18–20 | 1.5 | |
+| Lead / standfirst | 400 (300 only if ≥ 40px) | 20–24 / 18–20 | 1.5 | |
 | Meta (dates, captions, tags) | 400 | 14 / 14 | 1.4 | Never below 14px; `sand-600`/`pierre-600`/`mist` on dark |
 | Buttons, form labels, nav | 600 | 16 / 16 | 1.2 | |
 | Overline / kicker (uppercase) | 600 | 12–13, tracking +0.08em | 1.3 | Caps look larger in Aleo (cap height 0.737) |
@@ -299,7 +307,7 @@ Sizes are a starting point for the specimens; the type scale is #70's. Body ≥ 
 Rule summary: **300 only at ≥ 40px (display) or ≥ 28px italic pull quotes**; 400 is the floor for any text
 under 28px. No weight below 400 in the back-office. Headings in the same family, no second typeface.
 
-### 4.4 With the logo
+### 4.1 With the logo
 The lettering of the logo is a light sans; the slab is the voice of the site. They are never set
 together at the same scale; the logo stays in its clear space (§2).
 
@@ -366,7 +374,7 @@ teal speaks only in text, nav and one dark band; a very discreet ambre mark.
   5. https://unsplash.com/photos/0Zx1bDv5BNY — WOCinTech Chat: portrait with shallow focus (framing only)
   6. https://unsplash.com/photos/PlikkWB79qs — WOCinTech Chat: seated, smiling, natural light (framing only; stock-like, do not copy the posture)
 - **3 applications** (ui draws):
-  1. **Hero crop** (1440 × 720): paper left, portrait of Eva right (use `portrait.jpeg` as placeholder or a mood crop), logo `for-white-background` top-left. Copy: H1 « Structurer votre exercice libéral, en accord avec votre Ordre et vos associés. » (exemple). Sub: « Avocate au Barreau de Lyon, j'accompagne les professionnels libéraux et les entrepreneurs, de la création de leur société aux démarches devant leur Ordre. » (exemple). Button « Contacter le cabinet » + « 04 00 00 00 00 » (exemple, placeholder number).
+  1. **Hero crop** (1440 × 720): paper left, portrait of Eva right (use `portrait.jpeg` as a placeholder on the board only, or a mood crop; on the site it is never a hero, §7.4), logo `for-white-background` top-left. Copy: H1 « Structurer votre exercice libéral, en accord avec votre Ordre et vos associés. » (exemple). Sub: « Avocate au Barreau de Lyon, j'accompagne les professionnels libéraux et les entrepreneurs, de la création de leur société aux démarches devant leur Ordre. » (exemple). Button « Contacter le cabinet » + « 04 00 00 00 00 » (exemple, placeholder number).
   2. **Publication card** (3:2 photo of a desk detail, category chip « Exercice libéral », title « Cession de patientèle : les points à vérifier avant de signer » (exemple), excerpt « Ce que prévoit le contrat, ce que votre Ordre examinera, et ce qu'il vaut mieux régler avant la signature. » (exemple), meta « Eva Biezunski · 20 novembre 2026 » (exemple)).
   3. **Business card** (85 × 55 mm, recto and verso): verso `darker-teal` with the dark-green logo; recto paper with « Eva Biezunski », « Avocate au Barreau de Lyon », « [adresse du cabinet] · 04 00 00 00 00 · contact@… » (exemple placeholders), a small QR block (to `/carte`), one Ambre rule.
 
@@ -453,7 +461,7 @@ J2) and does not wait for a shoot. This is a recommendation, not a decision: the
 | Publication cards and article covers | 3:2 | 1200 × 800 | 16:9 crops also ok |
 | Open Graph / Twitter | 1.91:1 | 1200 × 630 | text-safe centre; today the portrait is reused (A-29) |
 | Google Business Profile | 1:1 and 16:9 | 720 × 720 min; cover 1024 × 576 | verify against Google's current guidelines when uploading |
-| Business card / print | any | 300 dpi at 100 × 70 mm | deliver full-resolution originals |
+| Business card / print | any | 300 dpi at final size (business card 85 × 55 mm, plus 3 mm bleed) | deliver full-resolution originals |
 Deliver sRGB JPEG, full resolution plus web-ready versions; keep the grade consistent.
 
 ### 7.3 Rights to secure
@@ -536,13 +544,13 @@ weight). Aleo 350 is the weight that matches Museo 300's stem thickness.
 **Specimen copy** (same for every font; each at **16px body** and display sizes; lay the logo
 `logo-for-white-background` at the top-left of the board, with clear space):
 - **Hero promise** (display, 56px, then 40px): « Structurer votre exercice libéral, en accord avec votre Ordre et vos associés. » (exemple)
-- **À propos paragraph** (16px/26 and 18px/30), from `ABOUT` and #66 variant A: « Avocate au Barreau de Lyon, j'aide les professionnels libéraux et les entrepreneurs à structurer leur activité : choix de la société, statuts, contrats, opérations sur leur clientèle ou patientèle. J'anticipe dès la création les ambitions de chacun et je traite en amont les points de friction entre associés. »
+- **À propos paragraph** (16px/26 and 18px/30), adapted from `ABOUT` and #66 variant A, not verbatim from `constants.ts` (exemple): « Avocate au Barreau de Lyon, j'aide les professionnels libéraux et les entrepreneurs à structurer leur activité : choix de la société, statuts, contrats, opérations sur leur clientèle ou patientèle. J'anticipe dès la création les ambitions de chacun et je traite en amont les points de friction entre associés. »
 - **Publication title** (32px) and **body with italics** (17px/28): title « Cession de patientèle : les points à vérifier avant de signer » (exemple). Body (exemple): « Avant toute signature, le contrat doit tenir compte de la *déontologie* de votre profession et du contrôle de votre Ordre. Il faut aussi anticiper le départ d'un associé, *avant* que la question ne se pose, et prévoir comment la clientèle sera présentée. »
 - **Button** (16px, 600): « Contacter le cabinet » and « Enregistrer le contact »
 - **French punctuation line** (24px): « Œuvres, cœur, être, où ? — d'accord ; l'Ordre » ’ « guillemets » : à é è ê ë ç î ô û ù, Ç É À, œ Œ, 1 250 € (with no-break spaces before : ; ? ! » and after «).
 - **Weights ladder** (one line each, 24px): « Avocate au Barreau de Lyon » at each weight listed above.
 - **Small sizes**: meta line at 14px: « Eva Biezunski · 20 novembre 2026 · Exercice libéral » (exemple).
-- Annotate under each candidate: x-height (Aleo 0.507, Bitter 0.528, Zilla 0.445, Museo 0.500 em) and
+- Annotate under each candidate: x-height (Aleo 0.507, Bitter 0.522, Zilla 0.445, Museo 0.500 em) and
   WOFF2 size (§1.3). Export `design/type-specimens.png`.
 
 ### 10.2 `Moodboard` board
