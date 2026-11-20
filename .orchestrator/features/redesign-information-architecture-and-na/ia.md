@@ -42,7 +42,7 @@ flowchart TD
   hub --> d1 & d2 & d3 & d4
   hub --> about
   pubs --> art
-  art -->|domaine of its first mapped category| d1 & d2 & d3 & d4
+  art -->|domaine of its first category that maps to one| d1 & d2 & d3 & d4
   d1 & d2 & d3 & d4 -->|related articles| art
   art --> about
   carte --> vcard
@@ -58,7 +58,7 @@ flowchart TD
 
 Grey = a top-level header item (the domaine pages are reached through the « Domaines » panel, so they are not grey). Dashed = footer only. Dotted = print / email only:
 `/avis` is never linked from the site (site review links point straight to Google, §5). `/carte` is
-reached only by the printed QR code. Every page (except `/carte`, `/carte/vcard`, `/avis`) has the
+reached only by the printed QR code. Every page (except `/carte`, `/carte/vcard`, `/avis` and the root `global-error`, §11) has the
 header and footer, so every page links to `/contact`, the hub, the 4 domaine pages (header menu and
 footer), `/a-propos` and `/publications`.
 
@@ -222,15 +222,15 @@ Behaviour (one line each):
 
 Decision: on desktop « Domaines » is a **button** that opens a small panel (disclosure navigation
 pattern), not a link to `/domaines` with a hover menu. Panel content: the 4 domaine pages (label
-+ no description, #71 may add one line each), then « Tous les domaines d'intervention »
-(→ `/domaines`, which also holds Mécénat).
++ no description, #71 may add one line each), then « Tous les domaines »
+(→ `/domaines`, which also holds Mécénat; same label in the mobile menu and the footer).
 
 Reason: a control that is both a link and a menu trigger is ambiguous on touch (does the tap
 navigate or open?) and needs two targets; hover-open menus open by accident and fail on touch. The
 hub stays one action away inside the panel.
 - **Touch / mouse**: click or tap toggles; clicking outside closes. No open-on-hover.
 - **Keyboard**: Enter / Space toggles (`aria-expanded`); Tab moves through the panel links; Esc
-  closes and returns focus to the button; focus leaving the panel closes it.
+  closes and returns focus to the button; focus leaving the button and the panel closes it (Shift+Tab from the first panel link back to the button does not).
 - Works without JS: the panel can be a native `<details>` or the hub link is the fallback
   (#80 picks).
 
@@ -248,6 +248,8 @@ Route-aware, computed from the path, the same on desktop and in the mobile menu:
 | `/publications/<slug>` | « Publications » | `aria-current="true"` (section, not the page itself) |
 | `/contact` | header CTA shown as current (no hover affordance) | `aria-current="page"` |
 | legal, 404, error | none | — |
+
+When a domaine page missed the launch gate (§2), its panel link points to `/domaines#<slug>`, the same path as « Tous les domaines »: on `/domaines` only « Tous les domaines » carries `aria-current="page"`; the anchor links carry none (one `aria-current="page"` per list).
 
 `aria-current` is a global ARIA attribute, so the « Domaines » button also carries
 `aria-current="true"` (current section) on `/domaines` and `/domaines/<slug>`, with the visual
@@ -365,7 +367,7 @@ Every content page ends with an exit toward contact; no dead end (A-09).
 2. **Domaine ↔ publications via categories.** Each domaine page maps to one or more publication
    categories (`Category.slug`). The domaine page shows the 3 latest articles of its categories and
    « Voir les publications sur ce thème » → `/publications?category=<slug>` (hidden when there is
-   no article). An article links back to the domaine of its first mapped category: one line « En
+   no article). An article links back to one domaine: the first of its categories (in the categories' display order; `Article.categories` is many-to-many) that maps to a domaine; one line « En
    savoir plus : [domaine] » (built from the domaine list, §2) after the body (inside the contact block or just before it, #73
    decides). The mapping is data, not hand-written links (#76/#80: a `domaine` field on
    `Category` or a constant; see §16). Categories that map to no domaine (e.g. news) simply have no
@@ -505,7 +507,7 @@ Constraints for #80 / #83: the form needs JS anyway (BotID, client submit), so n
 browser default `Referrer-Policy` (`strict-origin-when-cross-origin`) or `same-origin`; never
 `no-referrer`. Name the body field `origin` but do not confuse it with the HTTP `Origin` header
 that `lib/contact.ts` already checks for same-site posts. Known inaccuracy: in-memory state is lost
-on a reload, so a visitor who clicks a CTA and then reloads `/contact` is recorded as `direct`;
+on a reload, so a visitor who clicks a CTA and then reloads `/contact` is recorded as `direct`, or as the same-site page of the tab's first full load if there was one (a stale referrer);
 and one who clicks a CTA, goes back, browses, then reaches `/contact` by an untracked soft link
 keeps the old origin (cleared only by a send or the next CTA click). Both are acceptable for a
 count.
