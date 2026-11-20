@@ -7,7 +7,7 @@ kept for the record in Appendix A, marked "not retained". Source of truth for #7
 
 
 Inputs: `spec.md`, `ux-brief.md`, `plan-redesign/audit.md` (§3, §5, A-08, A-12, A-13, A-27, A-28),
-`redesign-objectives-audience-and-kpis/objectives.md` (#66, positioning variant A), and measurements on
+`redesign-objectives-audience-and-kpis/objectives.md` (#66, positioning variant A; lives on the branch of PR #89, not on this one), and measurements on
 the real font files and logo files (method in §1.7). Contrast ratios are WCAG 2.x, computed from sRGB
 relative luminance, not estimated.
 
@@ -139,12 +139,15 @@ add the U+00A0); browsers fall back for any U+202F.
   - `frontend/src/app/globals.css`: three `@font-face` (lines 3–26) and `--font-museo` in `@theme` (line 35)
   - `frontend/src/app/layout.tsx:111` and `frontend/src/app/global-error.tsx:23`: `font-museo` on `<body>`
   - `frontend/src/components/ui/PublicationCard.tsx:32`: `font-museo` on the cover placeholder
-  - `frontend/src/components/publications/ArticleBody.tsx:9`: `prose-headings:font-museo` (and override the Typography plugin heading weights to §4: H1/H2 400, H3 600)
+  - `frontend/src/components/publications/ArticleBody.tsx:9`: `prose-headings:font-museo` (and override the Typography plugin weights to §4: headings H1/H2 400, H3 600, and `prose-strong:font-700`, since the plugin's default `strong` is 600)
   - `frontend/src/components/backoffice/editor/RichEditor.tsx:113`: `prose-headings:font-museo` (same weight override)
   - `frontend/public/fonts/Museo{100,300,500,700,900}-Regular.otf`: delete (5 files)
   - `README.md:172`: "fonts/ # Museo font family"
   - Logo SVGs (`logo-*.svg`, 5 files): inert `font-family:Museo` in Inkscape style attributes; the letters
     are outlined. Optional clean-up; do not redraw the logo.
+  - `text-primary-light` / `hover:text-primary-light` used as **text** on paper or tints (fails 4.5:1, §0 item 3): `ArticleBody.tsx:9`
+    (`hover:prose-a:`), `Contact.tsx:88` and `:221`, `publications/[slug]/page.tsx:55`, `mentions-legales/page.tsx:16`,
+    `politique-de-confidentialite/page.tsx:17`. Use `primary` or `dark-teal` (hover) instead; icons stay allowed (§3.1).
   - Rename the token `--font-museo` → e.g. `--font-sans-serif`/`--font-display` (#70 decides the name).
 
 ### 1.7 Method
@@ -388,6 +391,8 @@ The design must stand without photos; photos raise the warmth, they do not carry
 - Right 45%: the portrait in a **3:4 frame 417 px wide × 556 px tall** (native pixels /2, no enlargement), 8px
   radius, vertically centred, 48 px from the right edge; navy background sits against paper like a framed
   print. Contrast on paper: display line ≥ 15:1, URL in `primary` 6.66:1.
+- Build note: `next/og` (satori) reads TTF/OTF/WOFF only, not WOFF2 and not variable axes. If the OG image is
+  generated in code, ship a static Aleo 400 and 600 TTF instance for it (instancer command in §10).
 - The same template (Display left, portrait right) serves Twitter. Without the portrait (articles): left
   column full width on Sand 100 with the article title.
 
@@ -634,4 +639,4 @@ tones; photography minimal; a deep wine accent.
 | Cost to extend | photo sessions | lowest | motif set to draw once |
 Recommendation from ux: **B Éditorial as the base, with the person from A** (one good portrait) and the
 motif of C reserved for OG and `/carte`; it matches the strongest KPI path (publications → trust → contact,
-J2) and does not wait for a shoot. This is a recommendation, not a decision: the three boards decide.
+J2) and does not wait for a shoot. This was a recommendation, not a decision; superseded by §8 (Eva chose A).

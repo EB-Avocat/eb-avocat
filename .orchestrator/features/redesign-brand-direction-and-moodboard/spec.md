@@ -67,7 +67,7 @@ web. The site moves to a font under a free licence (SIL OFL) that is close to Mu
   (`globals.css`, `layout.tsx`, `global-error.tsx`, `ArticleBody.tsx`, `PublicationCard.tsx`,
   `RichEditor.tsx`) is code work, so it is out of scope here; recorded as a constraint for #79
   (ship the new font and remove the OTFs together). Whether to remove them earlier, and whether to
-  purge them from the git history, is a decision lead takes to the user (see Questions).
+  purge them from the git history, was a decision for the user: answered, see Question 3 (wait for #79, no purge).
 
 ### 2. What evolves
 Each with the rule written in `brand.md` and drawn on `Foundations v2`:
