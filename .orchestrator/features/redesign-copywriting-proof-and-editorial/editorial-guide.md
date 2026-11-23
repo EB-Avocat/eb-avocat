@@ -116,7 +116,7 @@ review (and flagged by `check-copy.ts` where marked †).
 | Selling a practice's clientele | **céder** / **cession** (glossed) | « vendre sa clientèle » in headings; « transmission » without gloss | |
 | First exchange | **premier échange** (call, visioconférence or meeting, E4) | « consultation », « rdv », « premier rendez-vous » in a CTA | « Rendez-vous » is fine in body copy for a booked meeting, never in a CTA (#66 §4) |
 | Video call | **visioconférence** | « visio », « call », « zoom » | |
-| Price of her work | **honoraires** (glossed on first use: « mes honoraires, c'est-à-dire le prix de mon travail ») | « tarifs », « coûts », « prix » | A FAQ question may say « Combien ça coûte ? » (people search it); the answer says « honoraires » |
+| Price of her work | **honoraires** (glossed on first use: « mes honoraires, c'est-à-dire le prix de mon travail ») | « tarifs », « coûts », « prix » (« prix » stays allowed inside the §4 glosses) | A FAQ question may say « Combien ça coûte ? » (people search it); the answer says « honoraires » |
 | Written fee agreement | **convention d'honoraires** (glossed) | « contrat d'honoraires », « devis » unless Eva uses it | E5 |
 | Client's opinion on Google | **avis** (« Laisser un avis ») | « notation », « évaluation », « recommandation », « feedback » | |
 | A client quote on the site | **témoignage** | « avis » (that is Google), « retour d'expérience » | Only with written consent (§6) |
@@ -461,7 +461,7 @@ Short enough to read before every publication. Everything marked ☐ must be tru
 - ☐ **Contextual contact line** (one sentence tied to the topic, then « Contacter le cabinet »,
   never a second CTA label): « Vous reprenez une patientèle et vous voulez en parler ? Écrivez-moi
   ou appelez-moi au 07 56 85 62 75. » (the numbers come from the constant, not retyped)
-- ☐ Link to the related domaine page, once (« En savoir plus : Création de société »).
+- ☐ Link to the related domaine page, once (« Voir le domaine : Création de société »).
 - ☐ Review line sits **below** the contact block, as a text link (§3.3), never above it.
 - ☐ Author card: « Avocate au Barreau de Lyon », link to À propos.
 - ☐ Eva has re-read it once for the secret professionnel (§6.5) before publication.
