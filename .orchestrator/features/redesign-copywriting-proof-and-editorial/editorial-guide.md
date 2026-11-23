@@ -45,6 +45,7 @@ data. Nowhere else.
 | `NOT_FOUND.title` | « Nous n'avons pas trouvé cette page » | « Nous » | « Je n'ai pas trouvé cette page » or « Cette page n'existe pas » (no blame, no « nous ») |
 | `NOT_FOUND.contactCta` | « Nous contacter » | « Nous » and a second CTA label for `/contact` (§3) | The primary CTA label |
 | `ERROR_PAGE.message` | « Un incident technique nous empêche… n'hésitez pas à nous contacter. » | « Nous » ×2, filler « n'hésitez pas à » | « Un incident technique empêche l'affichage de cette page. Réessayez, ou appelez-moi. » |
+| `HERO.cta` | « Prendre rendez-vous » | Promises an appointment nobody can book (A-05); banned in §2 | « Contacter le cabinet » (§3.1) |
 | `HERO.subheading` | « Cabinet d'avocat dédié aux professionnels libéraux » | The entity speaks, not Eva; « cabinet d'avocat » vs « Avocate » (A-30) | « Avocate au Barreau de Lyon, j'accompagne… » (positioning A) |
 | `SITE.title`, `SITE.description` | « Cabinet dédié aux professionnels libéraux… » | Same | Meta in §7 |
 | `REVIEW_CTA.subtitle` | « Vous avez fait appel au Cabinet ? » | Capital « C »; entity | « Vous avez fait appel à moi ? » |
@@ -85,10 +86,10 @@ legal object. Before/after from the current copy (illustrative drafts, the final
 | Slot | Before (`constants.ts`) | After |
 |---|---|---|
 | Hero (`HERO`) | « Avocate en droit des sociétés » / « Cabinet d'avocat dédié aux professionnels libéraux » | « Structurer votre exercice libéral, en accord avec votre Ordre et vos associés. » then « Avocate au Barreau de Lyon, j'accompagne les professionnels libéraux et les entrepreneurs. » (#66 §3) |
-| Création de sociétés (`SERVICES.items[0]`, 51 words, 6 acronyms) | « Je vous guide dans la création de structures adaptées à vos besoins, pour votre activité (SEL), pour votre matériel (SCM), pour vos locaux (SCI)… » | « Vous vous installez ou vous vous associez ? Je choisis avec vous la société qui convient à votre profession, puis je rédige les statuts et je fais les démarches devant votre Ordre. » |
+| Création de sociétés (`SERVICES.items[0]`, 44 words, 6 acronyms) | « Je vous guide dans la création de structures adaptées à vos besoins, pour votre activité (SEL), pour votre matériel (SCM), pour vos locaux (SCI)… » | « Vous vous installez ou vous vous associez ? Je choisis avec vous la société qui convient à votre profession, puis je rédige les statuts et je fais les démarches devant votre Ordre. » |
 | Clientèle / patientèle (`items[1]`) | « Prêt, cession, apport : je vous conseille pour déterminer l'opération qui vous correspond pour sécuriser votre fonds libéral. » | « Vous reprenez ou vous cédez une patientèle ? Je vous conseille sur l'opération la plus adaptée (cession, apport ou prêt) et je le rédige avec vous. » |
 | Contentieux (`items[3]`) | « Je représente les professionnels libéraux devant les Conseils de l'Ordre. » | « Votre Ordre vous met en cause ? Je vous défends devant son Conseil de l'Ordre. » `[À CONFIRMER : situations réelles avec Eva, E3]` |
-| À propos (`ABOUT.paragraphs[2]`, 52 words) | « J'anticipe le développement de ces activités. Cela me permet de proposer un cadre adapté dès la création du projet, tout en prenant en compte les ambitions futures de chacun. J'apporte une attention particulière aux relations entre associés… » | « Dès la création, je pense à la suite : vos projets, l'arrivée d'un associé, un départ. Je règle en amont ce qui pourrait vous opposer plus tard. » |
+| À propos (`ABOUT.paragraphs[2]`, 48 words) | « J'anticipe le développement de ces activités. Cela me permet de proposer un cadre adapté dès la création du projet, tout en prenant en compte les ambitions futures de chacun. J'apporte une attention particulière aux relations entre associés… » | « Dès la création, je pense à la suite : vos projets, l'arrivée d'un associé, un départ. Je règle en amont ce qui pourrait vous opposer plus tard. » |
 | Form success (`formMessages.success`) | « …Eva vous répondra rapidement. » | « Merci, j'ai bien reçu votre message. Je vous réponds dès que possible. » (a figure only if Eva gives one, E4) |
 
 ---
@@ -140,7 +141,7 @@ review (and flagged by `check-copy.ts` where marked †).
 - **Label: « Contacter le cabinet »** (20 characters, ≤ 22). It names the real action (a message,
   a call; no booking happens, A-05) and matches #66 §4 and #67 §4.1.
 - **Same label, everywhere a CTA points to `/contact`** (#67 §8 rule 8): header, mobile menu, hero,
-  contact bands, article end, 404. No variants (« Nous contacter », « Prendre contact », « Me
+  contact bands, article end, 404. No variants (« Nous contacter », « Prendre contact » (a family member in #66 §4, dropped here to keep one label), « Me
   contacter ») next to it. The 404 button that says « Nous contacter » today (`NOT_FOUND.contactCta`)
   becomes « Contacter le cabinet ».
 - **One CTA label, one destination (`/contact`); at most one CTA button per content section** (the sticky header one excepted). Phone and email are text links beside it, never a second button.
@@ -222,17 +223,17 @@ checks, and the marker goes only when she has answered.
 | Term | Inline form (first use) | Gloss (≤ 15 words) | Status |
 |---|---|---|---|
 | SEL | société d'exercice libéral (SEL) | Société dans laquelle un professionnel libéral exerce sa profession. | |
-| SELARL | société d'exercice libéral à responsabilité limitée (SELARL) | SEL de type SARL : les associés ne répondent des dettes qu'à hauteur de leurs apports. | `[À CONFIRMER : la responsabilité professionnelle de chacun reste personnelle ; faut-il le dire ici ?]` |
-| SELAS | société d'exercice libéral par actions simplifiée (SELAS) | SEL de type SAS : les statuts organisent librement la direction et les relations entre associés. | |
-| SELU | SEL unipersonnelle (SELU) | SEL créée et détenue par une seule personne. | `[À CONFIRMER : à garder si Eva la propose ; la SELASU aurait sa ligne]` |
+| SELARL | société d'exercice libéral à responsabilité limitée (SELARL) | Société d'exercice libéral où les associés ne répondent des dettes qu'à hauteur de leurs apports. | `[À CONFIRMER : la responsabilité professionnelle de chacun reste personnelle ; faut-il le dire ici ?]` |
+| SELAS | société d'exercice libéral par actions simplifiée (SELAS) | Société d'exercice libéral dont les statuts organisent librement la direction et les relations entre associés. | |
+| SELU | société d'exercice libéral unipersonnelle (SELU) | Société d'exercice libéral créée et détenue par une seule personne. | `[À CONFIRMER : à garder si Eva la propose ; la SELASU aurait sa ligne]` |
 | SCM | société civile de moyens (SCM) | Société qui met en commun le matériel et les locaux, sans partager les honoraires. | |
 | SCP | société civile professionnelle (SCP) | Société où des professionnels exercent ensemble leur profession libérale. | `[À CONFIRMER : à garder ? la SCP n'est pas dans la copie actuelle]` |
 | SCI | société civile immobilière (SCI) | Société qui détient un bien immobilier, par exemple les locaux de votre cabinet. | |
-| SPFPL | société de participations financières de professions libérales (SPFPL) | Société holding qui détient les parts de votre société d'exercice. | |
+| SPFPL | société de participations financières de professions libérales (SPFPL) | Société qui détient les parts de votre société d'exercice. | |
 | SARL | société à responsabilité limitée (SARL) | Société commerciale où la responsabilité des associés est limitée à leurs apports. | |
 | SAS | société par actions simplifiée (SAS) | Société commerciale aux statuts très libres, avec un ou plusieurs associés. | |
-| EURL | entreprise unipersonnelle à responsabilité limitée (EURL) | SARL créée et détenue par une seule personne. | `[À CONFIRMER : à garder si Eva la propose]` |
-| SASU | société par actions simplifiée unipersonnelle (SASU) | SAS créée et détenue par une seule personne. | `[À CONFIRMER : à garder si Eva la propose]` |
+| EURL | entreprise unipersonnelle à responsabilité limitée (EURL) | Société à responsabilité limitée créée et détenue par une seule personne. | `[À CONFIRMER : à garder si Eva la propose]` |
+| SASU | société par actions simplifiée unipersonnelle (SASU) | Société par actions simplifiée créée et détenue par une seule personne. | `[À CONFIRMER : à garder si Eva la propose]` |
 | RGPD | règlement général sur la protection des données (RGPD) | Règlement européen qui protège vos données personnelles. | |
 | CNIL | Commission nationale de l'informatique et des libertés (CNIL) | Autorité française qui contrôle l'usage des données personnelles. | |
 
@@ -280,8 +281,7 @@ checks, and the marker goes only when she has answered.
 
 Terms to add when `copy.md` uses them (not in the table, so not glossed yet): « avantage
 fiscal », « parts sociales », « compte courant d'associé », « clause de non-concurrence », « rupture
-de contrat », « garantie ». Add a row here **before** using any new term; `check-copy.ts` reads
-this table (the `GLOSSARY` constant mirrors it).
+de contrat », « garantie ». Add a row here **before** using any new term; the `GLOSSARY` constant in `copy.ts` mirrors it, and `check-copy.ts` reads that constant.
 
 ---
 
@@ -311,7 +311,7 @@ real characters; do not rely on CSS.
 | Ordinals | `1er`, `1re`, `2e`, `3e` | `1ère`, `2ème` |
 | Lists | Capital after the colon only for full sentences; no final period on list items under 5 words | |
 | Acronyms | Capitals without dots: `SEL`, `SCM`; no plural `s` for the acronym (`des SEL`) | `S.E.L.`, `SELs` |
-| Meta title separator | A vertical bar with plain spaces: `Titre de la page | Eva Biezunski` (see D3) | Em dash (`NOT_FOUND.metaTitle` uses one today) |
+| Meta title separator | A vertical bar with plain spaces: `Titre de la page \| Eva Biezunski` (see D3) | Em dash (`NOT_FOUND.metaTitle` uses one today) |
 | Title case | French sentence case: only the first word and proper nouns get a capital | English Title Case |
 | Address | `29 rue du Président Édouard Herriot, 69002 Lyon` | `Lyon 2e` |
 
@@ -386,7 +386,7 @@ review, and `check-copy.ts` checks the ones marked †.
 | CTA / button label † | ≤ 22 characters | « Contacter le cabinet » = 20 |
 | Text-link label | ≤ 40 characters | Longer only when the accessible name needs the article title |
 | Kicker (overline) | ≤ 30 characters | Normal case in the source (§5) |
-| h1 | ≤ 70 characters, ≤ 12 words | One per page; the promise, not the label of the section |
+| h1 | ≤ 70 characters, ≤ 12 words | One per page; the promise, not the label of the section. Exception: the home h1 may reach 80 characters (the approved positioning A promise is 78), 12 words |
 | h2 / card title | ≤ 50 characters | |
 | Lead (first paragraph under the h1) | ≤ 30 words, ≤ 2 sentences | Carries the gloss of an acronym used in h1/meta (§4.1) |
 | Sentence | aim ≤ 20 words; hard stop 25 | |
@@ -398,9 +398,9 @@ review, and `check-copy.ts` checks the ones marked †.
 | Form help / error message | ≤ 20 words, says what to do | « Indiquez votre email pour que je puisse vous répondre. » |
 | Success / error page message | ≤ 30 words | |
 | Alt text | ≤ 125 characters | Describes, no « image de » |
-| Meta title † | ≤ 60 characters | Includes the site suffix (D3: `| Eva Biezunski`, 16 characters, so the page part ≤ 44) |
+| Meta title † | ≤ 60 characters | Includes the site suffix (D3: `\| Eva Biezunski`, 16 characters, so the page part ≤ 44) |
 | Meta description † | ≤ 155 characters; aim 120–155 | One sentence of benefit and audience; ends with a clear promise of content, never a CTA phrase |
-| Article title | ≤ 70 characters | Meta title is the article title cut to fit |
+| Article title | ≤ 70 characters | Meta title: the article title if its page part fits 44 characters, else a shorter version written by hand (no mid-word cut) |
 | Article first paragraph | ≤ 50 words | Answers the title's question (§8) |
 
 ---
@@ -420,6 +420,9 @@ Text matches normalise `’` to `'` and ignore case, so the typographic apostrop
 | `[À CONFIRMER` left in final `copy.ts` | marker match | spec §4.4 |
 | Straight apostrophe `'` in visible French text | regex | §5 |
 | « e-mail », « courriel », « Cabinet » capital, « clientèle/patientèle » | word list | §2 |
+| « en savoir plus », « lire la suite », « découvrir » as a whole link label | label match | §2, §3.2 |
+
+Rows beyond the list in spec §3 (apostrophes, word list, link labels, « nous contacter » and similar) extend `check-copy.ts`: the lead confirms the scope at review (D8).
 
 Not machine-checkable (review): ethics (§6), benefit-before-service (§1.5), sentence length,
 gloss accuracy.
@@ -471,8 +474,9 @@ Short enough to read before every publication. Everything marked ☐ must be tru
 |---|---|---|
 | D1 | Primary CTA: keep « Contacter le cabinet » or switch to the alternative « Me contacter » (§3.1) | Keep « Contacter le cabinet »; ask Eva only if she wants a first-person label |
 | D2 | « email » (current site) vs « e-mail » / « courriel » | « email » (§2) |
-| D3 | Meta title suffix: `| Eva Biezunski` with a vertical bar (16 characters) instead of the em dash used today | Yes: it leaves 44 characters for the page part of a ≤ 60 title |
+| D3 | Meta title suffix: `\| Eva Biezunski` with a vertical bar (16 characters) instead of the em dash used today | Yes: it leaves 44 characters for the page part of a ≤ 60 title |
 | D4 | « Maître » is not used in copy; legal pages may name her « Maître Eva Biezunski » if the mentions légales require it | Eva decides for the legal pages; copy says nothing |
 | D5 | Inclusive writing: no point médian, no « (e) »; rephrase to a neutral formulation (« Vous avez fait appel à moi ») | Yes, applied in §3.3 |
 | D6 | Ethics §6 is an editorial line, not legal advice; Eva confirms the Barreau rules before `copy.md` is final (E1, E8, E9, E11) | Send §6 items 7–8 to Eva with the E-questions |
 | D7 | Glossary glosses marked `[À CONFIRMER]` (§4) go in `eva-content.md`; they block no design (a safe fallback gloss is the one written) | Add one row per marker in task T-502 |
+| D8 | Scope of `check-copy.ts`: spec §3 lists 8 checks, §8 adds straight apostrophes, word-list terms and generic link labels | Accept the additions; they are cheap regexes |
