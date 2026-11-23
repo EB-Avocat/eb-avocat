@@ -172,7 +172,7 @@ review (and flagged by `check-copy.ts` where marked †).
 - Same destination → same label; different destination → different label.
 - Phone: visible text is the number (§5); accessible name « Appeler le cabinet au 07 56 85 62 75 ».
 - Email: the address is the visible text, `mailto:`.
-- Domaine links: the domaine's name (« Création de société »), never « Découvrir ».
+- Domaine links: the domaine's name (« Création de sociétés »), never « Découvrir ».
 
 ### 3.3 Review link (IA §5)
 
@@ -462,7 +462,7 @@ Short enough to read before every publication. Everything marked ☐ must be tru
 - ☐ **Contextual contact line** (one sentence tied to the topic, then « Contacter le cabinet »,
   never a second CTA label): « Vous reprenez une patientèle et vous voulez en parler ? Écrivez-moi
   ou appelez-moi au 07 56 85 62 75. » (the numbers come from the constant, not retyped)
-- ☐ Link to the related domaine page, once (« Voir le domaine : Création de société »).
+- ☐ Link to the related domaine page, once (« Voir le domaine : Création de sociétés »).
 - ☐ Review line sits **below** the contact block, as a text link (§3.3), never above it.
 - ☐ Author card: « Avocate au Barreau de Lyon », link to À propos.
 - ☐ Eva has re-read it once for the secret professionnel (§6.5) before publication.

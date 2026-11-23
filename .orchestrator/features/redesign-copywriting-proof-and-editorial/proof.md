@@ -59,7 +59,7 @@ Columns: **Source** (where the fact comes from today) · **Where used** (`copy.m
 | P4 | Memberships, mandates, commissions, associations | Eva (E1c) | `ABOUT.parcours.items`, `PROOF.credentials.items` | none | no | Eva | 2026-12-02 | No membership line |
 | P5 | Mention de spécialisation (official), if any | Eva (E1d); ethics rule 7 | `ABOUT`, `HERO.panel`, meta, only if confirmed | none | no | Eva | 2026-12-02 | No claim of specialisation; « droit des sociétés » stays a field of work |
 | P6 | Trainings given: organiser, audience, topic, year | Eva (E6a). Today's site names the themes (structures d'exercice, passage d'entrepreneur individuel à dirigeant) but no organiser or year | `FORMATIONS.items`, `FORMATIONS.intro` | none for the list; the themes already ship | partly (themes only) | Eva | 2026-12-02 | `FORMATIONS.intro` and `FORMATIONS.gloss`, as on today's site |
-| P7 | Professions and client types served | Eva (E2a). Today's site: « professionnels libéraux », « entrepreneurs »; #66 §1: health confirmed | `HERO.subheading.withProfessions`, `PROOF.professions`, `DOMAINES.*.forWhom.professions` | none | partly | Eva | 2026-12-02 | « professionnels libéraux et entrepreneurs » only |
+| P7 | Professions and client types served | Eva (E2a). Today's site: « professionnels libéraux », « entrepreneurs »; #66 §1: health confirmed | `HERO.subheadingWithProfessions`, `PROOF.professions`, `DOMAINES.*.forWhom.professions` | none | partly | Eva | 2026-12-02 | « professionnels libéraux et entrepreneurs » only |
 | P8 | Domaines of practice (création de sociétés, clientèle ou patientèle, contrats, Ordre et déontologie; mécénat; formations) | Today's `SERVICES`; positioning A | `DOMAINES.*`, `HERO.panel.lines` (« Droit des sociétés, exercice libéral ») | not needed | yes (today's site) | Eva | 2026-12-02 (E3, E7 for scope) | Pages Eva does not validate become hub sections |
 | P9 | Address, Lyon location | `CONTACT.address` | `HERO.panel.lines`, `FOOTER`, `CONTACT.metaDescription`, `CONTACT_BAND` (home) | not needed | yes | Eva | — | Shipped as is |
 
@@ -71,7 +71,7 @@ Columns: **Source** (where the fact comes from today) · **Where used** (`copy.m
 | P11 | Testimonial 2 | same | `PROOF.testimonials.items[1]` | none | no | Eva asks the client | **2026-12-14** | not rendered |
 | P12 | Testimonial 3 | same | `PROOF.testimonials.items[2]` | none | no | Eva asks the client | **2026-12-14** | not rendered |
 | P13 | Testimonial 4 | same | `PROOF.testimonials.items[3]` | none | no | Eva asks the client | **2026-12-14** | not rendered |
-| P14 | Google rating: x / 5, n reviews, date of the reading | Google Business Profile, read by Eva (E9a); nothing on today's site | `PROOF.rating`, `PROOF.ratingLink`; home, `/a-propos` | not needed for the count (public data), **Eva's OK needed** | no | Eva | 2026-12-02 | Not rendered |
+| P14 | Google rating: x / 5, n reviews, date of the reading | Google Business Profile, read by Eva (E9a); nothing on today's site | `PROOF.rating`, `PROOF.ratingLink`; home, `/a-propos` | none (public count; what is missing is Eva's OK, not a client consent) | no | Eva | 2026-12-02 | Not rendered |
 | P15 | Direct Google « write a review » link and the `/avis` short link | Eva (E9b, E9c); today `REVIEW_URL` is the map link | `REVIEW.footerLink`, `REVIEW.shortUrl`, `QR_CARD.review` | not needed | partly (today's link only) | Eva | 2026-12-02 | Today's `REVIEW_URL`; no `/avis` printed |
 
 Rows P10 to P13 are slots; the register has one row per testimonial actually collected. A refused testimonial
@@ -84,7 +84,7 @@ stays in the register as `refused`.
 | P16 | Figures she is comfortable stating (years, sociétés créées, professions), each with what it counts and its date | Eva (E10) | `PROOF.figures.items` | none | no | Eva | 2026-12-02 | No figure |
 | P17 | Typical situations and FAQ of the four domaine pages (anonymised composites) | ux drafts from today's copy and general knowledge; **fictional**, not real clients | `DOMAINES.items[*].situations`, `.faq` | not needed (fictional); each carries the label « Exemple » and the note `DOMAINES.template.situations.note` | no (Eva reads each one: X5) | Eva | 2026-12-02 | A situation or FAQ she does not confirm is cut; below the gate (3 situations, 3 FAQ) the page becomes a hub section |
 | P18 | Publications as proof of expertise (latest 3 on home, list, article count) | The back-office (API); Eva's own articles | `HOME.publications.*`, `ARTICLE.*`, `ABOUT.publications.*` | not needed (her own content) | automatic | Eva | — | Block hidden at 0 article or API failure (IA §6) |
-| P19 | Portrait photograph | Photograph used today in `About` (brand #69 §7) | `PROOF.portrait.alt`; `/a-propos`, home proof teaser | not needed (her own image); photographer's licence for web use to confirm | partly | Eva | 2026-12-02 | No portrait; typographic panel only (brand direction A) |
+| P19 | Portrait photograph | Photograph used today in `About` (brand #69 §7) | `PROOF.portrait.alt`; `/a-propos`, home proof teaser | not needed | partly (photographer's licence for web use to confirm) | Eva | 2026-12-02 | No portrait; typographic panel only (brand direction A) |
 
 ### 2.4 What never ships
 

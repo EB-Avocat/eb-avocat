@@ -30,7 +30,9 @@ answer). Only quote-block text is French copy; everything else is for the team.
 Note for `ui`: `maxChars` in `constants.ts` uses `toLocaleString("fr-FR")`, which writes a narrow
 no-break space (U+202F), not U+00A0 (G §5). Format the thousands separator with U+00A0 in `copy.ts`.
 
-**Key names.** Surviving blocks keep today's export name (`HERO`, `ABOUT`, `CONTACT`, `FOOTER`,
+**Key names.** A key holds either a string or an object, never both: where today's key is a string
+(`CONTACT.address`, `PUBLICATIONS.readMore`, `HERO.subheading`), the new sub-keys get a flat sibling name
+(`CONTACT.addressBlock.*`, `PUBLICATIONS.readMoreName`, `HERO.subheadingWithProfessions`). Surviving blocks keep today's export name (`HERO`, `ABOUT`, `CONTACT`, `FOOTER`,
 `NOT_FOUND`, `ERROR_PAGE`, `QR_CARD`, `PUBLICATIONS`). New blocks: `SITE` (extended), `HEADER`,
 `BREADCRUMB`, `REVIEW`, `CONTACT_BAND`, `PROOF`, `DOMAINES`, `FIRST_CONTACT`, `FORMATIONS`,
 `ARTICLE`, `GLOBAL_ERROR`, `PRIVACY`. `SERVICES` becomes `DOMAINES` (the word « services » is
@@ -60,7 +62,9 @@ drop the block.
   words come first in cards, headings and nav; searched acronyms appear in domaine meta and lead only
   with the gloss in the lead (G §4.1).
 - **R6. « Ordre »** is glossed on the pages where it is the topic (`/domaines`, `ordre-et-deontologie`,
-  `/a-propos`), not in the home hero, where the reader knows the word (ux-brief, « Who reads »).
+  `/a-propos`), not in the home hero, where the reader knows the word (ux-brief, « Who reads »). On `/domaines` the lead
+  repeats the approved promise (« votre Ordre ») before the gloss in `forWhom.text`: a documented exception,
+  the gloss is the next block.
 
 ---
 
@@ -75,6 +79,10 @@ drop the block.
 > Eva Biezunski, avocate au Barreau de Lyon
 
 41 characters. The home title carries the name once and no `| Eva Biezunski` suffix (G §7, D3).
+
+`SITE.titleSuffix` is the string ` | Eva Biezunski` (one leading space, 16 characters). The `metaTitle` values in this
+file are shown with the suffix already appended: `copy.ts` either builds them from the page part plus
+`SITE.titleSuffix` or keeps the full strings, never both.
 
 `SITE.titleSuffix` (appended to every other meta title)
 > | Eva Biezunski
@@ -244,7 +252,7 @@ One component, one heading, one CTA, one line that changes with the page.
 > Ou appelez-moi :
 
 `CONTACT_BAND.lines.home`
-> Décrivez-moi votre projet en quelques lignes, ou appelez-moi. Je lis chaque demande.
+> Décrivez-moi votre projet en quelques lignes, ou appelez-moi. Je lis chaque demande. [À CONFIRMER : pratique d’Eva (E4f)]
 
 `CONTACT_BAND.lines.domaines`
 > Vous ne savez pas quel domaine correspond à votre situation ? Écrivez-moi, nous la regarderons ensemble.
@@ -268,7 +276,7 @@ One component, one heading, one CTA, one line that changes with the page.
 > Vous voulez savoir si je peux vous aider ? Écrivez-moi quelques lignes, ou appelez-moi.
 
 The home band also shows email and address (IA §6); the other bands show CTA and phone. « Je lis chaque
-demande » is a fact only Eva can confirm (E4): fallback is to drop that sentence.
+demande » is a fact only Eva can confirm (E4f): fallback is to drop that sentence.
 
 ### 1.7 Proof blocks (home teaser, `/a-propos`; register in `proof.md`)
 
@@ -368,7 +376,7 @@ libéraux devant les Conseils de l'Ordre »); Eva may replace the situation lis
 `HERO.subheading` (audience line, positioning A)
 > J’accompagne les professionnels libéraux et les entrepreneurs, de la création de leur société aux démarches devant leur Ordre.
 
-`HERO.subheading.withProfessions` (only if Eva confirms the professions, E2)
+`HERO.subheadingWithProfessions` (only if Eva confirms the professions, E2)
 > J’accompagne les professionnels libéraux ([À CONFIRMER : santé, droit, chiffre… (E2)]) et les entrepreneurs, de la création de leur société aux démarches devant leur Ordre.
 
 Fallback: `HERO.subheading`. « Accompagner » is the umbrella verb, used once on the page (G §2).
@@ -433,11 +441,12 @@ says otherwise (E3).
 > J’y explique en mots simples les questions que se posent les professionnels libéraux.
 
 `HOME.publications.viewAll` = `PUBLICATIONS.viewAll` (§10). Card link: `PUBLICATIONS.readMore` with the title in the
-accessible name (`PUBLICATIONS.readMore.name`, §10). Block hidden if 0 articles or the API fails (IA §6).
+accessible name (`PUBLICATIONS.readMoreName`, §10). Block hidden if 0 articles or the API fails (IA §6).
 
 ### 2.5 « Comment ça se passe » (id `premier-contact`, conditional)
 
-Heading, steps and fallback. The draft uses the facts Eva has not given yet: each is marked.
+Heading, steps and fallback. The draft uses the facts Eva has not given yet: each is marked. Order of the
+steps follows what the reader lives: write, get my answer, set the first exchange, prepare, fees.
 
 `FIRST_CONTACT.heading` (h2)
 > Comment ça se passe
@@ -447,16 +456,16 @@ Heading, steps and fallback. The draft uses the facts Eva has not given yet: eac
 > Par le formulaire, par email ou par téléphone, comme vous préférez. Dites-moi votre situation en quelques lignes.
 
 `FIRST_CONTACT.steps[1]`
+> Je vous réponds
+> Je vous réponds sous [À CONFIRMER : délai habituel (E4)].
+
+`FIRST_CONTACT.steps[2]`
 > Nous fixons un premier échange
 > Nous choisissons ensemble le format : [À CONFIRMER : appel, visioconférence ou rendez-vous à mon cabinet ; durée ; payant ou non (E4)].
 
-`FIRST_CONTACT.steps[2]`
+`FIRST_CONTACT.steps[3]`
 > Vous préparez l’essentiel
 > Apportez ce que vous avez : statuts ou projet de contrat, courriers de votre Ordre, dates importantes. [À CONFIRMER : liste d’Eva (E4)]
-
-`FIRST_CONTACT.steps[3]`
-> Je vous réponds
-> Je vous réponds sous [À CONFIRMER : délai habituel (E4)].
 
 `FIRST_CONTACT.steps[4]`
 > Je vous indique mes honoraires
@@ -464,7 +473,7 @@ Heading, steps and fallback. The draft uses the facts Eva has not given yet: eac
 
 **Fallback A** (E4 or E5 partly missing): keep only the steps whose facts are confirmed, in that order.
 
-**Fallback B** (no fact from Eva by 2026-12-02; every sentence is already true today):
+**Fallback B** (no fact from Eva by 2026-12-02; every sentence is already true today, except the secret line, which waits for E11):
 
 `FIRST_CONTACT.fallback.heading`
 > Comment ça se passe
@@ -474,8 +483,8 @@ Heading, steps and fallback. The draft uses the facts Eva has not given yet: eac
 > Par le formulaire, par email ou par téléphone, comme vous préférez.
 
 `FIRST_CONTACT.fallback.steps[1]`
-> Je lis votre demande
-> Je vous réponds et je vous dis si je peux vous aider.
+> Je vous réponds
+> Je vous dis si je peux vous aider et comment.
 
 `FIRST_CONTACT.fallback.steps[2]`
 > Ce que vous écrivez reste confidentiel
@@ -493,7 +502,7 @@ Heading, steps and fallback. The draft uses the facts Eva has not given yet: eac
 
 ### 3.1 Meta, heading, lead
 
-`DOMAINES.hub.metaTitle` (page part 24)
+`DOMAINES.hub.metaTitle` (page part 23)
 > Domaines d’intervention | Eva Biezunski
 
 `DOMAINES.hub.metaDescription`
@@ -615,7 +624,7 @@ The three other domaines, `label` as link text (§1.8).
 
 ## 4. `/domaines/creation-de-societe`
 
-`DOMAINES.items[creation-de-societe].metaTitle` (page part 33)
+`DOMAINES.items[creation-de-societe].metaTitle` (page part 31)
 > Créer une SEL ou une SCM à Lyon | Eva Biezunski
 
 `DOMAINES.items[creation-de-societe].metaDescription`
@@ -755,7 +764,8 @@ section (the page stays valid with cession and apport).
 > Avant de commencer, je vous indique mes honoraires, c’est-à-dire le prix de mon travail, par écrit. [À CONFIRMER : principe d’honoraires (E5)]
 
 Fallback: drop the fourth question if E5 is unanswered; drop the third if Eva does not use the term (the
-glossary row stays unused).
+glossary row stays unused). **Launch gate (IA §2, ≥ 3 FAQ):** dropping both leaves two questions. Then Eva
+supplies a third question, or the page falls back to its hub section (§3.4).
 
 `DOMAINES.items[cession-clientele-patientele].band` = `CONTACT_BAND.lines.cession-clientele-patientele`.
 
@@ -836,7 +846,7 @@ Fallback: drop the fourth question if E5 is unanswered.
 > Question de déontologie, échange avec votre Ordre, contentieux ordinal : avocate à Lyon, je conseille et je défends les professionnels libéraux.
 
 `DOMAINES.items[ordre-et-deontologie].h1`
-> Être conseillé, et défendu si besoin, face à votre Ordre
+> Face à votre Ordre : un conseil, et une défense si besoin
 
 `DOMAINES.items[ordre-et-deontologie].lead` (glosses Ordre and déontologie, used in the meta)
 > Votre Ordre réunit les membres de votre profession et fixe sa déontologie, ses règles de conduite. Je vous conseille et, si besoin, je vous défends devant lui.
@@ -875,7 +885,7 @@ Fallback: drop the last sentence and keep « devant le Conseil de l'Ordre » (
 > Vous avez reçu un courrier et vous ne savez pas comment répondre. Je le lis avec vous et je prépare la réponse.
 >
 > Une plainte est déposée contre vous
-> Vous voulez être défendu devant le Conseil de l’Ordre. Je prépare votre dossier et je vous défends. [À CONFIRMER : Eva remplace ou valide ces trois exemples, relus comme cas fictifs (E3)]
+> Vous voulez une défense devant le Conseil de l’Ordre. Je prépare votre dossier et je vous défends. [À CONFIRMER : Eva remplace ou valide ces trois exemples, relus comme cas fictifs (E3)]
 
 `DOMAINES.items[ordre-et-deontologie].faq`
 > Qu’est-ce qu’un litige devant l’Ordre ?
@@ -896,7 +906,7 @@ Fallback: drop the last sentence and keep « devant le Conseil de l'Ordre » (
 
 ## 8. `/a-propos` (IA §3 order: who, approach, Formations, publications, band)
 
-`ABOUT.metaTitle` (page part 28)
+`ABOUT.metaTitle` (page part 29)
 > Mon parcours d’avocate à Lyon | Eva Biezunski
 
 `ABOUT.metaDescription` (third person allowed in meta, G §1.1)
@@ -947,7 +957,7 @@ Fallback: if E1 gives nothing, no list; the lead and § 8.2 carry the page.
 > Formations
 
 `FORMATIONS.intro`
-> Je forme des professionnels libéraux et des entrepreneurs. Mes thèmes : les structures d’exercice de leur profession, et le passage d’entrepreneur individuel à dirigeant de société.
+> Je forme des professionnels libéraux et des entrepreneurs. Mes thèmes : les sociétés d’exercice de leur profession, et le passage d’entrepreneur individuel à dirigeant de société.
 
 « Entrepreneur individuel » and « dirigeant » are glossed by one clause each if the line is kept as is:
 
@@ -980,17 +990,19 @@ confirmed. Contact band: `CONTACT_BAND.lines.aPropos`, `CONTACT_BAND.cta`, phone
 
 ## 9. `/contact` (IA §3: h1, channels, form, address; no band)
 
-`CONTACT.metaTitle` (page part 38)
+`CONTACT.metaTitle` (page part 36)
 > Contacter le cabinet, avocate à Lyon | Eva Biezunski
 
 `CONTACT.metaDescription`
-> Trois façons de joindre Eva Biezunski, avocate au Barreau de Lyon : formulaire, téléphone, email. Adresse : 29 rue du Président Édouard Herriot, Lyon 2e.
+> Trois façons de joindre Eva Biezunski, avocate au Barreau de Lyon : formulaire, téléphone, email. 29 rue du Président Édouard Herriot, 69002 Lyon.
 
 `CONTACT.h1`
 > Écrivez-moi ou appelez-moi
 
 `CONTACT.intro` (lead)
-> Décrivez votre situation en quelques lignes : je lis votre demande et je vous réponds. Si vous préférez, appelez-moi ou envoyez-moi un email.
+> Décrivez votre situation en quelques lignes : je lis votre demande et je vous réponds. Si vous préférez, appelez-moi ou envoyez-moi un email. [À CONFIRMER : « je lis votre demande », pratique d’Eva (E4f)]
+
+Fallback: « Décrivez votre situation en quelques lignes : je vous réponds. Si vous préférez, appelez-moi ou envoyez-moi un email. »
 
 ### 9.1 Three channels as equals (phone and email first on mobile, #66 §7)
 
@@ -1178,13 +1190,13 @@ formulaire : appelez-moi ou écrivez-moi, je vous dirai comment faire. »
 Fallback: « Je lis chaque demande et je vous réponds. Pour une urgence, appelez-moi. » (the « Je lis chaque demande »
 sentence waits for Eva too, E4; if she declines, keep « Pour une urgence, appelez-moi. » alone.)
 
-`CONTACT.address.heading` (h2)
+`CONTACT.addressBlock.heading` (h2)
 > Adresse et accès
 
-`CONTACT.address.link` (visible text `{{address}}`; accessible suffix, new tab)
+`CONTACT.addressBlock.link` (visible text `{{address}}`; accessible suffix, new tab)
 > Voir sur la carte (s’ouvre dans un nouvel onglet)
 
-`CONTACT.address.access`
+`CONTACT.addressBlock.access`
 > [À CONFIRMER : accès (métro, parking), horaires d’accueil, sur rendez-vous uniquement ou non (E4)]
 
 Fallback: the address and the map link only.
@@ -1212,11 +1224,11 @@ Fallback: the address and the map link only.
 
 Keys that stay as today (no change of wording): `empty` « Aucune publication pour le moment. Revenez bientôt. »,
 `viewAll` « Voir toutes les publications », `allCategories` « Toutes », `filterLabel` « Filtrer par
-catégorie », `moreCategories` « Plus de catégories », `categoriesLabel` « Catégories de l'article »,
-`readMore` « Lire l'article », `by` « Par », `previousPage` « Page précédente », `nextPage` « Page
+catégorie », `moreCategories` « Plus de catégories », `categoriesLabel` « Catégories de l’article »,
+`readMore` « Lire l’article », `by` « Par », `previousPage` « Page précédente », `nextPage` « Page
 suivante », `pageLabel` « Page ». `backToList` is removed (the breadcrumb replaces it, IA §9).
 
-`PUBLICATIONS.readMore.name` (accessible name of a card link, so the generic label carries the title, G §3.2)
+`PUBLICATIONS.readMoreName` (accessible name of a card link, so the generic label carries the title, G §3.2)
 > Lire l’article : {{title}}
 
 `PUBLICATIONS.coverAlt` (no « image de », ≤ 125)
@@ -1385,16 +1397,20 @@ retention and the transfer mechanism are also checked by #80.
 
 `PRIVACY.edit3.row.retention` (§5 table: new row, two cells)
 > Mesure d’audience
-> 25 mois maximum [À CONFIRMER : durée réellement configurée, #80]
+> 25 mois maximum
+
+#80 sets the measurement tool to this retention and fixes the figure here if it differs; not a question for Eva.
 
 `PRIVACY.edit4.transfer` (§7: replaces the sentence on the « EEE »)
-> Vos Données sont stockées dans l’Espace Économique Européen (« EEE ») lorsque c’est possible. Vercel Inc. est une société établie aux États-Unis. Les Données qu’elle traite peuvent y être transférées, selon le Data Privacy Framework UE-États-Unis ou les clauses contractuelles types de son accord. [À CONFIRMER : mécanisme réellement applicable, vérifié par #80]
+> Vos Données sont stockées dans l’Espace Économique Européen (« EEE ») lorsque c’est possible. Vercel Inc. est une société établie aux États-Unis. Les Données qu’elle traite peuvent y être transférées, selon le Data Privacy Framework UE-États-Unis ou les clauses contractuelles types de son accord.
+
+#80 checks the mechanism that really applies and corrects the sentence if needed; not a question for Eva.
 
 `PRIVACY.edit5.objection` (§6: new paragraph; the email comes from `CONTACT.email`)
 > Mesure d’audience. Le Site mesure sa fréquentation avec des outils qui ne déposent aucun cookie et ne vous suivent pas d’un site à l’autre. Vous pouvez vous opposer à cette mesure à tout moment, en écrivant à {{email}}.
 
-`PRIVACY.edit5.updated` (date line; the date is the day #80 ships the wording)
-> Date de dernière mise à jour : [À CONFIRMER : date de mise en ligne (#80)]
+`PRIVACY.edit5.updated` (date line; `{{date}}` is the day #80 ships the wording, written by #80, not by Eva)
+> Date de dernière mise à jour : {{date}}
 
 ---
 

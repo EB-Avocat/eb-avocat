@@ -42,8 +42,8 @@ finalised, no `[À CONFIRMER]` left). English doc, French quoted as is.
 
 | ID | Question | Why | Blocks | Owner | Deadline | Status | If no answer | Answer |
 |---|---|---|---|---|---|---|---|---|
-| E2a | Which professions do you actually serve, in order of importance? Health (which ones: médecins, kinés, infirmiers…)? Law? Chiffre? Others? Also entrepreneurs? | #66 §1 confirms only health; the hero audience line, « Pour qui » on each page and the choice « patientèle » or « clientèle » depend on it (`copy.md` uses « clientèle ou patientèle ») | `HERO.subheading.withProfessions`; `PROOF.professions`; `DOMAINES.hub.forWhom.professions`; `DOMAINES.template.forWhom.professions`; #71, #72 | Eva | 2026-12-02 | sent 2026-11-23 (E2) | Audience stays « professionnels libéraux et entrepreneurs »; no profession named; « clientèle ou patientèle » everywhere | |
-| E2b | For the professions you serve: what does the Ordre require when someone creates a société, transfers a clientèle or signs a contract (information, approval, filing)? In short, per profession | Four FAQ answers say « dans de nombreuses professions… » (general, true); Eva can make them specific, or confirm they stay general | `DOMAINES.items[creation-de-societe].faq[1]`, `[cession-clientele-patientele].faq[1]`, `[contrats-professionnels].faq[0]` | Eva | 2026-12-02 | new | General wording stays (« la règle dépend de votre profession ») | |
+| E2a | Which professions do you actually serve, in order of importance? Health (which ones: médecins, kinés, infirmiers…)? Law? Chiffre? Others? Also entrepreneurs? | #66 §1 confirms only health; the hero audience line, « Pour qui » on each page and the choice « patientèle » or « clientèle » depend on it (`copy.md` uses « clientèle ou patientèle ») | `HERO.subheadingWithProfessions`; `PROOF.professions`; `DOMAINES.hub.forWhom.professions`; `DOMAINES.template.forWhom.professions`; #71, #72 | Eva | 2026-12-02 | sent 2026-11-23 (E2) | Audience stays « professionnels libéraux et entrepreneurs »; no profession named; « clientèle ou patientèle » everywhere | |
+| E2b | For the professions you serve: what does the Ordre require when someone creates a société, transfers a clientèle or signs a contract (information, approval, filing)? In short, per profession | Three FAQ answers say « dans de nombreuses professions… » (general, true); Eva can make them specific, or confirm they stay general | `DOMAINES.items[creation-de-societe].faq[1]`, `[cession-clientele-patientele].faq[1]`, `[contrats-professionnels].faq[0]` | Eva | 2026-12-02 | new | General wording stays (« la règle dépend de votre profession ») | |
 
 ## E3. The four domaines (launch gate, #67 §2)
 
@@ -63,10 +63,10 @@ Eva reads each one and confirms it is not a real client (ethics rule 4).
 
 | ID | Question | Why | Blocks | Owner | Deadline | Status | If no answer | Answer |
 |---|---|---|---|---|---|---|---|---|
-| E4a | Format of the first exchange: phone call, visioconférence, meeting at the cabinet? Which do you offer? | « Comment ça se passe » step 2 | `FIRST_CONTACT.steps[1]`; #71 | Eva | 2026-12-02 | sent 2026-11-23 (E4) | `FIRST_CONTACT.fallback` (no format named) | |
-| E4b | Is the first exchange charged? How long does it last? | Honest fees (ethics rule 6): no « gratuit » unless she confirms it complies | `FIRST_CONTACT.steps[1]` | Eva | 2026-12-02 | sent 2026-11-23 (E4) | Say nothing about price or duration | |
-| E4c | Usual response delay to a first message (e.g. « 48 heures ouvrées »)? | Success message, `/contact`, home step; A-17 (no vague « rapidement ») | `CONTACT.formMessages.success`; `CONTACT.delay.text`; `FIRST_CONTACT.steps[3]` | Eva | 2026-12-02 | sent 2026-11-23 (E4) | « Je vous réponds dès que possible » (no figure) | |
-| E4d | What should a prospect bring or send first (documents, dates)? Anything they must **not** send before you reply? | « Vous préparez l'essentiel »; `/contact` « Ce que vous pouvez m'indiquer » | `FIRST_CONTACT.steps[2]`; `CONTACT.prepare.items` | Eva | 2026-12-02 | new | Keep the generic list of the draft | |
+| E4a | Format of the first exchange: phone call, visioconférence, meeting at the cabinet? Which do you offer? | « Comment ça se passe » step 3 | `FIRST_CONTACT.steps[2]`; #71 | Eva | 2026-12-02 | sent 2026-11-23 (E4) | `FIRST_CONTACT.fallback` (no format named) | |
+| E4b | Is the first exchange charged? How long does it last? | Honest fees (ethics rule 6): no « gratuit » unless she confirms it complies | `FIRST_CONTACT.steps[2]` | Eva | 2026-12-02 | sent 2026-11-23 (E4) | Say nothing about price or duration | |
+| E4c | Usual response delay to a first message (e.g. « 48 heures ouvrées »)? | Success message, `/contact`, home step; A-17 (no vague « rapidement ») | `CONTACT.formMessages.success`; `CONTACT.delay.text`; `FIRST_CONTACT.steps[1]` | Eva | 2026-12-02 | sent 2026-11-23 (E4) | « Je vous réponds dès que possible » (no figure) | |
+| E4d | What should a prospect bring or send first (documents, dates)? Anything they must **not** send before you reply? | « Vous préparez l'essentiel »; `/contact` « Ce que vous pouvez m'indiquer » | `FIRST_CONTACT.steps[3]`; `CONTACT.prepare.items` | Eva | 2026-12-02 | new | Keep the generic list of the draft | |
 | E4e | Address access (métro, parking, floor, intercom), opening hours, by appointment only? | `/contact` « Adresse et accès » (#67 §3) | `CONTACT.address.access` | Eva | 2026-12-02 | new | Address and map link only | |
 | E4f | Is « Je lis chaque demande » true as a standing practice? | Home band line (§1.6) and `/contact` intro (« je lis votre demande ») | `CONTACT_BAND.lines.home`, `CONTACT.intro` | Eva | 2026-12-02 | new | Drop the sentence from the band; `/contact` intro keeps « je vous réponds » | |
 
@@ -74,7 +74,7 @@ Eva reads each one and confirms it is not a real client (ethics rule 4).
 
 | ID | Question | Why | Blocks | Owner | Deadline | Status | If no answer | Answer |
 |---|---|---|---|---|---|---|---|---|
-| E5a | May the site state the **principle** of your fees: written convention d'honoraires before you start (forfait or temps passé)? Not a figure | Home step 5; four FAQ (« Combien cela coûte-t-il ? ») | `FIRST_CONTACT.steps[4]`; FAQ cost item of each domaine | Eva | 2026-12-02 | sent 2026-11-23 (E5) | Drop step 5 and the four cost FAQ (three FAQ remain on each page) | |
+| E5a | May the site state the **principle** of your fees: written convention d'honoraires before you start (forfait or temps passé)? Not a figure | Home step 5; three FAQ (« Combien cela coûte-t-il ? », création, cession, contrats) | `FIRST_CONTACT.steps[4]`; FAQ cost item of each domaine | Eva | 2026-12-02 | sent 2026-11-23 (E5) | Drop step 5 and the three cost FAQ (three FAQ remain on each page; if E3b also drops the non-réinstallation question, the cession page keeps two and needs a third question or becomes a hub section) | |
 | E5b | Do you use the term **« convention d'honoraires »** (rather than devis or contrat d'honoraires)? | Word list G §2; gloss G §4.3 | `FIRST_CONTACT.steps[4]` | Eva | 2026-12-02 | sent 2026-11-23 (E5) | Use « honoraires » with its gloss only | |
 
 ## E6. Trainings (Formations)
@@ -94,7 +94,7 @@ Eva reads each one and confirms it is not a real client (ethics rule 4).
 
 | ID | Question | Why | Blocks | Owner | Deadline | Status | If no answer | Answer |
 |---|---|---|---|---|---|---|---|---|
-| E8a | Which 2 to 4 clients would give a short quote, **in writing**? With name or initials + profession, or anonymous? | Proof layer; no quote ships without written consent (`proof.md` P9) | `PROOF.testimonials`; home, `/a-propos`; #71, #73 | Eva asks clients | **2026-12-14** | sent 2026-11-23 (E8) | Block not rendered | |
+| E8a | Which 2 to 4 clients would give a short quote, **in writing**? With name or initials + profession, or anonymous? | Proof layer; no quote ships without written consent (`proof.md` P10 to P13) | `PROOF.testimonials`; home, `/a-propos`; #71, #73 | Eva asks clients | **2026-12-14** | sent 2026-11-23 (E8) | Block not rendered | |
 | E8b | Do you accept the consent wording of `proof.md` (what, where, how long, revocable)? | One wording for every client | `proof.md` consent record | Eva | 2026-12-02 | new | Use the wording as drafted | |
 | E8c | Does your Barreau allow testimonials on a lawyer's site? Any conditions (no selection, date, anonymity)? | Ethics rule 8; the rules differ and Eva has the last word | `PROOF.testimonials`; X4 | Eva | 2026-12-02 | new | No testimonials | |
 
@@ -102,7 +102,7 @@ Eva reads each one and confirms it is not a real client (ethics rule 4).
 
 | ID | Question | Why | Blocks | Owner | Deadline | Status | If no answer | Answer |
 |---|---|---|---|---|---|---|---|---|
-| E9a | May the site show « Note Google : x / 5 (n avis), au [date] » as **static text** you update by hand? Which numbers today? | Proof (P10); ethics rule 8; no widget, no API | `PROOF.rating`, `PROOF.ratingLink` | Eva | 2026-12-02 | sent 2026-11-23 (E9) | Block not rendered | |
+| E9a | May the site show « Note Google : x / 5 (n avis), au [date] » as **static text** you update by hand? Which numbers today? | Proof (P14); ethics rule 8; no widget, no API | `PROOF.rating`, `PROOF.ratingLink` | Eva | 2026-12-02 | sent 2026-11-23 (E9) | Block not rendered | |
 | E9b | The direct « write a review » link from your Google profile (the current `maps.app.goo.gl` link opens the map, #67 Q8) | The review link of the footer, article end, `/carte` | `REVIEW.footerLink`; #80 | Eva | 2026-12-02 | sent 2026-11-23 (E9) | Keep today's link | |
 | E9c | OK to print and give out `biezunski-avocat.fr/avis`? | Short link for invoices, emails, card (#67 §5) | `REVIEW.shortUrl`; #80 | Eva | 2026-12-02 | sent 2026-11-23 (E9) | The short link is not shown or printed | |
 
@@ -110,7 +110,7 @@ Eva reads each one and confirms it is not a real client (ethics rule 4).
 
 | ID | Question | Why | Blocks | Owner | Deadline | Status | If no answer | Answer |
 |---|---|---|---|---|---|---|---|---|
-| E10 | Which figures are you comfortable stating (years of practice, sociétés créées, professions)? Each one with what it counts and the date | Proof (P12); none is shown without her OK; no success rate (ethics rule 2) | `PROOF.figures.items` | Eva | 2026-12-02 | sent 2026-11-23 (E10) | No figure on the site | |
+| E10 | Which figures are you comfortable stating (years of practice, sociétés créées, professions)? Each one with what it counts and the date | Proof (P16); none is shown without her OK; no success rate (ethics rule 2) | `PROOF.figures.items` | Eva | 2026-12-02 | sent 2026-11-23 (E10) | No figure on the site | |
 
 ## E11. Privacy, secret professionnel, form line
 
@@ -155,7 +155,7 @@ and 8 go to her with the questionnaire (`lead`'s decision on D6).
 |---|---|
 | année du serment (`ABOUT.lead`, `HERO.panel.since`, `PROOF.credentials.items`) | E1a |
 | diplôme, adhésion ou mandat | E1b, E1c |
-| professions (`HERO.subheading.withProfessions`, `PROOF.professions`, hub, template) | E2a |
+| professions (`HERO.subheadingWithProfessions`, `PROOF.professions`, hub, template) | E2a |
 | règle par profession (three FAQ) | E2b |
 | situations réelles, pacte d'associés, démarches / enregistrement, prêt, non-réinstallation, contrat definitions, chambre disciplinaire, examples | E3a to E3d, X5 |
 | format, délai, honoraires on home and forms | E4a to E4c, E5a, E5b |
