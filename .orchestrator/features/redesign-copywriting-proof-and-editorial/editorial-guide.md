@@ -246,6 +246,7 @@ checks, and the marker goes only when she has answered.
 | apport | un apport | Ce qu'un associé met dans la société : argent, matériel ou clientèle. | |
 | cession | une cession | Vente ou transfert d'une clientèle, de parts ou d'un bien à quelqu'un d'autre. | |
 | fonds libéral | le fonds libéral | Ce qu'on achète en reprenant une activité libérale : patientèle, matériel, bail. | `[À CONFIRMER : formulation juridique exacte du fonds libéral et de sa clientèle selon les professions]` |
+| prêt de clientèle | un prêt de clientèle | Mise à disposition temporaire d'une clientèle, sans la vendre. | `[À CONFIRMER : sens du « prêt » pour les professions servies, E3]` |
 | clause de non-réinstallation | une clause de non-réinstallation | Engagement de ne pas rouvrir un cabinet près de l'ancien après une cession. | `[À CONFIRMER : si le terme sera utilisé]` |
 | convention d'honoraires | une convention d'honoraires | Accord écrit qui fixe le prix de mon travail avant que je commence. | `[À CONFIRMER : pratique d'Eva, E5]` |
 | honoraires | mes honoraires | Le prix de mon travail d'avocate. | |
@@ -255,7 +256,7 @@ checks, and the marker goes only when she has answered.
 | contrat de prestation de services | un contrat de prestation de services | Contrat où un professionnel réalise un travail précis pour un autre, contre rémunération. | |
 | entrepreneur individuel | entrepreneur individuel | Vous exercez en votre nom propre, sans créer de société. | |
 | dirigeant | dirigeant | Personne qui dirige une société et l'engage envers les tiers. | |
-| conflit d'intérêts | un conflit d'intérêts | Situation où je ne peux pas vous défendre parce que j'ai déjà un autre client. | |
+| conflit d'intérêts | un conflit d'intérêts | Les intérêts d'un autre client s'opposent aux vôtres : je ne peux pas vous conseiller. | |
 
 ### 4.4 Ordre, déontologie, contentieux
 
