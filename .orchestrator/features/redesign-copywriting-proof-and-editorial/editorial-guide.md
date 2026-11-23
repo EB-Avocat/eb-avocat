@@ -85,8 +85,8 @@ legal object. Before/after from the current copy (illustrative drafts, the final
 | Slot | Before (`constants.ts`) | After |
 |---|---|---|
 | Hero (`HERO`) | « Avocate en droit des sociétés » / « Cabinet d'avocat dédié aux professionnels libéraux » | « Structurer votre exercice libéral, en accord avec votre Ordre et vos associés. » then « Avocate au Barreau de Lyon, j'accompagne les professionnels libéraux et les entrepreneurs. » (#66 §3) |
-| Création de sociétés (`SERVICES.items[0]`, 51 words, 6 acronyms) | « Je vous guide dans la création de structures adaptées à vos besoins, pour votre activité (SEL), pour votre matériel (SCM), pour vos locaux (SCI)… » | « Vous vous installez ou vous vous associez ? Je choisis avec vous la société qui convient à votre profession, puis je rédige les statuts et je m'occupe des démarches devant votre Ordre. » |
-| Clientèle / patientèle (`items[1]`) | « Prêt, cession, apport : je vous conseille pour déterminer l'opération qui vous correspond pour sécuriser votre fonds libéral. » | « Vous reprenez ou vous cédez une patientèle ? Je vous conseille sur l'opération la plus adaptée (cession, apport ou prêt) et je la sécurise par écrit. » |
+| Création de sociétés (`SERVICES.items[0]`, 51 words, 6 acronyms) | « Je vous guide dans la création de structures adaptées à vos besoins, pour votre activité (SEL), pour votre matériel (SCM), pour vos locaux (SCI)… » | « Vous vous installez ou vous vous associez ? Je choisis avec vous la société qui convient à votre profession, puis je rédige les statuts et je fais les démarches devant votre Ordre. » |
+| Clientèle / patientèle (`items[1]`) | « Prêt, cession, apport : je vous conseille pour déterminer l'opération qui vous correspond pour sécuriser votre fonds libéral. » | « Vous reprenez ou vous cédez une patientèle ? Je vous conseille sur l'opération la plus adaptée (cession, apport ou prêt) et je le rédige avec vous. » |
 | Contentieux (`items[3]`) | « Je représente les professionnels libéraux devant les Conseils de l'Ordre. » | « Votre Ordre vous met en cause ? Je vous défends devant son Conseil de l'Ordre. » `[À CONFIRMER : situations réelles avec Eva, E3]` |
 | À propos (`ABOUT.paragraphs[2]`, 52 words) | « J'anticipe le développement de ces activités. Cela me permet de proposer un cadre adapté dès la création du projet, tout en prenant en compte les ambitions futures de chacun. J'apporte une attention particulière aux relations entre associés… » | « Dès la création, je pense à la suite : vos projets, l'arrivée d'un associé, un départ. Je règle en amont ce qui pourrait vous opposer plus tard. » |
 | Form success (`formMessages.success`) | « …Eva vous répondra rapidement. » | « Merci, j'ai bien reçu votre message. Je vous réponds dès que possible. » (a figure only if Eva gives one, E4) |
@@ -143,10 +143,10 @@ review (and flagged by `check-copy.ts` where marked †).
   contact bands, article end, 404. No variants (« Nous contacter », « Prendre contact », « Me
   contacter ») next to it. The 404 button that says « Nous contacter » today (`NOT_FOUND.contactCta`)
   becomes « Contacter le cabinet ».
-- **One primary CTA per view.** Phone and email are text links beside it, never a second button.
+- **One CTA label, one destination (`/contact`); at most one CTA button per content section** (the sticky header one excepted). Phone and email are text links beside it, never a second button.
 - Verb first, infinitive. No « rendez-vous », no « gratuit » (§6), no « maintenant », no
   exclamation mark.
-- Accessible name = visible label (no hidden extra words that change meaning).
+- The accessible name contains the visible label verbatim (WCAG 2.5.3); hidden words only add context.
 
 **One proposed alternative (your decision, D1 in §10): « Me contacter »** (12 characters).
 - *For*: it keeps « je » all the way to the button (A-30); it is shorter (fits the mobile header
@@ -163,8 +163,8 @@ review (and flagged by `check-copy.ts` where marked †).
 
 ### 3.2 Secondary links
 
-- **Text links, never buttons**, below or beside the CTA: « Appeler au 07 56 85 62 75 »,
-  the email address itself, « Laisser un avis », « Voir tous les domaines ».
+- **Text links, never buttons**, below or beside the CTA: the phone number itself,
+  the email address itself, « Laisser un avis », « Tous les domaines » (IA §4.4).
 - **Understandable out of context**: the link text alone says where it goes (« Lire l'article
   Choisir sa société d'exercice »), not « En savoir plus » or « Lire la suite ». Card links that
   repeat a generic label (« Lire l'article ») must carry the title in the accessible name.
@@ -221,17 +221,18 @@ checks, and the marker goes only when she has answered.
 
 | Term | Inline form (first use) | Gloss (≤ 15 words) | Status |
 |---|---|---|---|
-| SEL | société d'exercice libéral (SEL) | Société qui permet à un professionnel libéral d'exercer sa profession en société. | |
+| SEL | société d'exercice libéral (SEL) | Société dans laquelle un professionnel libéral exerce sa profession. | |
 | SELARL | société d'exercice libéral à responsabilité limitée (SELARL) | SEL de type SARL : les associés ne répondent des dettes qu'à hauteur de leurs apports. | `[À CONFIRMER : la responsabilité professionnelle de chacun reste personnelle ; faut-il le dire ici ?]` |
 | SELAS | société d'exercice libéral par actions simplifiée (SELAS) | SEL de type SAS : les statuts organisent librement la direction et les relations entre associés. | |
-| SELU / SELASU | SEL à associé unique | SEL créée et détenue par une seule personne. | `[À CONFIRMER : à garder si Eva la propose]` |
+| SELU | SEL unipersonnelle (SELU) | SEL créée et détenue par une seule personne. | `[À CONFIRMER : à garder si Eva la propose ; la SELASU aurait sa ligne]` |
 | SCM | société civile de moyens (SCM) | Société qui met en commun le matériel et les locaux, sans partager les honoraires. | |
 | SCP | société civile professionnelle (SCP) | Société où des professionnels exercent ensemble leur profession libérale. | `[À CONFIRMER : à garder ? la SCP n'est pas dans la copie actuelle]` |
 | SCI | société civile immobilière (SCI) | Société qui détient un bien immobilier, par exemple les locaux de votre cabinet. | |
 | SPFPL | société de participations financières de professions libérales (SPFPL) | Société holding qui détient les parts de votre société d'exercice. | |
 | SARL | société à responsabilité limitée (SARL) | Société commerciale où la responsabilité des associés est limitée à leurs apports. | |
 | SAS | société par actions simplifiée (SAS) | Société commerciale aux statuts très libres, avec un ou plusieurs associés. | |
-| EURL / SASU | société à associé unique (EURL, SASU) | Société commerciale créée par une seule personne. | `[À CONFIRMER : à garder si Eva les propose]` |
+| EURL | entreprise unipersonnelle à responsabilité limitée (EURL) | SARL créée et détenue par une seule personne. | `[À CONFIRMER : à garder si Eva la propose]` |
+| SASU | société par actions simplifiée unipersonnelle (SASU) | SAS créée et détenue par une seule personne. | `[À CONFIRMER : à garder si Eva la propose]` |
 | RGPD | règlement général sur la protection des données (RGPD) | Règlement européen qui protège vos données personnelles. | |
 | CNIL | Commission nationale de l'informatique et des libertés (CNIL) | Autorité française qui contrôle l'usage des données personnelles. | |
 
@@ -248,7 +249,7 @@ checks, and the marker goes only when she has answered.
 | convention d'honoraires | une convention d'honoraires | Accord écrit qui fixe le prix de mon travail avant que je commence. | `[À CONFIRMER : pratique d'Eva, E5]` |
 | honoraires | mes honoraires | Le prix de mon travail d'avocate. | |
 | contrat de collaboration | un contrat de collaboration | Contrat où un professionnel travaille à son compte, pour un confrère, avec sa propre clientèle. | `[À CONFIRMER : définition valable pour les professions servies, E2]` |
-| contrat de remplacement | un contrat de remplacement | Contrat qui permet à un confrère d'exercer à votre place pendant votre absence. | |
+| contrat de remplacement | un contrat de remplacement | Contrat par lequel un confrère exerce à votre place pendant votre absence. | |
 | contrat d'exercice | un contrat d'exercice | Contrat qui organise l'exercice commun de plusieurs professionnels : locaux, charges, départ. | `[À CONFIRMER : portée exacte chez Eva]` |
 | contrat de prestation de services | un contrat de prestation de services | Contrat où un professionnel réalise un travail précis pour un autre, contre rémunération. | |
 | entrepreneur individuel | entrepreneur individuel | Vous exercez en votre nom propre, sans créer de société. | |
@@ -314,8 +315,12 @@ real characters; do not rely on CSS.
 | Title case | French sentence case: only the first word and proper nouns get a capital | English Title Case |
 | Address | `29 rue du Président Édouard Herriot, 69002 Lyon` | `Lyon 2e` |
 
+Display number: `CONTACT.phone` is `+33 7 56 85 62 75`, so `copy.ts` adds a `phoneDisplay` constant (`07` + pairs, U+00A0 between) and prose never retypes the number.
+
+Examples in this guide use `'` for readability; `copy.md` converts to `’`.
+
 Writing note: in a Markdown or TypeScript source, the U+00A0 is invisible. Paste the character, or
-use the escape ` ` in a JS/TS string; `check-copy.ts` flags an ordinary space before
+use the escape `\u00A0` in a JS/TS string; `check-copy.ts` flags an ordinary space before
 `» : ; ? !` and after `«`.
 
 ---
@@ -402,9 +407,11 @@ review, and `check-copy.ts` checks the ones marked †.
 
 ## 8. What `check-copy.ts` and review enforce
 
+Text matches normalise `’` to `'` and ignore case, so the typographic apostrophe of §5 does not hide a banned phrase.
+
 | Rule | Mechanical test | Section |
 |---|---|---|
-| Acronym used before its gloss on a page | acronym (from §4 table) appears in a page's text before its first inline form | §4.1 |
+| Acronym used before its gloss on a page | acronym (from §4 table) appears in a page's body text before its first inline form; an h1 or meta may use a searched acronym when the gloss is in the first paragraph (§4.1 rule 2) | §4.1 |
 | Nav > 12, CTA > 22 characters | length of `NAV_*`, `*cta*` | §3.5, §7 |
 | Plain space before `» : ; ? !` or after `«` | regex | §5 |
 | « rendez-vous » in a CTA | label match | §3.1 |
