@@ -172,7 +172,7 @@ review (and flagged by `check-copy.ts` where marked †).
 - Same destination → same label; different destination → different label.
 - Phone: visible text is the number (§5); accessible name « Appeler le cabinet au 07 56 85 62 75 ».
 - Email: the address is the visible text, `mailto:`.
-- Domaine links: the domaine's name (« Création de société »), never « Découvrir ».
+- Domaine links: the domaine's name (« Création de sociétés »), never « Découvrir ».
 
 ### 3.3 Review link (IA §5)
 
@@ -246,6 +246,7 @@ checks, and the marker goes only when she has answered.
 | apport | un apport | Ce qu'un associé met dans la société : argent, matériel ou clientèle. | |
 | cession | une cession | Vente ou transfert d'une clientèle, de parts ou d'un bien à quelqu'un d'autre. | |
 | fonds libéral | le fonds libéral | Ce qu'on achète en reprenant une activité libérale : patientèle, matériel, bail. | `[À CONFIRMER : formulation juridique exacte du fonds libéral et de sa clientèle selon les professions]` |
+| prêt de clientèle | un prêt de clientèle | Mise à disposition temporaire d'une clientèle, sans la vendre. | `[À CONFIRMER : sens du « prêt » pour les professions servies, E3]` |
 | clause de non-réinstallation | une clause de non-réinstallation | Engagement de ne pas rouvrir un cabinet près de l'ancien après une cession. | `[À CONFIRMER : si le terme sera utilisé]` |
 | convention d'honoraires | une convention d'honoraires | Accord écrit qui fixe le prix de mon travail avant que je commence. | `[À CONFIRMER : pratique d'Eva, E5]` |
 | honoraires | mes honoraires | Le prix de mon travail d'avocate. | |
@@ -255,7 +256,7 @@ checks, and the marker goes only when she has answered.
 | contrat de prestation de services | un contrat de prestation de services | Contrat où un professionnel réalise un travail précis pour un autre, contre rémunération. | |
 | entrepreneur individuel | entrepreneur individuel | Vous exercez en votre nom propre, sans créer de société. | |
 | dirigeant | dirigeant | Personne qui dirige une société et l'engage envers les tiers. | |
-| conflit d'intérêts | un conflit d'intérêts | Situation où je ne peux pas vous défendre parce que j'ai déjà un autre client. | |
+| conflit d'intérêts | un conflit d'intérêts | Les intérêts d'un autre client s'opposent aux vôtres : je ne peux pas vous conseiller. | |
 
 ### 4.4 Ordre, déontologie, contentieux
 
@@ -461,7 +462,7 @@ Short enough to read before every publication. Everything marked ☐ must be tru
 - ☐ **Contextual contact line** (one sentence tied to the topic, then « Contacter le cabinet »,
   never a second CTA label): « Vous reprenez une patientèle et vous voulez en parler ? Écrivez-moi
   ou appelez-moi au 07 56 85 62 75. » (the numbers come from the constant, not retyped)
-- ☐ Link to the related domaine page, once (« Voir le domaine : Création de société »).
+- ☐ Link to the related domaine page, once (« Voir le domaine : Création de sociétés »).
 - ☐ Review line sits **below** the contact block, as a text link (§3.3), never above it.
 - ☐ Author card: « Avocate au Barreau de Lyon », link to À propos.
 - ☐ Eva has re-read it once for the secret professionnel (§6.5) before publication.
