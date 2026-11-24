@@ -31,11 +31,12 @@ import * as COPY from "./copy.ts";
 
 type Copy = Record<string, unknown>;
 type Leaf = { path: string; text: string };
+type Glossary = readonly { term: string; inline: string; acronym: boolean }[];
 type Failure = { rule: string; key: string; detail: string };
 /** A page: patterns of keys in reading order. `head` = meta + h1, `lead` = first paragraph. */
 type Page = { name: string; head: string[]; lead?: string; body: string[] };
 
-const NBSP = " ";
+const NBSP = "\u00A0";
 
 // ---------------------------------------------------------------------------------------------
 // Flattening
@@ -68,9 +69,15 @@ function flatten(value: unknown, path: string, out: Leaf[]): Leaf[] {
 }
 
 /** `pattern` covers `path` if it is the same key or a parent of it; `[*]` matches any index. */
+const coverRes = new Map<string, RegExp>();
 function covers(pattern: string, path: string): boolean {
-	const re = pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\\\[\\\*\\\]/g, "\\[[^\\]]+\\]");
-	return new RegExp(`^${re}(?=$|[.[])`).test(path);
+	let re = coverRes.get(pattern);
+	if (!re) {
+		const src = pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\\\[\\\*\\\]/g, "\\[[^\\]]+\\]");
+		re = new RegExp(`^${src}(?=$|[.[])`);
+		coverRes.set(pattern, re);
+	}
+	return re.test(path);
 }
 
 const select = (leaves: Leaf[], patterns: string[]) => {
@@ -90,7 +97,7 @@ const select = (leaves: Leaf[], patterns: string[]) => {
 
 function buildPages(copy: Copy): Page[] {
 	const slugs = (copy.DOMAINES as { items: readonly { slug: string }[] }).items.map((d) => d.slug);
-	const band = (line: string) => [`CONTACT_BAND.heading`, `CONTACT_BAND.lines.${line}`, "CONTACT_BAND.cta", "CONTACT_BAND.phoneLead"];
+	const band = (line: string) => ["CONTACT_BAND.heading", `CONTACT_BAND.lines.${line}`, "CONTACT_BAND.cta", "CONTACT_BAND.phoneLead"];
 	const domainePage = (s: string): Page => {
 		const d = `DOMAINES.items[${s}]`;
 		return {
@@ -208,8 +215,12 @@ const THIRD_PERSON_OK = [
 	/^QR_CARD\.(title|metaTitle)$/,
 	/^PRIVACY\./,
 ];
-/** « nous » = « vous et moi » without « ensemble » in the sentence (guide §1.1). */
-const NOUS_YOU_AND_I = [/^DOMAINES\.items\[creation-de-societe\]\.how\.steps\[(0|2)\]$/];
+/** Approved sentences where « nous » means « vous et moi » without « ensemble » (guide §1.1). Matched
+ * as whole sentences, so editing one needs a new review. */
+const NOUS_YOU_AND_I = new Set([
+	"Nous faisons le point sur votre profession, votre projet et vos associés éventuels.",
+	"Vous relisez, nous ajustons.",
+]);
 /** Legal pages keep their own register (« le Cabinet », « nos sous-traitants », copy.md R4). */
 const LEGAL = [/^PRIVACY\./];
 
@@ -227,11 +238,13 @@ const GENERIC_LINK = /^(en savoir plus|lire la suite|découvrir|ici)$/u;
 const word = (w: string, flags = "u") => new RegExp(`(?<![\\p{L}\\p{N}])(?:${w})(?![\\p{L}\\p{N}])`, flags);
 const THIRD_PERSON = word("Eva|Biezunski|Mme|Maître");
 const NOUS = word("nous|notre|nos", "iu");
+const CABINET = word("Cabinet");
+const RDV = word("rendez-vous|rdv", "iu");
 /** Matching ignores case, apostrophe style and space style. */
-const norm = (s: string) => s.replace(/’/g, "'").replace(/ /g, " ").toLowerCase();
+const norm = (s: string) => s.replace(/’/g, "'").replace(/\u00A0/g, " ").toLowerCase();
 const any = (res: RegExp[], path: string) => res.some((re) => re.test(path));
 
-function checkAcronyms(page: Page, leaves: Leaf[], glossary: readonly { term: string; inline: string; acronym: boolean }[], fail: (f: Failure) => void) {
+function checkAcronyms(page: Page, leaves: Leaf[], glossary: Glossary, fail: (f: Failure) => void) {
 	// The glossary's own definitions are not uses.
 	leaves = leaves.filter((l) => !covers("GLOSSARY", l.path));
 	const head = select(leaves, page.head);
@@ -255,22 +268,21 @@ function checkAcronyms(page: Page, leaves: Leaf[], glossary: readonly { term: st
 	}
 }
 
-function runRules(copy: Copy, pages: Page[]): Failure[] {
+function runRules(copy: Copy, pages: Page[], leaves = flatten(copy, "", [])): Failure[] {
 	const failures: Failure[] = [];
 	const fail = (f: Failure) => failures.push(f);
-	const leaves = flatten(copy, "", []);
 
 	for (const { path, text } of leaves) {
 		const len = [...text].length;
 		if (any(NAV_KEYS, path) && len > 12) fail({ rule: "nav-length", key: path, detail: `${len} > 12 characters` });
 		if (any(CTA_KEYS, path)) {
 			if (len > 22) fail({ rule: "cta-length", key: path, detail: `${len} > 22 characters` });
-			if (/rendez-vous|(?<![\p{L}\p{N}])rdv(?![\p{L}\p{N}])/iu.test(text)) fail({ rule: "cta-rdv", key: path, detail: "« rendez-vous » in a CTA" });
+			if (RDV.test(text)) fail({ rule: "cta-rdv", key: path, detail: "« rendez-vous » in a CTA" });
 		}
 		if (any(META_TITLE, path) && len > 60) fail({ rule: "meta-length", key: path, detail: `title ${len} > 60 characters` });
 		if (any(META_DESCRIPTION, path) && len > 155) fail({ rule: "meta-length", key: path, detail: `description ${len} > 155 characters` });
-		const sp = /(^|[^ ])([:;?!»])|«(?! )/.exec(text);
-		if (sp) fail({ rule: "nbsp", key: path, detail: `no U+00A0 at « ${text.slice(Math.max(0, sp.index - 12), sp.index + 3).replace(/ /g, "⍽")} »` });
+		const sp = /(^|[^\u00A0])([:;?!»])|«(?!\u00A0)/.exec(text);
+		if (sp) fail({ rule: "nbsp", key: path, detail: `no U+00A0 at « ${text.slice(Math.max(0, sp.index - 12), sp.index + 3).replace(/\u00A0/g, "⍽")} »` });
 		if (!any(THIRD_PERSON_OK, path)) {
 			const m = THIRD_PERSON.exec(text);
 			if (m) fail({ rule: "third-person", key: path, detail: `« ${m[0]} » outside the identification places` });
@@ -278,26 +290,23 @@ function runRules(copy: Copy, pages: Page[]): Failure[] {
 		// « nous » is banned everywhere, identification places included (the site has no team); only
 		// the legal pages keep it.
 		if (!any(LEGAL, path)) {
-			const youAndI = any(NOUS_YOU_AND_I, path);
 			for (const sentence of text.split(/(?<=[.?!…])\s+/)) {
 				const n = NOUS.exec(sentence);
-				if (n && !youAndI && !/ensemble/i.test(sentence)) fail({ rule: "third-person", key: path, detail: `« ${n[0]} »: the site has no team; use « je »` });
+				if (n && !NOUS_YOU_AND_I.has(sentence) && !/ensemble/i.test(sentence)) fail({ rule: "third-person", key: path, detail: `« ${n[0]} »: the site has no team; use « je »` });
 			}
-		}
-		if (!any(LEGAL, path)) {
 			const n = norm(text);
 			for (const b of BANNED) if (b.re.test(n)) fail({ rule: "word-list", key: path, detail: b.what });
-			if (word("Cabinet").test(text)) fail({ rule: "word-list", key: path, detail: "« Cabinet » with a capital C (use « le cabinet »)" });
+			if (CABINET.test(text)) fail({ rule: "word-list", key: path, detail: "« Cabinet » with a capital C (use « le cabinet »)" });
 			if (GENERIC_LINK.test(n.trim())) fail({ rule: "link-label", key: path, detail: `generic link label « ${text} »` });
 		}
 		if (text.includes("[À CONFIRMER")) fail({ rule: "marker", key: path, detail: "unresolved [À CONFIRMER marker" });
 		if (text.includes("'")) fail({ rule: "apostrophe", key: path, detail: "straight apostrophe, use ’" });
 	}
 
-	const mapped = new Set(pages.flatMap((p) => select(leaves, [...p.head, ...(p.lead ? [p.lead] : []), ...p.body]).map((l) => l.path)));
+	const mapped = new Set(pages.flatMap((p) => select(leaves, [...p.head, ...p.body]).map((l) => l.path)));
 	for (const l of leaves) if (!mapped.has(l.path)) fail({ rule: "unmapped", key: l.path, detail: "belongs to no page in buildPages()" });
 
-	const glossary = (copy.GLOSSARY ?? []) as readonly { term: string; inline: string; acronym: boolean }[];
+	const glossary = (copy.GLOSSARY ?? []) as Glossary;
 	for (const page of pages) checkAcronyms(page, leaves, glossary, fail);
 	return failures;
 }
@@ -305,30 +314,25 @@ function runRules(copy: Copy, pages: Page[]): Failure[] {
 // ---------------------------------------------------------------------------------------------
 // Parity with copy.md
 
-/** copy.ts keys with no quote block of their own in copy.md (references `=`, data, unchanged keys). */
+/** copy.ts keys with neither a quote block nor an `A = B` reference in copy.md: not compared. */
 const NOT_IN_MD = [
-	"HOME.metaTitle", // = SITE.title
-	"HOME.metaDescription", // = SITE.description
-	"HOME.publications.viewAll", // = PUBLICATIONS.viewAll
-	"DOMAINES.items[*].band", // = CONTACT_BAND.lines.<slug>
-	"ABOUT.portrait.alt", // = PROOF.portrait.alt
-	"ABOUT.parcours.items", // = PROOF.credentials.items, then PROOF.professions
-	"QR_CARD.review", // = REVIEW.footerLink
+	"ABOUT.parcours.items", // PROOF.credentials.items, then PROOF.professions
 	"NAV_LINKS", // HEADER.nav with the #67 routes
 	"OTHER_SUBJECT", // last of CONTACT.subjectOptions
 	"CONTACT.address", // data (constants.ts)
 	"CONTACT.addressParts",
 	"CONTACT.phoneDisplay",
 	"GLOSSARY", // editorial-guide §4
-	// Unchanged keys, listed in a note of copy.md §10.1:
+	// Unchanged keys, listed as prose (no quote block) in a note of copy.md §10.1:
 	...["empty", "viewAll", "allCategories", "filterLabel", "moreCategories", "categoriesLabel", "readMore", "by", "previousPage", "nextPage", "pageLabel"].map((k) => `PUBLICATIONS.${k}`),
 ];
 
-/** copy.md key → copy.ts key, where the structure differs. */
-const MD_ALIASES: Record<string, string> = {
-	"PROOF.reviews.item.meta": "PROOF.reviews.quotes.item.meta",
-	"PROOF.reviews.item.name": "PROOF.reviews.quotes.item.name",
-};
+/** copy.md references `` `A` = `B` `` (copy.md §0): A must hold the same strings as B. */
+function parseRefs(md: string) {
+	const refs: { from: string; to: string }[] = [];
+	for (const m of md.matchAll(/`([A-Z][A-Z_]*\.[^`]+)` = `([A-Z][A-Z_]*\.[^`]+)`(?!, then)/g)) refs.push({ from: m[1], to: m[2] });
+	return refs;
+}
 
 /** `{ key, lines }` for every key followed by a quote block (copy.md §0 format). */
 function parseMd(md: string) {
@@ -352,9 +356,9 @@ function parseMd(md: string) {
 	return blocks;
 }
 
-function runParity(copy: Copy, md: string): Failure[] {
+function runParity(copy: Copy, md: string, leaves = flatten(copy, "", [])): Failure[] {
 	const failures: Failure[] = [];
-	const leaves = flatten(copy, "", []);
+	const fail = (f: Failure) => failures.push(f);
 	const c = copy as { CONTACT: { phoneDisplay: string; email: string; address: string }; CONTACT_LIMITS: Record<string, number> };
 	const resolve = (s: string) =>
 		s
@@ -370,25 +374,31 @@ function runParity(copy: Copy, md: string): Failure[] {
 	const show = (s: string) => JSON.stringify(s).replace(/\u00A0/g, "\\u00A0");
 	const covered = new Set<string>();
 	for (const b of parseMd(md)) {
-		const key = MD_ALIASES[b.key] ?? b.key;
-		const got = leaves.filter((l) => covers(key, l.path));
+		const got = leaves.filter((l) => covers(b.key, l.path));
 		if (got.length === 0) {
-			failures.push({ rule: "md-parity", key: b.key, detail: `copy.md l.${b.line}: key missing in copy.ts` });
+			fail({ rule: "md-parity", key: b.key, detail: `copy.md l.${b.line}: key missing in copy.ts` });
 			continue;
 		}
 		for (const l of got) covered.add(l.path);
 		if (got.length !== b.lines.length) {
-			failures.push({ rule: "md-parity", key: b.key, detail: `copy.md l.${b.line}: ${b.lines.length} line(s) in copy.md, ${got.length} string(s) in copy.ts` });
+			fail({ rule: "md-parity", key: b.key, detail: `copy.md l.${b.line}: ${b.lines.length} line(s) in copy.md, ${got.length} string(s) in copy.ts` });
 			continue;
 		}
 		b.lines.forEach((mdLine, i) => {
 			if (!same(mdLine, got[i]))
-				failures.push({ rule: "md-parity", key: got[i].path, detail: `copy.md l.${b.line}: differs\n    md: ${show(resolve(mdLine))}\n    ts: ${show(got[i].text)}` });
+				fail({ rule: "md-parity", key: got[i].path, detail: `copy.md l.${b.line}: differs\n    md: ${show(resolve(mdLine))}\n    ts: ${show(got[i].text)}` });
 		});
+	}
+	for (const r of parseRefs(md)) {
+		const from = leaves.filter((l) => covers(r.from, l.path));
+		const to = leaves.filter((l) => covers(r.to, l.path)).map((l) => l.text);
+		for (const l of from) covered.add(l.path);
+		if (from.length && from.map((l) => l.text).join("\n") !== to.join("\n"))
+			fail({ rule: "md-parity", key: r.from, detail: `copy.md says it equals ${r.to}, but the strings differ` });
 	}
 	for (const l of leaves)
 		if (!covered.has(l.path) && !NOT_IN_MD.some((p) => covers(p, l.path)))
-			failures.push({ rule: "md-parity", key: l.path, detail: "no quote block in copy.md (add one, or list it in NOT_IN_MD)" });
+			fail({ rule: "md-parity", key: l.path, detail: "no quote block in copy.md (add one, or list it in NOT_IN_MD)" });
 	return failures;
 }
 
@@ -404,8 +414,8 @@ function selfTest(): string[] {
 		T: {
 			metaTitle: "Créer une SEL | Eva Biezunski",
 			lead: "Une société d’exercice libéral (SEL), puis la SEL.",
-			band: "Vous hésitez ? Écrivez-moi, nous la regarderons ensemble.",
-			quote: "« Exemple »",
+			band: "Vous hésitez\u00A0? Écrivez-moi, nous la regarderons ensemble.",
+			quote: "«\u00A0Exemple\u00A0»",
 		},
 	};
 	const cleanPages = page(["GLOSSARY", "HEADER", "T.lead", "T.band", "T.quote"], ["T.metaTitle"], "T.lead");
@@ -416,17 +426,17 @@ function selfTest(): string[] {
 		{ rule: "nav-length", copy: { HEADER: { nav: { domaines: "Domaines d’intervention" } } }, pages: page(["HEADER"]) },
 		{ rule: "cta-length", copy: { HERO: { cta: "Contacter le cabinet d’avocat" } }, pages: page(["HERO"]) },
 		{ rule: "cta-rdv", copy: { HERO: { cta: "Prendre rendez-vous" } }, pages: page(["HERO"]) },
+		{ rule: "cta-rdv", copy: { HERO: { cta: "Prendre un RDV" } }, pages: page(["HERO"]) },
 		{ rule: "meta-length", copy: { T: { metaTitle: "x".repeat(61) } }, pages: page([], ["T"]) },
 		{ rule: "meta-length", copy: { T: { metaDescription: "x".repeat(156) } }, pages: page([], ["T"]) },
 		{ rule: "nbsp", copy: { T: { text: "Une question ?" } }, pages: page(["T"]) },
 		{ rule: "nbsp", copy: { T: { text: "Appelez-moi:" } }, pages: page(["T"]) },
-		{ rule: "nbsp", copy: { T: { text: "« Exemple »" } }, pages: page(["T"]) },
-		{ rule: "nbsp", copy: { T: { text: "« Exemple »" } }, pages: page(["T"]) },
+		{ rule: "nbsp", copy: { T: { text: "« Exemple\u00A0»" } }, pages: page(["T"]) }, // none after «
+		{ rule: "nbsp", copy: { T: { text: "«\u00A0Exemple »" } }, pages: page(["T"]) }, // none before »
 		{ rule: "third-person", copy: { T: { text: "Eva vous répond." } }, pages: page(["T"]) },
 		{ rule: "third-person", copy: { T: { contactCta: "Nous contacter" } }, pages: page(["T"]) },
 		{ rule: "third-person", copy: { T: { text: "Notre cabinet vous répond." } }, pages: page(["T"]) },
 		{ rule: "third-person", copy: { T: { metaDescription: "Nous accompagnons les professionnels libéraux." } }, pages: page([], ["T"]) },
-		{ rule: "cta-rdv", copy: { HERO: { cta: "Prendre un RDV" } }, pages: page(["HERO"]) },
 		{ rule: "word-list", copy: { T: { text: "Envoyez-moi un e-mail." } }, pages: page(["T"]) },
 		{ rule: "word-list", copy: { T: { text: "N'hésitez pas à m’écrire." } }, pages: page(["T"]) },
 		{ rule: "word-list", copy: { T: { text: "Le Cabinet vous répond." } }, pages: page(["T"]) },
@@ -462,7 +472,8 @@ if (process.argv.includes("--self-test")) {
 
 const copy = COPY as unknown as Copy;
 const md = readFileSync(join(import.meta.dir, "copy.md"), "utf8");
-const failures = [...runRules(copy, buildPages(copy)), ...runParity(copy, md)];
+const leaves = flatten(copy, "", []);
+const failures = [...runRules(copy, buildPages(copy), leaves), ...runParity(copy, md, leaves)];
 for (const f of failures) console.log(`${f.rule} ${f.key}: ${f.detail}`);
-console.log(failures.length ? `\n${failures.length} failure(s)` : `copy.ts OK (${flatten(copy, "", []).length} strings checked)`);
+console.log(failures.length ? `\n${failures.length} failure(s)` : `copy.ts OK (${leaves.length} strings checked)`);
 process.exit(failures.length ? 1 : 0);

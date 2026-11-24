@@ -198,12 +198,10 @@ export const PROOF = {
 		// Fallback when the fetch fails or returns no review: this link alone.
 		link: "Voir tous les avis sur Google",
 		linkName: "Voir tous les avis sur Google (s’ouvre dans un nouvel onglet)",
-		/** Variant (b) only: render these when `variant === "b"`. Review text is Google’s, never typed here. */
-		quotes: {
-			item: {
-				meta: ({ author, date }: { author: string; date: string }) => `${author} · ${date}`,
-				name: ({ author, date }: { author: string; date: string }) => `Avis de ${author}, ${date}`,
-			},
+		/** Variant (b) only: render `item` when `variant === "b"`. Review text is Google’s, never typed here. */
+		item: {
+			meta: ({ author, date }: { author: string; date: string }) => `${author} · ${date}`,
+			name: ({ author, date }: { author: string; date: string }) => `Avis de ${author}, ${date}`,
 		},
 	},
 	rating: {
