@@ -1,9 +1,10 @@
 # Copy (#68, task T-502 draft)
 
 French copy for every page of the #67 IA, in IA order, one stable key per slot. English notes, French
-quoted as is. **Draft for Eva**: every `[À CONFIRMER : …]` waits for her answer (row id in
-`eva-content.md`); each one has its fallback written here, so design never waits (spec §4.5). The final
-`copy.md` (T-503) has no marker left.
+quoted as is. **T-503 version**: Eva's part 1 answers (relayed 2026-11-24) are applied. The `[À CONFIRMER : …]`
+markers still in the file wait for her part 2 or for answers not given yet (row id in `eva-content.md`;
+the list is in § 13); each has its fallback written here, so design never waits (spec §4.5). The
+last version of `copy.md` has no marker left; Eva approves it as a whole.
 
 Inputs: `editorial-guide.md` (the rules; cited as **G §n**), `spec.md`, `ux-brief.md`, #66
 `objectives.md` (positioning A, §6 privacy), #67 `ia.md` (cited as **IA §n**), `constants.ts`.
@@ -32,15 +33,15 @@ no-break space (U+202F), not U+00A0 (G §5). Format the thousands separator with
 
 **Key names.** A key holds either a string or an object, never both: where today's key is a string
 (`CONTACT.address`, `PUBLICATIONS.readMore`, `HERO.subheading`), the new sub-keys get a flat sibling name
-(`CONTACT.addressBlock.*`, `PUBLICATIONS.readMoreName`, `HERO.subheadingWithProfessions`). Surviving blocks keep today's export name (`HERO`, `ABOUT`, `CONTACT`, `FOOTER`,
+(`CONTACT.addressBlock.*`, `PUBLICATIONS.readMoreName`). Surviving blocks keep today's export name (`HERO`, `ABOUT`, `CONTACT`, `FOOTER`,
 `NOT_FOUND`, `ERROR_PAGE`, `QR_CARD`, `PUBLICATIONS`). New blocks: `SITE` (extended), `HEADER`,
-`BREADCRUMB`, `REVIEW`, `CONTACT_BAND`, `PROOF`, `DOMAINES`, `FIRST_CONTACT`, `FORMATIONS`,
-`ARTICLE`, `GLOBAL_ERROR`, `PRIVACY`. `SERVICES` becomes `DOMAINES` (the word « services » is
+`BREADCRUMB`, `REVIEW`, `CONTACT_BAND`, `PROOF`, `DOMAINES`, `FIRST_CONTACT`,
+`ARTICLE`, `GLOBAL_ERROR`, `PRIVACY`. `FORMATIONS` is not created (R8). `SERVICES` becomes `DOMAINES` (the word « services » is
 avoided, G §2). `REVIEW_CTA` becomes `REVIEW` (the home review band is gone, IA §5). `NAV_LINKS` and
 `PUBLICATIONS_LINK` become `HEADER.nav` (no more hash anchors, IA §4). Arrays use the slug as index:
 `DOMAINES.items[creation-de-societe].faq[0].q`.
 
-**Status marks.** `[À CONFIRMER : … (E4)]` = Eva must confirm; the number is the row in
+**Status marks.** `[À CONFIRMER : … (E4d)]` = Eva must confirm; the id is the row in
 `eva-content.md`. « Fallback » = the text to use if the answer does not come, or the instruction to
 drop the block.
 
@@ -65,6 +66,20 @@ drop the block.
   `/a-propos`), not in the home hero, where the reader knows the word (ux-brief, « Who reads »). On `/domaines` the lead
   repeats the approved promise (« votre Ordre ») before the gloss in `forWhom.text`: a documented exception,
   the gloss is the next block.
+- **R7. Changes against IA §2 and §3 (Eva, part 1, 2026-11-24).**
+  - **E6, Formations dropped.** No `/a-propos#formations` section, no pointer on `/domaines`, no
+    « Formations » subject option, no « formations » in `HOME.domaines`. IA §3 loses the Formations block
+    of `/a-propos`. Removed from this file: `FORMATIONS.*`, `DOMAINES.formations.*`; « mes formations » in
+    `HOME.proof.link` and `ABOUT.metaDescription`.
+  - **E7, Mécénat dropped (no longer active).** No `/domaines#mecenat` section, no « Également » line on
+    the home (nothing is left in it, IA §6), no « Mécénat » subject option, no mécénat glossary rows
+    (guide §4.5 removed). Removed from this file: `DOMAINES.mecenat.*`, `HOME.domaines.also`.
+  - The four domaines stay the only domaines (IA §2: 4 core domaines).
+- **R8. No `FORMATIONS` block.** The key family is not created; `ui` does not build a Formations block,
+  anchor or subject option.
+- **R9. Consent and rating (E8, E9).** Google reviews are shown, not typed in by hand: `copy.md` covers the
+  slots (heading, rating line, update line, attribution, link, author and date labels), never the review
+  text. How the reviews are pulled in is a user decision still open; the copy is the same either way.
 
 ---
 
@@ -236,7 +251,7 @@ is removed with the section (IA §5).
 `REVIEW.shortUrl` (printed or spoken form of the `/avis` short link, for the card and signatures)
 > biezunski-avocat.fr/avis
 
-Used only if Eva agrees to print it (E9).
+Used only if Eva agrees to print it (E9c, not answered yet: the short link is not printed or shown until she does).
 
 ### 1.6 Contact band (every page end except `/contact`; IA §8)
 
@@ -281,45 +296,68 @@ demande » is a fact only Eva can confirm (E4f): fallback is to drop that sente
 ### 1.7 Proof blocks (home teaser, `/a-propos`; register in `proof.md`)
 
 Every block is conditional. A block whose proof item has no confirmed answer is **not rendered** (no empty
-heading). All facts below are `[À CONFIRMER]`.
+heading).
 
-`PROOF.credentials.items` (list of facts, each rendered only if confirmed)
-> Avocate au Barreau de Lyon depuis [À CONFIRMER : année du serment, E1]
-> [À CONFIRMER : diplôme, université, année (E1)]
-> [À CONFIRMER : adhésion ou mandat (E1)]
+`PROOF.credentials.items` (list of facts; E1: 2020, no diploma or membership given)
+> Avocate au Barreau de Lyon depuis 2020
 
-Fallback: a single fact, « Avocate au Barreau de Lyon » (already public on today's site).
+One fact. The oath was taken on 12 novembre 2020; the site says the year only. No diploma line, no
+membership line unless part 2 brings them (E1b and E1c are closed as « none given »). The official
+specialisation question (E1d) stays open: no claim of specialisation until Eva answers.
 
-`PROOF.professions`
-> Professions de mes clients : [À CONFIRMER : liste ordonnée (E2)]
+`PROOF.professions` (E2: every liberal health profession, the other liberal professions)
+> Je travaille avec toutes les professions de santé libérales, avec les autres professions libérales et avec les entrepreneurs.
 
-Fallback: omit the line (the audience stays « professionnels libéraux et entrepreneurs »).
+`PROOF.rating` and `PROOF.reviews` (E8, E9; Google reviews shown on the site, how they are pulled in is a
+user decision; one block, rendered only if Google returns at least one rating)
+
+`PROOF.reviews.heading` (h2 on `/a-propos`, h3 in the home teaser)
+> Avis de mes clients sur Google
+
+`PROOF.rating.line` (`{{rating}}` and `{{count}}` come from Google)
+> Note Google : {{rating}}/5 ({{count}} avis)
+
+`PROOF.rating.updated`
+> Mis à jour le {{date}}
+
+`PROOF.reviews.attribution`
+> Avis publiés sur Google
+
+`PROOF.reviews.item.author` (up to 5 items; first name as returned by Google; the review text is shown as
+Google returns it, never edited or typed here)
+> {{firstName}}
+
+`PROOF.reviews.item.date`
+> {{date}}
+
+`PROOF.reviews.item.name` (accessible name of each review, so the author and date are read first)
+> Avis de {{firstName}}, {{date}}
+
+`PROOF.reviews.link` (visible text; opens a new tab)
+> Voir tous les avis sur Google
+
+`PROOF.reviews.link.name` (accessible name, says the new tab)
+> Voir tous les avis sur Google (s’ouvre dans un nouvel onglet)
+
+Rule: no selection of the review text by the copy, no reply text, no star icon without the number next to
+it. If Google returns no review, or the call fails, the whole block is not rendered (no empty heading).
+
+`PROOF.testimonials` (written consent, E8)
+Status: **none yet**, so the block is not rendered at launch. The format stays for later; no quote
+ships without the consent record of `proof.md` §1. Consent wording and the Barreau's rule are with Eva:
+[À CONFIRMER : consentement et règle du Barreau sur les témoignages (E8b, E8c)]
 
 `PROOF.testimonials.heading`
 > Ce que disent mes clients
 
-`PROOF.testimonials.items[i]` (format; 2 to 4 items, only with written consent, E8)
-> « [À CONFIRMER : citation de 1 à 2 phrases, relue et signée par la personne] »
-> [À CONFIRMER : prénom ou initiales, profession (ou « client anonyme »), mois et année]
-
-Fallback: block not rendered. Never a quote without a date and consent on file (G §6.8).
-
-`PROOF.rating`
-> Note Google : [À CONFIRMER : x,x] / 5 ([À CONFIRMER : n] avis), au [À CONFIRMER : date] (E9)
-
-`PROOF.ratingLink`
-> Lire les avis sur Google
-
-Static text updated by hand, never a widget; the date is the date of the reading (G §6.8). Link opens a
-new tab (suffix `REVIEW.externalSuffix`). Fallback: not rendered.
-
-`PROOF.figures.items`
-> [À CONFIRMER : chiffre et ce qu’il compte, par exemple « 12 ans de barreau » (E10)]
-
-Fallback: not rendered. No figure ships without Eva's written OK.
+`PROOF.testimonials.items[i]` (2 to 4 items, only with written consent)
+> « {{quote}} »
+> {{author}}, {{profession}}, {{monthYear}}
 
 `PROOF.portrait.alt`
 > Portrait d’Eva Biezunski, avocate au Barreau de Lyon
+
+Figures (`PROOF.figures`) are dropped: Eva gave none (E10). No figure on the site.
 
 ### 1.8 Domaine list (one source for every domaine link, IA §2)
 
@@ -354,10 +392,11 @@ Card texts (home cards §2.2 and hub cards §3.3; ≤ 40 words; benefit, then wh
 > Vous rejoignez un confrère, vous le remplacez ou vous exercez à ses côtés ? Je rédige et je négocie le contrat qui fixe les règles, y compris celles du départ.
 
 `DOMAINES.items[ordre-et-deontologie].card`
-> Une question sur les règles de votre profession (la déontologie), un échange avec votre Ordre, une procédure disciplinaire ? Je vous conseille et, si besoin, je vous défends devant le Conseil de l’Ordre. [À CONFIRMER : situations réelles (E3)]
+> Une question sur les règles de votre profession (la déontologie), un échange avec votre Ordre, une procédure disciplinaire ? Je vous conseille et, si besoin, je vous défends devant le Conseil de l’Ordre.
 
-Fallback for the marker: keep the card as written (it follows today's « Je représente les professionnels
-libéraux devant les Conseils de l'Ordre »); Eva may replace the situation list.
+The card follows today's « Je représente les professionnels libéraux devant les Conseils de l'Ordre ».
+Order of the four on the home and the hub (E3): Création de sociétés, Clientèle ou patientèle, Contrats
+professionnels (the three of today's home lead), then Ordre et déontologie.
 
 ---
 
@@ -370,16 +409,14 @@ libéraux devant les Conseils de l'Ordre »); Eva may replace the situation lis
 `HERO.kicker` (≤ 30)
 > Avocate au Barreau de Lyon
 
-`HERO.heading` (h1, 78 characters, 12 words; the approved promise of #66 §3)
+`HERO.heading` (h1, 78 characters, 12 words; a candidate: Eva approved the positioning paragraph of #66 §3, not this line)
 > Structurer votre exercice libéral, en accord avec votre Ordre et vos associés.
 
-`HERO.subheading` (audience line, positioning A)
-> J’accompagne les professionnels libéraux et les entrepreneurs, de la création de leur société aux démarches devant leur Ordre.
+`HERO.subheading` (audience line, positioning A; E2: health, the other liberal professions, entrepreneurs)
+> J’accompagne les professionnels de santé, les autres professions libérales et les entrepreneurs, de la création de leur société aux démarches devant leur Ordre.
 
-`HERO.subheadingWithProfessions` (only if Eva confirms the professions, E2)
-> J’accompagne les professionnels libéraux ([À CONFIRMER : santé, droit, chiffre… (E2)]) et les entrepreneurs, de la création de leur société aux démarches devant leur Ordre.
-
-Fallback: `HERO.subheading`. « Accompagner » is the umbrella verb, used once on the page (G §2).
+« Accompagner » is the umbrella verb, used once on the page (G §2). The variant `HERO.subheadingWithProfessions`
+is dropped: this line names the professions, so only one subheading exists.
 
 `HERO.cta`
 > Contacter le cabinet
@@ -394,10 +431,8 @@ Then the phone link, visible text `{{phoneDisplay}}`, accessible name `HEADER.ph
 > Droit des sociétés, exercice libéral
 > {{address}}
 
-`HERO.panel.since` (optional fourth line)
-> Inscrite au Barreau depuis [À CONFIRMER : année (E1)]
-
-Fallback: omit the line.
+`HERO.panel.since` (fourth line, E1)
+> Inscrite au Barreau depuis 2020
 
 ### 2.2 Domaines teaser (id `domaines-intervention`)
 
@@ -406,17 +441,12 @@ Fallback: omit the line.
 
 `HOME.domaines.cards` = the four `DOMAINES.items[slug]` (`label` as card title and link text, `card` as text). The card link goes to `/domaines/<slug>`, or to `/domaines#<slug>` if the page missed the gate.
 
-`HOME.domaines.also` (IA §6; two text links inside the line)
-> Également : mécénat, formations
-
-« mécénat » → `/domaines#mecenat`, « formations » → `/a-propos#formations`. Fallback if Eva drops
-Mécénat (E7): « Également : formations ».
-
 `HOME.domaines.all`
 > Tous les domaines
 
-Which domaine leads the list: IA order (création, clientèle ou patientèle, contrats, Ordre), unless Eva
-says otherwise (E3).
+Order (E3): Création de sociétés, Clientèle ou patientèle, Contrats professionnels, Ordre et déontologie.
+The first three are the domaines of today's home lead; the Ordre comes fourth. The « Également » line of
+IA §6 is removed (R7): nothing is left in it.
 
 ### 2.3 Proof teaser (id `a-propos`)
 
@@ -427,9 +457,9 @@ says otherwise (E3).
 > Aider les professionnels libéraux à se structurer et à garder de bonnes relations avec leurs associés est le cœur de mon activité. Dès la création, je pense à la suite : vos projets, l’arrivée d’un associé, un départ.
 
 `HOME.proof.link`
-> Mon parcours et mes formations
+> Mon parcours
 
-→ `/a-propos`. Under the text: `PROOF.credentials.items`, then `PROOF.testimonials` and `PROOF.rating` when confirmed
+→ `/a-propos`. Under the text: `PROOF.credentials.items`, then `PROOF.reviews` and `PROOF.testimonials` when they render
 (§1.7). Portrait alt: `PROOF.portrait.alt`.
 
 ### 2.4 Publications teaser (id `publications`)
@@ -445,8 +475,10 @@ accessible name (`PUBLICATIONS.readMoreName`, §10). Block hidden if 0 articles 
 
 ### 2.5 « Comment ça se passe » (id `premier-contact`, conditional)
 
-Heading, steps and fallback. The draft uses the facts Eva has not given yet: each is marked. Order of the
-steps follows what the reader lives: write, get my answer, set the first exchange, prepare, fees.
+Eva answered the delay and the fee principle (E4, E5), not the format or the cost of the first exchange.
+The step « Nous fixons un premier échange » is therefore **removed** (E4a and E4b, fallback applied: no
+format, no price, no duration named). Steps follow what the reader lives: write, get my answer, prepare,
+fees.
 
 `FIRST_CONTACT.heading` (h2)
 > Comment ça se passe
@@ -457,40 +489,24 @@ steps follows what the reader lives: write, get my answer, set the first exchang
 
 `FIRST_CONTACT.steps[1]`
 > Je vous réponds
-> Je vous réponds sous [À CONFIRMER : délai habituel (E4)].
+> Je vous réponds en général sous 48 heures.
+
+A habit, not a guarantee (E4). No « jours ouvrés » unless Eva says so. Same sentence in `CONTACT.formMessages.success`
+and `CONTACT.delay.text`.
 
 `FIRST_CONTACT.steps[2]`
-> Nous fixons un premier échange
-> Nous choisissons ensemble le format : [À CONFIRMER : appel, visioconférence ou rendez-vous à mon cabinet ; durée ; payant ou non (E4)].
+> Vous préparez l’essentiel
+> Apportez ce que vous avez : statuts ou projet de contrat, courriers de votre Ordre, dates importantes. [À CONFIRMER : liste d’Eva (E4d)]
+
+Fallback for the marker: keep this generic list (every item is general).
 
 `FIRST_CONTACT.steps[3]`
-> Vous préparez l’essentiel
-> Apportez ce que vous avez : statuts ou projet de contrat, courriers de votre Ordre, dates importantes. [À CONFIRMER : liste d’Eva (E4)]
-
-`FIRST_CONTACT.steps[4]`
 > Je vous indique mes honoraires
-> Avant de commencer, je vous remets une convention d’honoraires : un accord écrit qui fixe le prix de mon travail. [À CONFIRMER : pratique d’Eva, forfait ou temps passé (E5)]
+> Avant de commencer, je vous remets une convention d’honoraires : un accord écrit qui fixe le prix de mon travail.
 
-**Fallback A** (E4 or E5 partly missing): keep only the steps whose facts are confirmed, in that order.
+E5: Eva always signs one. The principle only: no « forfait », no « temps passé », no figure.
 
-**Fallback B** (no fact from Eva by 2026-12-02; every sentence is already true today, except the secret line, which waits for E11):
-
-`FIRST_CONTACT.fallback.heading`
-> Comment ça se passe
-
-`FIRST_CONTACT.fallback.steps[0]`
-> Vous m’exposez votre situation
-> Par le formulaire, par email ou par téléphone, comme vous préférez.
-
-`FIRST_CONTACT.fallback.steps[1]`
-> Je vous réponds
-> Je vous dis si je peux vous aider et comment.
-
-`FIRST_CONTACT.fallback.steps[2]`
-> Ce que vous écrivez reste confidentiel
-> Je suis tenue au secret professionnel. [À CONFIRMER : formulation (E11)]
-
-**Fallback C**: if even the secret line is not confirmed, the block is dropped (IA §6, « conditional »).
+**Fallback** (if Eva rejects the block in her final read): the block is dropped (IA §6, « conditional »).
 
 ### 2.6 Contact band (id `contact`)
 
@@ -520,12 +536,9 @@ steps follows what the reader lives: write, get my answer, set the first exchang
 > Pour qui
 
 `DOMAINES.hub.forWhom.text`
-> Je travaille avec des professionnels libéraux et des entrepreneurs. Vous créez, vous reprenez ou vous réorganisez votre activité, ou votre Ordre, l’organisme qui réunit les membres de votre profession, vous interroge.
+> Je travaille avec les professionnels de santé libéraux, les autres professions libérales et les entrepreneurs. Vous créez, vous reprenez ou vous réorganisez votre activité, ou votre Ordre, l’organisme qui réunit les membres de votre profession, vous interroge.
 
-`DOMAINES.hub.forWhom.professions` (optional)
-> Professions de mes clients : [À CONFIRMER : liste ordonnée (E2)].
-
-Fallback: omit the line.
+The line `DOMAINES.hub.forWhom.professions` is dropped: the professions are named in the text above (E2).
 
 ### 3.3 The four cards
 
@@ -535,7 +548,7 @@ Cards use `DOMAINES.items[slug].label` (title and link) and `.card` (text), §1.
 ### 3.4 Hub section of a domaine whose page missed the launch gate
 
 If Eva does not validate a page, no URL is created and the domaine keeps this section. It replaces the
-card on `/domaines`; `.situations` are the three titles of the page's situations (§4 to §7). Every
+card on `/domaines`; `.situations` are the first three titles of the page's situations (§4 to §7). Every
 link to the domaine points to `/domaines#<slug>`.
 
 `DOMAINES.items[creation-de-societe].hubSection.text`
@@ -550,44 +563,25 @@ link to the domaine points to `/domaines#<slug>`.
 `DOMAINES.items[ordre-et-deontologie].hubSection.text`
 > Votre Ordre fixe la déontologie, les règles de conduite de votre profession. Je vous conseille sur vos questions et vos échanges avec lui. Si un litige s’ouvre devant l’Ordre (contentieux ordinal), je vous défends devant le Conseil de l’Ordre.
 
-### 3.5 Mécénat (id `mecenat`, conditional on E7)
+### 3.5 Removed sections (R7)
 
-`DOMAINES.mecenat.heading` (h2)
-> Mécénat
+No `/domaines#mecenat` section and no Formations pointer: Eva dropped Mécénat (no longer active, E7) and
+Formations (E6). The hub shows the four domaines only.
 
-`DOMAINES.mecenat.text`
-> Vous portez un projet d’intérêt général et vous cherchez le bon cadre ? Je vous aide à créer une association ou un fonds de dotation, un organisme sans but lucratif qui reçoit des dons. Le mécénat désigne ces dons d’argent ou de moyens faits à une cause d’intérêt général. [À CONFIRMER : activité toujours proposée, pour qui (E7)]
-
-Fallback: if Eva no longer takes this work, **remove the section**, the « mécénat » link of
-`HOME.domaines.also`, the subject option « Mécénat » (§9) and the word in `DOMAINES.hub.metaDescription`
-(none today).
-
-### 3.6 Formations pointer
-
-`DOMAINES.formations.text`
-> Je donne aussi des formations aux professionnels libéraux et aux entrepreneurs.
-
-`DOMAINES.formations.link`
-> Voir mes formations
-
-→ `/a-propos#formations`.
-
-### 3.7 Contact band
+### 3.6 Contact band
 
 `CONTACT_BAND.lines.domaines` (§1.6), `CONTACT_BAND.cta`, phone.
 
-### 3.8 Shared domaine-page blocks (labels used on the four pages)
+### 3.7 Shared domaine-page blocks (labels used on the four pages)
 
 `DOMAINES.template.forWhom.heading`
 > Pour qui
 
 `DOMAINES.template.forWhom.intro`
-> Cette page s’adresse aux professionnels libéraux et aux entrepreneurs qui :
+> Cette page s’adresse aux professionnels de santé, aux autres professions libérales et aux entrepreneurs qui :
 
-`DOMAINES.template.forWhom.professions`
-> Professions de mes clients : [À CONFIRMER : liste ordonnée (E2)].
-
-Fallback: omit the line.
+`DOMAINES.template.forWhom.professions` = `PROOF.professions` (§1.7)
+> Je travaille avec toutes les professions de santé libérales, avec les autres professions libérales et avec les entrepreneurs.
 
 `DOMAINES.template.whatIDo.heading`
 > Ce que je fais
@@ -645,7 +639,7 @@ The three other domaines, `label` as link text (§1.8).
 `DOMAINES.items[creation-de-societe].whatIDo.items`
 > Je compare avec vous les formes de société possibles pour votre profession et je vous conseille la plus adaptée.
 > Je rédige les statuts, le document qui fixe les règles de fonctionnement de la société.
-> Je rédige, si besoin, un pacte d’associés : un accord privé entre associés qui complète les statuts, par exemple en cas de départ. [À CONFIRMER : fait partie de ma pratique (E3)]
+> Je rédige, si besoin, un pacte d’associés : un accord privé entre associés qui complète les statuts, par exemple en cas de départ. [À CONFIRMER : fait partie de ma pratique (E3a)]
 > Je fais les démarches devant votre Ordre.
 
 Fallback for the marker: drop the pacte item (the FAQ answer stays general).
@@ -664,14 +658,20 @@ Fallback for the marker: drop the pacte item (the FAQ answer stays general).
 > Nous faisons le point sur votre profession, votre projet et vos associés éventuels.
 > Je compare avec vous les formes possibles et je vous recommande l’une d’elles.
 > Je rédige les statuts et, si besoin, un pacte d’associés. Vous relisez, nous ajustons.
-> Je fais les démarches devant votre Ordre. [À CONFIRMER : formalités faites par moi, y compris l’enregistrement de la société (E3)]
+> Je fais les démarches devant votre Ordre. [À CONFIRMER : formalités faites par moi, y compris l’enregistrement de la société (E3a)]
 > Dès la création, je prévois la suite : l’arrivée d’un associé, un départ, un changement de projet.
 
 Fallback for the marker: keep « Je fais les démarches devant votre Ordre. » (today's copy), drop the rest.
 
-`DOMAINES.items[creation-de-societe].situations`
-> Deux confrères s’installent ensemble
-> Ils veulent exercer dans une même société sans que l’un décide seul. Je compare les formes possibles, je rédige des statuts qui répartissent les décisions et je prévois ce qui se passe si l’un part.
+`DOMAINES.items[creation-de-societe].situations` (E3: the first three are the situations Eva names, centred on the création and on an associate arriving or leaving; 4 to 6 are composites kept from the draft)
+> Vous créez votre société
+> Vous exercez seul ou avec des confrères et vous voulez une société. Je compare les formes possibles, je rédige les statuts et je fais les démarches devant votre Ordre.
+>
+> Un associé arrive
+> Un confrère rejoint votre société. Je regarde ce que prévoient les statuts, je les adapte et je règle avec vous ce que cela change pour chacun.
+>
+> Un associé part
+> L’un des associés quitte la société. Je règle avec vous les conditions de son départ : ses parts, ce que prévoient les statuts, la suite de l’activité.
 >
 > Un professionnel veut partager des locaux et du matériel
 > Chacun garde ses propres honoraires, mais les locaux et le matériel sont communs. Je vous conseille une SCM et j’en rédige les statuts.
@@ -680,22 +680,25 @@ Fallback for the marker: keep « Je fais les démarches devant votre Ordre. »
 > Vous exercez en votre nom depuis des années et vous voulez créer une société. Je vous explique ce qui change pour vous, puis je rédige les statuts avec vous.
 >
 > Un professionnel veut acheter ses locaux
-> Vous voulez détenir les locaux de votre cabinet sans les mettre dans votre société d’exercice. Je vous conseille sur une SCI distincte et j’en rédige les statuts. [À CONFIRMER : Eva remplace ou valide ces quatre exemples, relus comme cas fictifs (E3)]
+> Vous voulez détenir les locaux de votre cabinet sans les mettre dans votre société d’exercice. Je vous conseille sur une SCI distincte et j’en rédige les statuts.
+
+Situations 4 to 6 are fictional composites, labelled « Exemple » like the others; Eva reads them in her final
+read (X5). If the page feels long, `ui` cuts from the end (6, then 5, then 4); the three first stay.
 
 `DOMAINES.items[creation-de-societe].faq`
 > Quelle société choisir pour exercer à plusieurs ?
 > Cela dépend de votre profession, du nombre d’associés et de ce que vous mettez en commun. Certaines professions n’ont accès qu’à certaines formes de société. Je compare les options avec vous avant de vous recommander une forme.
 >
 > Dois-je prévenir mon Ordre quand je crée une société ?
-> Dans de nombreuses professions réglementées, oui : l’Ordre doit être informé, parfois autorisé, avant ou après la création. La règle dépend de votre profession. Je vérifie avec vous ce que prévoit la vôtre. [À CONFIRMER : règle par profession servie (E2, E3)]
+> Dans de nombreuses professions réglementées, oui : l’Ordre doit être informé, parfois autorisé, avant ou après la création. La règle dépend de votre profession. Je vérifie avec vous ce que prévoit la vôtre. [À CONFIRMER : règle par profession servie (E2b)]
 >
 > Qu’est-ce qu’un pacte d’associés, et en ai-je besoin ?
 > C’est un accord privé entre associés qui complète les statuts, par exemple en cas de départ ou de désaccord. Il n’est pas obligatoire. Il règle à l’avance ce qui pourrait vous opposer plus tard.
 >
-> Combien cela coûte-t-il, et en combien de temps ?
-> Avant de commencer, je vous indique mes honoraires, c’est-à-dire le prix de mon travail, par écrit. Le délai dépend de votre profession et de votre Ordre. [À CONFIRMER : principe d’honoraires (E5), délais (E4)]
+> Combien cela coûte-t-il ?
+> Avant de commencer, je vous remets une convention d’honoraires : un accord écrit qui fixe le prix de mon travail.
 
-Fallback: drop the fourth question if E4 and E5 stay unanswered; the three others stand without Eva.
+The cost question states the principle only (E5). The delay is not stated (the duration of a creation depends on the profession and the Ordre, and Eva gave no figure).
 
 `DOMAINES.items[creation-de-societe].band` = `CONTACT_BAND.lines.creation-de-societe` (§1.6).
 
@@ -727,7 +730,7 @@ publications, « Autres domaines », contact band.
 > Je vous conseille sur la forme de l’opération :
 > une cession, vente ou transfert à quelqu’un d’autre ;
 > un apport, ce que vous mettez dans une société : argent, matériel ou clientèle ;
-> un prêt de clientèle : mise à disposition temporaire, sans vente. [À CONFIRMER : sens du « prêt » pour les professions servies (E3)]
+> un prêt de clientèle : mise à disposition temporaire, sans vente. [À CONFIRMER : sens du « prêt » pour les professions servies (E3b)]
 > Je rédige l’acte avec vous, et j’y prévois ce qui est cédé, à quelles conditions et quand.
 > Je vérifie ce que demande votre Ordre pour cette opération.
 
@@ -738,34 +741,36 @@ section (the page stays valid with cession and apport).
 > Vous m’exposez votre projet : qui cède, qui reprend, ce qui est concerné.
 > Je vous conseille sur la forme la plus adaptée et sur les points à régler avant de signer.
 > Je rédige l’acte avec vous et je négocie avec l’autre partie si vous le souhaitez.
-> Je vérifie ce que demande votre Ordre, puis vous signez en connaissance de cause. [À CONFIRMER : démarches auprès de l’Ordre faites par moi (E3)]
+> Je vérifie ce que demande votre Ordre, puis vous signez en connaissance de cause. [À CONFIRMER : démarches auprès de l’Ordre faites par moi (E3b)]
 
-`DOMAINES.items[cession-clientele-patientele].situations`
-> Vous reprenez la patientèle d’un confrère qui part à la retraite
+`DOMAINES.items[cession-clientele-patientele].situations` (E3: the first two are the transfer of a patientèle from one professional to another, the situation Eva names; 3 is a composite kept from the draft)
+> Vous reprenez la patientèle d’un confrère
 > Vous voulez savoir ce que vous achetez et comment votre Ordre voit l’opération. Je vérifie le projet, je vous conseille et je rédige l’acte.
 >
-> Vous cédez votre clientèle pour vous retirer
-> Vous voulez un acte clair sur ce qui est cédé, à quel moment et comment vos clients sont informés. Je rédige l’acte et je négocie les conditions avec vous.
+> Vous cédez votre patientèle à un confrère
+> Vous voulez un acte clair sur ce qui est cédé, à quel moment et comment vos patients sont informés. Je rédige l’acte et je négocie les conditions avec vous.
 >
 > Vous entrez dans une société et vous y apportez votre clientèle
-> Votre apport doit être décrit et évalué dans l’acte. Je rédige avec vous les statuts et l’acte d’apport. [À CONFIRMER : Eva remplace ou valide ces trois exemples, relus comme cas fictifs (E3)]
+> Votre apport doit être décrit et évalué dans l’acte. Je rédige avec vous les statuts et l’acte d’apport.
+
+Situation 3 is a fictional composite, labelled « Exemple »; Eva reads it in her final read (X5).
 
 `DOMAINES.items[cession-clientele-patientele].faq`
 > Quelle différence entre cession, apport et prêt de clientèle ?
 > Une cession transfère la clientèle contre un prix. Un apport la place dans une société, en échange de parts ; un prêt la met à disposition sans la transférer. Le bon choix dépend de votre projet. [À CONFIRMER : exactitude du « prêt » (E3)]
 >
 > Mon Ordre doit-il être informé d’une cession ?
-> Souvent oui : beaucoup d’Ordres demandent à être informés, voire à approuver l’opération. La règle dépend de votre profession. Je vérifie ce qui s’applique à vous avant la signature. [À CONFIRMER : règle par profession servie (E2, E3)]
+> Souvent oui : beaucoup d’Ordres demandent à être informés, voire à approuver l’opération. La règle dépend de votre profession. Je vérifie ce qui s’applique à vous avant la signature. [À CONFIRMER : règle par profession servie (E2b)]
 >
 > Qu’est-ce qu’une clause de non-réinstallation ?
-> C’est l’engagement de ne pas rouvrir un cabinet près de l’ancien après une cession. Elle protège celui qui reprend. Sa durée et son étendue doivent rester raisonnables. [À CONFIRMER : le terme sera utilisé, règles par profession (E3)]
+> C’est l’engagement de ne pas rouvrir un cabinet près de l’ancien après une cession. Elle protège celui qui reprend. Sa durée et son étendue doivent rester raisonnables. [À CONFIRMER : le terme sera utilisé, règles par profession (E3b)]
 >
 > Combien cela coûte-t-il ?
-> Avant de commencer, je vous indique mes honoraires, c’est-à-dire le prix de mon travail, par écrit. [À CONFIRMER : principe d’honoraires (E5)]
+> Avant de commencer, je vous remets une convention d’honoraires : un accord écrit qui fixe le prix de mon travail.
 
-Fallback: drop the fourth question if E5 is unanswered; drop the third if Eva does not use the term (the
-glossary row stays unused). **Launch gate (IA §2, ≥ 3 FAQ):** dropping both leaves two questions. Then Eva
-supplies a third question, or the page falls back to its hub section (§3.4).
+The cost question states the principle only (E5). Fallback for the third question: drop it if Eva does not
+use the term (the glossary row stays unused). **Launch gate (IA §2, ≥ 3 FAQ):** the page keeps three
+questions after that, so it still passes.
 
 `DOMAINES.items[cession-clientele-patientele].band` = `CONTACT_BAND.lines.cession-clientele-patientele`.
 
@@ -792,9 +797,9 @@ supplies a third question, or the page falls back to its hub section (§3.4).
 > vous faites appel à un prestataire, ou vous l’êtes
 
 `DOMAINES.items[contrats-professionnels].whatIDo.items` (each contract name glossed, G §4.3)
-> Un contrat de collaboration : contrat où un professionnel travaille à son compte, pour un confrère, avec sa propre clientèle. [À CONFIRMER : définition valable pour les professions servies (E2)]
+> Un contrat de collaboration : contrat où un professionnel travaille à son compte, pour un confrère, avec sa propre clientèle. [À CONFIRMER : définition valable pour les professions servies (E3c)]
 > Un contrat de remplacement : contrat par lequel un confrère exerce à votre place pendant votre absence.
-> Un contrat d’exercice : contrat qui organise l’exercice commun de plusieurs professionnels, locaux, charges, départ. [À CONFIRMER : portée exacte chez Eva (E3)]
+> Un contrat d’exercice : contrat qui organise l’exercice commun de plusieurs professionnels, locaux, charges, départ. [À CONFIRMER : portée exacte chez Eva (E3c)]
 > Un contrat de prestation de services : contrat où un professionnel réalise un travail précis pour un autre, contre rémunération.
 
 « Services » appears only inside the legal name of a contract; it is not a word for Eva's own offer (G §2).
@@ -813,11 +818,13 @@ supplies a third question, or the page falls back to its hub section (§3.4).
 > Il veut un contrat clair sur les dates, la rémunération et la clientèle ou la patientèle. Je rédige un contrat de remplacement adapté.
 >
 > Trois professionnels partagent des locaux et des charges
-> Ils veulent écrire qui paie quoi, qui décide et comment l’un d’eux peut partir. Je rédige un contrat d’exercice en commun. [À CONFIRMER : Eva remplace ou valide ces trois exemples, relus comme cas fictifs (E3)]
+> Ils veulent écrire qui paie quoi, qui décide et comment l’un d’eux peut partir. Je rédige un contrat d’exercice en commun.
+
+The three situations are fictional composites, labelled « Exemple »; Eva reads them in her final read (X5).
 
 `DOMAINES.items[contrats-professionnels].faq`
 > Un contrat de collaboration doit-il être écrit ?
-> Dans de nombreuses professions, oui, et il doit parfois être transmis à l’Ordre. La règle dépend de votre profession. Je vérifie ce qui s’applique à vous. [À CONFIRMER : règle par profession servie (E2, E3)]
+> Dans de nombreuses professions, oui, et il doit parfois être transmis à l’Ordre. La règle dépend de votre profession. Je vérifie ce qui s’applique à vous. [À CONFIRMER : règle par profession servie (E2b)]
 >
 > Que doit prévoir un contrat de remplacement ?
 > Les dates, la rémunération, les conditions d’exercice et ce que devient la clientèle ou la patientèle à la fin. Je l’adapte à votre profession.
@@ -826,9 +833,9 @@ supplies a third question, or the page falls back to its hub section (§3.4).
 > Oui, avant de signer. Contactez-moi : je vous dis ce qu’il prévoit, ce qui manque et ce que je vous conseille de négocier. Je vous indiquerai comment me le transmettre.
 >
 > Combien coûte la rédaction d’un contrat ?
-> Avant de commencer, je vous indique mes honoraires, c’est-à-dire le prix de mon travail, par écrit. [À CONFIRMER : principe d’honoraires (E5)]
+> Avant de commencer, je vous remets une convention d’honoraires : un accord écrit qui fixe le prix de mon travail.
 
-Fallback: drop the fourth question if E5 is unanswered.
+The cost question states the principle only (E5).
 
 `DOMAINES.items[contrats-professionnels].band` = `CONTACT_BAND.lines.contrats-professionnels`.
 
@@ -853,7 +860,7 @@ Fallback: drop the fourth question if E5 is unanswered.
 
 `DOMAINES.items[ordre-et-deontologie].forWhom.items`
 > vous avez une question sur ce que votre profession permet
-> votre Ordre vous écrit ou vous demande des explications [À CONFIRMER : situations réelles (E3)]
+> votre Ordre vous écrit ou vous demande des explications
 > une plainte ou une procédure disciplinaire vise votre exercice
 > vous voulez vérifier un projet avant de le soumettre à votre Ordre
 
@@ -867,7 +874,7 @@ Fallback: drop the fourth question if E5 is unanswered.
 > Contentieux ordinal : l’Ordre vous met en cause
 
 `DOMAINES.items[ordre-et-deontologie].contentieux.text`
-> Un litige devant l’Ordre (contentieux ordinal) peut venir, par exemple, d’une plainte ou d’une sanction. Je vous défends devant le Conseil de l’Ordre, l’instance élue qui représente votre profession. Selon votre profession, la procédure peut aussi passer par la chambre disciplinaire, la juridiction de l’Ordre qui juge les manquements aux règles. [À CONFIRMER : nom et rôle de ces instances selon les Ordres servis (E2, E3)]
+> Un litige devant l’Ordre (contentieux ordinal) peut venir, par exemple, d’une plainte ou d’une sanction. Je vous défends devant le Conseil de l’Ordre, l’instance élue qui représente votre profession. Selon votre profession, la procédure peut aussi passer par la chambre disciplinaire, la juridiction de l’Ordre qui juge les manquements aux règles. [À CONFIRMER : nom et rôle de ces instances selon les Ordres servis (E3d)]
 
 Fallback: drop the last sentence and keep « devant le Conseil de l'Ordre » (today's copy).
 
@@ -885,14 +892,16 @@ Fallback: drop the last sentence and keep « devant le Conseil de l'Ordre » (
 > Vous avez reçu un courrier et vous ne savez pas comment répondre. Je le lis avec vous et je prépare la réponse.
 >
 > Une plainte est déposée contre vous
-> Vous voulez une défense devant le Conseil de l’Ordre. Je prépare votre dossier et je vous défends. [À CONFIRMER : Eva remplace ou valide ces trois exemples, relus comme cas fictifs (E3)]
+> Vous voulez une défense devant le Conseil de l’Ordre. Je prépare votre dossier et je vous défends.
+
+The three situations are fictional composites, labelled « Exemple »; Eva reads them in her final read (X5).
 
 `DOMAINES.items[ordre-et-deontologie].faq`
 > Qu’est-ce qu’un litige devant l’Ordre ?
 > C’est un litige porté devant l’Ordre de votre profession, par exemple après une plainte. Il peut aboutir à une sanction. Je vous conseille dès que vous recevez le premier courrier.
 >
 > Mon échange avec vous reste-t-il confidentiel ?
-> Oui. Je suis tenue au secret professionnel : je ne révèle rien de ce que vous me confiez. [À CONFIRMER : formulation (E11)]
+> Oui. Je suis tenue au secret professionnel : je ne révèle rien de ce que vous me confiez.
 >
 > Puis-je vous consulter avant que mon Ordre m’écrive ?
 > Oui, et c’est souvent utile pour vérifier un projet. Une question de déontologie peut se régler avant tout litige.
@@ -904,21 +913,21 @@ Fallback: drop the last sentence and keep « devant le Conseil de l'Ordre » (
 
 ---
 
-## 8. `/a-propos` (IA §3 order: who, approach, Formations, publications, band)
+## 8. `/a-propos` (IA §3 order: who, approach, reviews, publications, band; no Formations block, R7)
 
 `ABOUT.metaTitle` (page part 29)
 > Mon parcours d’avocate à Lyon | Eva Biezunski
 
 `ABOUT.metaDescription` (third person allowed in meta, G §1.1)
-> Eva Biezunski, avocate au Barreau de Lyon : son parcours, sa façon de travailler avec les professionnels libéraux et les formations qu’elle donne.
+> Eva Biezunski, avocate au Barreau de Lyon : son parcours et sa façon de travailler avec les professionnels libéraux et les entrepreneurs.
 
 `ABOUT.h1`
 > Qui je suis, et comment je travaille
 
 `ABOUT.lead`
-> Je suis avocate au Barreau de Lyon depuis [À CONFIRMER : année du serment (E1)]. J’aide les professionnels libéraux et les entrepreneurs à structurer leur activité.
+> Je suis avocate au Barreau de Lyon depuis 2020. J’aide les professionnels de santé, les autres professions libérales et les entrepreneurs à structurer leur activité.
 
-Fallback: « Je suis avocate au Barreau de Lyon. J'aide les professionnels libéraux et les entrepreneurs à structurer leur activité. »
+E1: the oath was taken on 12 novembre 2020; the page states the year only.
 
 `ABOUT.portrait.alt` = `PROOF.portrait.alt`.
 
@@ -927,9 +936,8 @@ Fallback: « Je suis avocate au Barreau de Lyon. J'aide les professionnels lib�
 `ABOUT.parcours.heading` (h2)
 > Mon parcours
 
-`ABOUT.parcours.items` = `PROOF.credentials.items`, then `PROOF.professions` (§1.7).
-
-Fallback: if E1 gives nothing, no list; the lead and § 8.2 carry the page.
+`ABOUT.parcours.items` = `PROOF.credentials.items`, then `PROOF.professions` (§1.7). One credential fact
+(E1: no diploma, no membership given); the list stays short.
 
 ### 8.2 Ma façon de travailler (positioning A)
 
@@ -951,29 +959,7 @@ Fallback: if E1 gives nothing, no list; the lead and § 8.2 carry the page.
 `ABOUT.sectionTitle` (kept for the page `<title>` fallback and the home link; today « À propos »)
 > À propos
 
-### 8.3 Formations (id `formations`, conditional on E6)
-
-`FORMATIONS.heading` (h2)
-> Formations
-
-`FORMATIONS.intro`
-> Je forme des professionnels libéraux et des entrepreneurs. Mes thèmes : les sociétés d’exercice de leur profession, et le passage d’entrepreneur individuel à dirigeant de société.
-
-« Entrepreneur individuel » and « dirigeant » are glossed by one clause each if the line is kept as is:
-
-`FORMATIONS.gloss`
-> Un entrepreneur individuel exerce en son nom propre, sans créer de société. Un dirigeant dirige une société et l’engage envers les tiers.
-
-`FORMATIONS.items[i]` (list, one line each, only what Eva confirms, E6)
-> [À CONFIRMER : année, organisateur, public, thème (E6)]
-
-`FORMATIONS.offer` (only if Eva wants to receive requests, E6)
-> Vous organisez une formation et cherchez un intervenant ? Écrivez-moi.
-
-Fallback: only `FORMATIONS.intro` and `FORMATIONS.gloss` (today's copy, true as it stands); no list, no
-offer line.
-
-### 8.4 Publications and contact band
+### 8.3 Publications and contact band
 
 `ABOUT.publications.text`
 > J’écris des articles sur ces sujets.
@@ -983,8 +969,8 @@ offer line.
 
 → `/publications`.
 
-Testimonials and rating (`PROOF.testimonials`, `PROOF.rating`, §1.7) go between § 8.2 and § 8.3 when
-confirmed. Contact band: `CONTACT_BAND.lines.aPropos`, `CONTACT_BAND.cta`, phone.
+Google reviews and, when they exist, testimonials (`PROOF.reviews`, `PROOF.testimonials`, §1.7) go
+between § 8.2 and § 8.3. Contact band: `CONTACT_BAND.lines.aPropos`, `CONTACT_BAND.cta`, phone.
 
 ---
 
@@ -1000,7 +986,7 @@ confirmed. Contact band: `CONTACT_BAND.lines.aPropos`, `CONTACT_BAND.cta`, phone
 > Écrivez-moi ou appelez-moi
 
 `CONTACT.intro` (lead)
-> Décrivez votre situation en quelques lignes : je lis votre demande et je vous réponds. Si vous préférez, appelez-moi ou envoyez-moi un email. [À CONFIRMER : « je lis votre demande », pratique d’Eva (E4f)]
+> Décrivez votre situation en quelques lignes : je lis votre demande et je vous réponds. Si vous préférez, appelez-moi ou envoyez-moi un email. [À CONFIRMER : « je lis votre demande », pratique d’Eva (E4f)]
 
 Fallback: « Décrivez votre situation en quelques lignes : je vous réponds. Si vous préférez, appelez-moi ou envoyez-moi un email. »
 
@@ -1084,13 +1070,10 @@ below is « Adresse et accès » (one concept, one word, G §2).
 > Clientèle ou patientèle
 > Contrats professionnels
 > Ordre et déontologie
-> Mécénat
-> Formations
 > Autre
 
 « Création de société » becomes the plural (R1); « Clientèle / Patientèle » loses its slash; « Contentieux »
-becomes « Ordre et déontologie » (IA §2); « Formation » becomes « Formations » (the one word of the nav
-and À propos). « Mécénat » goes if Eva drops it (§3.5). The last value is `OTHER_SUBJECT`, today `"Autre"`:
+becomes « Ordre et déontologie » (IA §2); « Mécénat » and « Formation » are removed (R7). The last value is `OTHER_SUBJECT`, today `"Autre"`:
 it must stay equal to the last option, whatever `copy.ts` chooses.
 
 ### 9.3 Messages (« je », G §1.1)
@@ -1099,9 +1082,9 @@ it must stay equal to the last option, whatever `copy.ts` chooses.
 > Envoi en cours…
 
 `CONTACT.formMessages.success` (≤ 30 words; no « rapidement »)
-> Merci, j’ai bien reçu votre message. Je vous réponds sous [À CONFIRMER : délai habituel (E4)].
+> Merci, j’ai bien reçu votre message. Je vous réponds en général sous 48 heures.
 
-Fallback: « Merci, j'ai bien reçu votre message. Je vous réponds dès que possible. »
+E4: a habit, not a guarantee. 14 words.
 
 `CONTACT.formMessages.error`
 > Votre message n’a pas pu être envoyé. Réessayez, ou appelez-moi au {{phoneDisplay}}, ou écrivez-moi à {{email}}.
@@ -1150,7 +1133,7 @@ Fallback: « Merci, j'ai bien reçu votre message. Je vous réponds dès que po
 ### 9.5 GDPR line next to the submit button (A-17)
 
 `CONTACT.gdpr.text`
-> J’utilise vos données uniquement pour répondre à votre demande, et je les conserve 5 ans. [À CONFIRMER : durée et finalité alignées sur la politique de confidentialité (E11)]
+> J’utilise vos données uniquement pour répondre à votre demande, et je les conserve 5 ans. [À CONFIRMER : durée et finalité alignées sur la politique de confidentialité (E11c)]
 
 `CONTACT.gdpr.link`
 > Lire la politique de confidentialité
@@ -1176,7 +1159,7 @@ self-explaining. If the reader needs the gloss, `GLOSSARY` supplies the tooltip 
 > Confidentialité
 
 `CONTACT.confidentiality.text`
-> Ce que vous m’écrivez est couvert par le secret professionnel. Pour un premier message, restez simple : n’envoyez pas de document confidentiel par ce formulaire. Je vous indiquerai comment me le transmettre. [À CONFIRMER : formulation et moyen de transmission (E11)]
+> Ce que vous m’écrivez est couvert par le secret professionnel. Pour un premier message, restez simple : n’envoyez pas de document confidentiel par ce formulaire. Je vous indiquerai comment me le transmettre.
 
 Fallback: « Je suis tenue au secret professionnel. N'envoyez pas de document confidentiel par ce
 formulaire : appelez-moi ou écrivez-moi, je vous dirai comment faire. »
@@ -1185,10 +1168,9 @@ formulaire : appelez-moi ou écrivez-moi, je vous dirai comment faire. »
 > Délai de réponse
 
 `CONTACT.delay.text`
-> Je vous réponds sous [À CONFIRMER : délai habituel (E4)]. Pour une urgence, appelez-moi.
+> Je vous réponds en général sous 48 heures. Pour une urgence, appelez-moi.
 
-Fallback: « Je lis chaque demande et je vous réponds. Pour une urgence, appelez-moi. » (the « Je lis chaque demande »
-sentence waits for Eva too, E4; if she declines, keep « Pour une urgence, appelez-moi. » alone.)
+E4: a habit, not a guarantee. « Je lis chaque demande » is not used here (E4f stays with Eva).
 
 `CONTACT.addressBlock.heading` (h2)
 > Adresse et accès
@@ -1197,7 +1179,7 @@ sentence waits for Eva too, E4; if she declines, keep « Pour une urgence, appe
 > Voir sur la carte (s’ouvre dans un nouvel onglet)
 
 `CONTACT.addressBlock.access`
-> [À CONFIRMER : accès (métro, parking), horaires d’accueil, sur rendez-vous uniquement ou non (E4)]
+> [À CONFIRMER : accès (métro, parking), horaires d’accueil, sur rendez-vous uniquement ou non (E4e)]
 
 Fallback: the address and the map link only.
 
@@ -1381,8 +1363,8 @@ New block: the page shows phone and email as plain links, **without** `data-trac
 ## 12. Privacy policy wording (#66 §6 edits 1 to 5; Eva approves, E11)
 
 Legal text in the style of the existing page (« le Cabinet », « Données », R4). #80 implements it in
-`politique-de-confidentialite/page.tsx`. Every item waits for Eva's approval (E11); the processors, the
-retention and the transfer mechanism are also checked by #80.
+`politique-de-confidentialite/page.tsx`. Eva set no constraint on the wording (E11) and approves this text with the rest of the file; the
+processors, the retention and the transfer mechanism are also checked by #80.
 
 `PRIVACY.edit1.row.measure` (§3 table: new row, three cells)
 > Mesure d’audience du Site
@@ -1416,15 +1398,59 @@ retention and the transfer mechanism are also checked by #80.
 
 ## 13. Open points for `lead`
 
+### 13.1 Markers still in this file (waiting for Eva)
+
+Part 2 (still with Eva, markers kept as asked): E1d, E2b, E4d, E4e, E4f, E8b, E8c, E11c, G1, G2, G3, X1.
+
+| Marker | Where | Row |
+|---|---|---|
+| Rule per profession in three FAQ | §4, §5, §6 FAQ | E2b |
+| Prepare list | §2.5 step 3 | E4d |
+| Access, opening hours | §9.6 | E4e |
+| « Je lis chaque demande » | §1.6 band, §9 intro | E4f |
+| Testimonial consent and Barreau rule | §1.7 | E8b, E8c |
+| Form data line | §9.5 | E11c |
+
+Not in the part 2 list and not answered in part 1 (so the marker stays; `lead` to say if they go with part 2
+or take the fallback): E3a pacte d'associés and enregistrement (§4, 2 markers); E3b prêt, démarches
+auprès de l'Ordre, non-réinstallation (§5, 4 markers); E3c contract definitions (§6, 2 markers); E3d
+chambre disciplinaire (§7, 1 marker).
+
+### 13.2 Answered in part 1 (applied)
+
+E1 (2020, no diploma or membership), E2 (health, other liberal professions, entrepreneurs; one
+subheading), E3 (situations; home order), E4 (48 hours as a habit; first-exchange step removed), E5
+(convention d'honoraires, principle only), E6 and E7 (dropped, R7), E8a (no testimonial yet, Google reviews
+slots), E9a (reviews shown), E10 (no figure), E11a and E11b (no constraint on the wording), E12 (no URL
+shared).
+
+### 13.3 Other points
+
 | # | Point | Where | Proposal |
 |---|---|---|---|
-| O1 | « Je lis chaque demande » (home band) and « Je vous réponds sous … » are promises of conduct and delay: facts only Eva can give | §1.6, §2.5, §9 | Draft kept; fallbacks written; the sentence goes if Eva declines (E4) |
-| O2 | Four domaine pages are drafted from today's copy and general knowledge; none is validated. Without Eva, each falls back to its hub section (§3.4) | §4 to §7 | Eva validates or cuts per page (E3); if she cannot before launch, ship the hub sections |
-| O3 | « Prêt de clientèle » is the only term whose legal meaning I could not state with confidence for every profession | §5 | Marked; dropped if Eva cannot confirm (E3) |
-| O4 | New terms used and glossed here are added to the guide's glossary: « prêt de clientèle », « pacte d'associés » already there | `editorial-guide.md` §4.3 | Added in this task (row « prêt de clientèle ») |
-| O5 | `CONTACT.formFields.subject` « Objet » is kept (survives from today); a more reader-led label (« Votre demande concerne ») would fit the voice better | §9.2 | Keep: one label per concept; revisit with #74 if the form is redesigned |
+| O1 | « Je lis chaque demande » is a promise of conduct only Eva can give | §1.6, §9 | Marker kept (E4f); the sentence goes if Eva declines |
+| O2 | Four domaine pages are drafted from today's copy and general knowledge. The launch gate (§3.4 fallback) applies page by page: see the status table in § 14 | §4 to §7 | Eva validates or cuts per page |
+| O3 | « Prêt de clientèle » is the only term whose legal meaning could not be stated with confidence for every profession | §5 | Marker kept (E3b); dropped if Eva cannot confirm |
+| O5 | `CONTACT.formFields.subject` « Objet » is kept; « Votre demande concerne » would fit the voice better | §9.2 | Keep: one label per concept; revisit with #74 |
 | O6 | `maxChars` formats thousands with U+202F; the guide wants U+00A0 | §0 note | `ui` formats it in `copy.ts` |
-| O7 | The mentions légales are not drafted here (out of scope; D4 and #75) | R4 | #75 with Eva |
+| O7 | The mentions légales are not drafted here (D4 and #75) | R4 | #75 with Eva |
+| O8 | How Google reviews are pulled in (API, widget, manual) is still a user decision | §1.7, R9 | Copy covers the slots; no change when the decision comes |
+| O9 | Domaine pages and the launch gate | § 14 | See the table |
 
-The drafts are ready for Eva's review once the rows of `eva-content.md` are answered. T-503 removes every
-marker and keeps either her answer or the fallback.
+## 14. Launch gate per domaine page
+
+Status after part 1. A page **passes** when it has for whom, what, how, ≥ 3 situations and ≥ 3 FAQ with no
+open marker that would force a cut; otherwise it **falls back** to its `/domaines#<slug>` section (§3.4).
+Eva has the last word on each page (E3, final read).
+
+| Domaine | Situations | FAQ | Open markers | Status |
+|---|---|---|---|---|
+| Création de sociétés | 6 (3 from Eva, 3 composites) | 4 | pacte, enregistrement (E3a), rule per profession (E2b) | **Passes the gate**; each marker has its fallback (drop the item) and the page still has ≥ 3 FAQ |
+| Clientèle ou patientèle | 3 (2 from Eva, 1 composite) | 4 | prêt, démarches, non-réinstallation (E3b), rule per profession (E2b) | **Passes the gate**; if the non-réinstallation question is dropped it keeps 3 FAQ |
+| Contrats professionnels | 3 (composites) | 4 | definitions (E3c), rule per profession (E2b) | **Passes the gate**, pending Eva's read of the three composites (X5) |
+| Ordre et déontologie | 3 (composites) | 4 | chambre disciplinaire (E3d) | **Passes the gate**, pending Eva's read of the three composites (X5) |
+
+« Passes » is the drafting status: a page ships only when Eva validates it (spec §4.4). Any page she does not
+validate links to `/domaines#<slug>` (§3.4), with no URL created.
+
+Eva approves the whole file in her final read; the markers of § 13.1 are resolved when part 2 comes back.

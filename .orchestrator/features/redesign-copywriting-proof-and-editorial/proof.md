@@ -1,4 +1,4 @@
-# Proof register (#68, task T-502 draft)
+# Proof register (#68, task T-503 version, Eva's part 1 applied 2026-11-24)
 
 Every proof item the redesigned site may show: where it comes from, where `copy.md` uses it, its
 **consent status**, who owns it, the deadline, and what ships if it does not arrive. Proof is facts and
@@ -22,11 +22,10 @@ English doc, French quoted as is.
    `[À CONFIRMER]` in `copy.md` (spec §4.4, G §6).
 2. **No client identity without written consent** (G §6.3): no name, logo, company, town, or detail that
    lets someone recognise a client. Examples on the domaine pages are fictional composites (row P17).
-3. **Static text, updated by hand**: rating and figures carry the date of the reading; no widget, no API,
-   no new vendor.
+3. **Google rating and reviews** (P14) carry the date of the update and the attribution « Avis publiés sur Google ». How they are pulled in is a user decision still open (no new vendor without that decision). The copy covers the slots only, never the review text.
 4. **`proof.md` is the source of truth for « where used »**: if an item is removed here, the matching
    `copy.md` block is removed.
-5. T-503 turns this draft into the final register: each `Confirmed by Eva` is filled, each fallback applied.
+5. T-503 applied Eva's part 1 answers (2026-11-24): `Confirmed by Eva` is filled where she answered, the fallback is applied where she gave nothing. Rows still open wait for part 2.
 
 **Consent record (one per testimonial, kept with the signed text, not on the site):**
 
@@ -36,7 +35,7 @@ English doc, French quoted as is.
 | Text | The exact quote, as signed |
 | Where | The pages named (home, `/a-propos`), nowhere else without a new consent |
 | How long | Until withdrawn, or an end date |
-| Revocable | Yes, by email to Eva; removal within [À CONFIRMER : délai] of the request |
+| Revocable | Yes, by email to Eva; removal within [À CONFIRMER : délai (E8b)] of the request |
 | Date and proof | Date of the written consent; the email or document kept by Eva |
 | Eva's check | She confirms the person is a client she may name and that the quote is accurate |
 
@@ -54,35 +53,34 @@ Columns: **Source** (where the fact comes from today) · **Where used** (`copy.m
 | ID | Item | Source | Where used | Consent | Confirmed by Eva | Owner | Deadline | Fallback |
 |---|---|---|---|---|---|---|---|---|
 | P1 | « Avocate au Barreau de Lyon » (Eva's registration to the Barreau) | Today's site: `QR_CARD.subtitle`, `FOOTER.copyright`; positioning A (#66 §3) | `HERO.kicker`, `HERO.panel.lines`, `FOOTER.credential`, `FOOTER.copyright`, `ARTICLE.authorCard.credential`, `QR_CARD.subtitle`, `SITE.title` | not needed | yes (on today's site, approved in #66) | Eva | 2026-12-02 (G3 wording) | Shipped as is |
-| P2 | Year of oath, or years in practice | Eva (E1a); nothing on today's site | `ABOUT.lead`, `PROOF.credentials.items`, `HERO.panel.since` | none | no | Eva | 2026-12-02 | « Avocate au Barreau de Lyon » with no year |
-| P3 | Diplomas (title, university, year) | Eva (E1b) | `ABOUT.parcours.items`, `PROOF.credentials.items` | none | no | Eva | 2026-12-02 | No diploma line |
-| P4 | Memberships, mandates, commissions, associations | Eva (E1c) | `ABOUT.parcours.items`, `PROOF.credentials.items` | none | no | Eva | 2026-12-02 | No membership line |
-| P5 | Mention de spécialisation (official), if any | Eva (E1d); ethics rule 7 | `ABOUT`, `HERO.panel`, meta, only if confirmed | none | no | Eva | 2026-12-02 | No claim of specialisation; « droit des sociétés » stays a field of work |
-| P6 | Trainings given: organiser, audience, topic, year | Eva (E6a). Today's site names the themes (structures d'exercice, passage d'entrepreneur individuel à dirigeant) but no organiser or year | `FORMATIONS.items`, `FORMATIONS.intro` | none for the list; the themes already ship | partly (themes only) | Eva | 2026-12-02 | `FORMATIONS.intro` and `FORMATIONS.gloss`, as on today's site |
-| P7 | Professions and client types served | Eva (E2a). Today's site: « professionnels libéraux », « entrepreneurs »; #66 §1: health confirmed | `HERO.subheadingWithProfessions`, `PROOF.professions`, `DOMAINES.*.forWhom.professions` | none | partly | Eva | 2026-12-02 | « professionnels libéraux et entrepreneurs » only |
-| P8 | Domaines of practice (création de sociétés, clientèle ou patientèle, contrats, Ordre et déontologie; mécénat; formations) | Today's `SERVICES`; positioning A | `DOMAINES.*`, `HERO.panel.lines` (« Droit des sociétés, exercice libéral ») | not needed | yes (today's site) | Eva | 2026-12-02 (E3, E7 for scope) | Pages Eva does not validate become hub sections |
+| P2 | Year of oath: 2020 (oath taken 12 novembre 2020) | Eva (E1a), answered 2026-11-24 | `ABOUT.lead`, `PROOF.credentials.items`, `HERO.panel.since` | not needed | **yes** | Eva | done | Year only on the site: « Avocate au Barreau de Lyon depuis 2020 » |
+| P3 | Diplomas (title, university, year) | Eva (E1b): none given | none | none | no | Eva | part 2 if she adds some | No diploma line (applied) |
+| P4 | Memberships, mandates, commissions, associations | Eva (E1c): none given | none | none | no | Eva | part 2 if she adds some | No membership line (applied) |
+| P5 | Mention de spécialisation (official), if any | Eva (E1d, part 2, sent 2026-11-23); ethics rule 7 | `ABOUT`, `HERO.panel`, meta, only if confirmed | none | no | Eva | part 2 | No claim of specialisation; « droit des sociétés » stays a field of work |
+| P7 | Professions and client types served: every liberal health profession, the other liberal professions, entrepreneurs | Eva (E2a), answered 2026-11-24 | `HERO.subheading`, `PROOF.professions`, `DOMAINES.template.forWhom`, `DOMAINES.hub.forWhom.text` | not needed | **yes** | Eva | done | — |
+| P8 | Domaines of practice (création de sociétés, clientèle ou patientèle, contrats, Ordre et déontologie). Mécénat and Formations are dropped (E6, E7) | Today's `SERVICES`; positioning A; Eva 2026-11-24 | `DOMAINES.*`, `HERO.panel.lines` (« Droit des sociétés, exercice libéral ») | not needed | yes | Eva | page-by-page read (E3) | Pages Eva does not validate become hub sections |
 | P9 | Address, Lyon location | `CONTACT.address` | `HERO.panel.lines`, `FOOTER`, `CONTACT.metaDescription`, `CONTACT_BAND` (home) | not needed | yes | Eva | — | Shipped as is |
 
 ### 2.2 Client voices and ratings
 
 | ID | Item | Source | Where used | Consent | Confirmed by Eva | Owner | Deadline | Fallback |
 |---|---|---|---|---|---|---|---|---|
-| P10 | Testimonial 1 (name or initials, profession, month and year) | Eva asks the client (E8a) | `PROOF.testimonials.items[0]`; home proof teaser, `/a-propos` | none | no | Eva asks the client | **2026-12-14** | Block not rendered |
+| P10 | Testimonial 1 (name or initials, profession, month and year) | Eva asks the client (E8a): none yet | `PROOF.testimonials.items[0]`; home proof teaser, `/a-propos` | none | no | Eva asks the client | **2026-12-14** | Block not rendered |
 | P11 | Testimonial 2 | same | `PROOF.testimonials.items[1]` | none | no | Eva asks the client | **2026-12-14** | not rendered |
 | P12 | Testimonial 3 | same | `PROOF.testimonials.items[2]` | none | no | Eva asks the client | **2026-12-14** | not rendered |
 | P13 | Testimonial 4 | same | `PROOF.testimonials.items[3]` | none | no | Eva asks the client | **2026-12-14** | not rendered |
-| P14 | Google rating: x / 5, n reviews, date of the reading | Google Business Profile, read by Eva (E9a); nothing on today's site | `PROOF.rating`, `PROOF.ratingLink`; home, `/a-propos` | none (public count; what is missing is Eva's OK, not a client consent) | no | Eva | 2026-12-02 | Not rendered |
-| P15 | Direct Google « write a review » link and the `/avis` short link | Eva (E9b, E9c); today `REVIEW_URL` is the map link | `REVIEW.footerLink`, `REVIEW.shortUrl`, `QR_CARD.review` | not needed | partly (today's link only) | Eva | 2026-12-02 | Today's `REVIEW_URL`; no `/avis` printed |
+| P14 | Google rating and up to 5 reviews (first name, date, text as returned by Google), « Avis publiés sur Google », link to all reviews | Google Business Profile (E8, E9a): Eva wants them on the site | `PROOF.reviews.*`, `PROOF.rating.*`; home, `/a-propos` | not needed (public Google reviews; Eva's OK given 2026-11-24) | **yes** | Eva; the user decides how they are pulled in | pull-in decision open | Block not rendered if Google returns nothing or the call fails |
+| P15 | Direct Google « write a review » link and the `/avis` short link | Eva (E9b, E9c), not answered yet; today `REVIEW_URL` is the map link | `REVIEW.footerLink`, `REVIEW.shortUrl`, `QR_CARD.review` | not needed | partly (today's link only) | Eva | open | Today's `REVIEW_URL`; no `/avis` printed |
 
-Rows P10 to P13 are slots; the register has one row per testimonial actually collected. A refused testimonial
+Rows P10 to P13 are slots (no testimonial yet: block not rendered); the register has one row per testimonial actually collected. A refused testimonial
 stays in the register as `refused`.
 
 ### 2.3 Figures and publications
 
 | ID | Item | Source | Where used | Consent | Confirmed by Eva | Owner | Deadline | Fallback |
 |---|---|---|---|---|---|---|---|---|
-| P16 | Figures she is comfortable stating (years, sociétés créées, professions), each with what it counts and its date | Eva (E10) | `PROOF.figures.items` | none | no | Eva | 2026-12-02 | No figure |
-| P17 | Typical situations and FAQ of the four domaine pages (anonymised composites) | ux drafts from today's copy and general knowledge; **fictional**, not real clients | `DOMAINES.items[*].situations`, `.faq` | not needed (fictional); each carries the label « Exemple » and the note `DOMAINES.template.situations.note` | no (Eva reads each one: X5) | Eva | 2026-12-02 | A situation or FAQ she does not confirm is cut; below the gate (3 situations, 3 FAQ) the page becomes a hub section |
+| P16 | Figures | Eva (E10): none | none (`PROOF.figures` removed) | declined | — | Eva | done | No figure on the site (applied) |
+| P17 | Typical situations and FAQ of the four domaine pages (anonymised composites) | ux drafts from today's copy and general knowledge; **fictional**, not real clients | `DOMAINES.items[*].situations`, `.faq` | not needed (fictional); each carries the label « Exemple » and the note `DOMAINES.template.situations.note` | partly: the first situations of the création and cession pages come from Eva (E3); Eva reads the composites (X5) | Eva | final read | A situation or FAQ she does not confirm is cut; below the gate (3 situations, 3 FAQ) the page becomes a hub section |
 | P18 | Publications as proof of expertise (latest 3 on home, list, article count) | The back-office (API); Eva's own articles | `HOME.publications.*`, `ARTICLE.*`, `ABOUT.publications.*` | not needed (her own content) | automatic | Eva | — | Block hidden at 0 article or API failure (IA §6) |
 | P19 | Portrait photograph | Photograph used today in `About` (brand #69 §7) | `PROOF.portrait.alt`; `/a-propos`, home proof teaser | not needed | partly (photographer's licence for web use to confirm) | Eva | 2026-12-02 | No portrait; typographic panel only (brand direction A) |
 
@@ -93,7 +91,7 @@ stays in the register as `refused`.
 | N1 | Client names, logos, companies, towns, or any detail that identifies a client | Secret professionnel and G §6.3. A client can consent in writing to a testimonial (P10 to P13), never to a case description |
 | N2 | « Le meilleur », « n° 1 », « leader », « expert », « spécialiste » (without the official mention), success rate, « gagné n dossiers » | G §6.1, §6.2, §6.7 |
 | N3 | Press mentions, awards, rankings, « recommandé par… » | Not on today's site, none planned. If Eva has one, it becomes a row (comparison rule, G §6.1) |
-| N4 | A live Google widget, rating API, or a third-party review widget | No new vendor (memory « no-new-vendors »); static text only (spec §4.7) |
+| N4 | A new vendor for the reviews, decided without the user | No new vendor (memory « no-new-vendors »); the way Google reviews are pulled in is the user's decision (open) |
 
 ## 3. Consent tracker (testimonials)
 
@@ -110,9 +108,9 @@ Filled by Eva as clients answer. One line per person.
 
 | Item group | Rows | Status today | Ships at launch if nothing arrives |
 |---|---|---|---|
-| Credentials | P1 to P9 | P1, P8, P9 shipped; others `none` | « Avocate au Barreau de Lyon », domaines, address, today's trainings themes |
-| Client voices and ratings | P10 to P15 | all `none` | No testimonial, no rating; today's review link |
-| Figures, examples, publications, portrait | P16 to P19 | P18 automatic; the rest `none` | Examples cut or hub sections; no figure; typographic hero |
+| Credentials | P1 to P9 | P1, P2, P7, P8, P9 answered or shipped; P3, P4 none given; P5 open (E1d) | « Avocate au Barreau de Lyon depuis 2020 », domaines, professions, address |
+| Client voices and ratings | P10 to P15 | P14 answered; P10 to P13 `none`; P15 open | Google reviews block (if the pull-in decision lands); no testimonial; today's review link |
+| Figures, examples, publications, portrait | P16 to P19 | P16 none; P18 automatic; P17 and P19 partly | No figure; composites for Eva's final read; portrait if licence confirmed |
 
-Deadlines: answers **2026-12-02**, testimonial consents **2026-12-14**. If the consents are late, the
-site ships without testimonials (a later content update, no design change: the block is conditional).
+Deadlines: part 2 answers **2026-12-02**, testimonial consents **2026-12-14**. No testimonial yet: the site
+ships without that block (a later content update, no design change: the block is conditional).

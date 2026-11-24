@@ -88,7 +88,7 @@ legal object. Before/after from the current copy (illustrative drafts, the final
 | Hero (`HERO`) | « Avocate en droit des sociétés » / « Cabinet d'avocat dédié aux professionnels libéraux » | « Structurer votre exercice libéral, en accord avec votre Ordre et vos associés. » then « Avocate au Barreau de Lyon, j'accompagne les professionnels libéraux et les entrepreneurs. » (#66 §3) |
 | Création de sociétés (`SERVICES.items[0]`, 44 words, 6 acronyms) | « Je vous guide dans la création de structures adaptées à vos besoins, pour votre activité (SEL), pour votre matériel (SCM), pour vos locaux (SCI)… » | « Vous vous installez ou vous vous associez ? Je choisis avec vous la société qui convient à votre profession, puis je rédige les statuts et je fais les démarches devant votre Ordre. » |
 | Clientèle / patientèle (`items[1]`) | « Prêt, cession, apport : je vous conseille pour déterminer l'opération qui vous correspond pour sécuriser votre fonds libéral. » | « Vous reprenez ou vous cédez une patientèle ? Je vous conseille sur l'opération la plus adaptée (cession, apport ou prêt) et je le rédige avec vous. » |
-| Contentieux (`items[3]`) | « Je représente les professionnels libéraux devant les Conseils de l'Ordre. » | « Votre Ordre vous met en cause ? Je vous défends devant son Conseil de l'Ordre. » `[À CONFIRMER : situations réelles avec Eva, E3]` |
+| Contentieux (`items[3]`) | « Je représente les professionnels libéraux devant les Conseils de l'Ordre. » | « Votre Ordre vous met en cause ? Je vous défends devant son Conseil de l'Ordre. » |
 | À propos (`ABOUT.paragraphs[2]`, 48 words) | « J'anticipe le développement de ces activités. Cela me permet de proposer un cadre adapté dès la création du projet, tout en prenant en compte les ambitions futures de chacun. J'apporte une attention particulière aux relations entre associés… » | « Dès la création, je pense à la suite : vos projets, l'arrivée d'un associé, un départ. Je règle en amont ce qui pourrait vous opposer plus tard. » |
 | Form success (`formMessages.success`) | « …Eva vous répondra rapidement. » | « Merci, j'ai bien reçu votre message. Je vous réponds dès que possible. » (a figure only if Eva gives one, E4) |
 
@@ -248,7 +248,7 @@ checks, and the marker goes only when she has answered.
 | fonds libéral | le fonds libéral | Ce qu'on achète en reprenant une activité libérale : patientèle, matériel, bail. | `[À CONFIRMER : formulation juridique exacte du fonds libéral et de sa clientèle selon les professions]` |
 | prêt de clientèle | un prêt de clientèle | Mise à disposition temporaire d'une clientèle, sans la vendre. | `[À CONFIRMER : sens du « prêt » pour les professions servies, E3]` |
 | clause de non-réinstallation | une clause de non-réinstallation | Engagement de ne pas rouvrir un cabinet près de l'ancien après une cession. | `[À CONFIRMER : si le terme sera utilisé]` |
-| convention d'honoraires | une convention d'honoraires | Accord écrit qui fixe le prix de mon travail avant que je commence. | `[À CONFIRMER : pratique d'Eva, E5]` |
+| convention d'honoraires | une convention d'honoraires | Accord écrit qui fixe le prix de mon travail avant que je commence. | Confirmed by Eva (E5): she always signs one. |
 | honoraires | mes honoraires | Le prix de mon travail d'avocate. | |
 | contrat de collaboration | un contrat de collaboration | Contrat où un professionnel travaille à son compte, pour un confrère, avec sa propre clientèle. | `[À CONFIRMER : définition valable pour les professions servies, E2]` |
 | contrat de remplacement | un contrat de remplacement | Contrat par lequel un confrère exerce à votre place pendant votre absence. | |
@@ -271,14 +271,6 @@ checks, and the marker goes only when she has answered.
 | profession réglementée | profession réglementée | Profession dont l'accès et l'exercice sont encadrés par la loi et un Ordre. | |
 | profession libérale | profession libérale | Profession exercée de façon indépendante, sous sa propre responsabilité. | |
 | Barreau | Barreau de Lyon | Ordre des avocats de Lyon, auquel je suis inscrite. | `[À CONFIRMER : formulation exacte (Barreau / ordre des avocats)]` |
-
-### 4.5 Mécénat
-
-| Term | Inline form | Gloss (≤ 15 words) | Status |
-|---|---|---|---|
-| mécénat | mécénat | Don d'argent ou de moyens à une cause d'intérêt général. | |
-| association | une association | Groupe de personnes qui s'unissent dans un but autre que le partage de bénéfices. | |
-| fonds de dotation | un fonds de dotation | Organisme sans but lucratif qui reçoit des dons pour financer une mission d'intérêt général. | |
 
 Terms to add when `copy.md` uses them (not in the table, so not glossed yet): « avantage
 fiscal », « parts sociales », « compte courant d'associé », « clause de non-concurrence », « rupture
@@ -391,7 +383,7 @@ review, and `check-copy.ts` checks the ones marked †.
 | h2 / card title | ≤ 50 characters | |
 | Lead (first paragraph under the h1) | ≤ 30 words, ≤ 2 sentences | Carries the gloss of an acronym used in h1/meta (§4.1) |
 | Sentence | aim ≤ 20 words; hard stop 25 | |
-| Paragraph | ≤ 3 sentences (≈ 60 words) | |
+| Paragraph | ≤ 3 sentences (≈ 60 words) | Hub sections of `/domaines` (§3.4 of `copy.md`) use the same 60-word limit |
 | Card text (domaine, publication teaser) | ≤ 40 words | |
 | FAQ question | ≤ 15 words | In the reader's words |
 | FAQ answer | ≤ 60 words | General and verifiable; anything profession-specific is a `[À CONFIRMER]` |
