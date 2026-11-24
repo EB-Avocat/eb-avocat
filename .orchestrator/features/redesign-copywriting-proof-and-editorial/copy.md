@@ -77,8 +77,9 @@ drop the block.
 - **R8. No `FORMATIONS` block.** The key family is not created; `ui` does not build a Formations block,
   anchor or subject option.
 - **R9. Google reviews (E8, E9).** Fetched by the server from the Google Places API once a day (spec §4.7).
-  `copy.md` covers the slots only, never the review text. Variant (a), rating + count + link, is the default;
-  variant (b) adds the quotes once E8c is confirmed. No separate testimonial collection.
+  `copy.md` covers the slots only, never the review text. Variant (b), rating + count + link + the review
+  quotes with first name and date, is decided (user, 2026-11-24); (a) is kept only as the shape #80 can fall back to.
+  No separate testimonial collection.
 
 ---
 
@@ -312,11 +313,13 @@ Never « spécialiste » or « spécialisée ».
 
 `PROOF.rating` and `PROOF.reviews` (E8, E9: Google reviews on the site). The server fetches them from the
 Google Places API once a day (spec §4.7; built by #80): rating, count and up to 5 reviews in Google's
-order, with Google's attribution. No cookie and no script for the visitor. The block shows **only once
-the review-text question (E8c) is confirmed**; two variants, **(a) is the default until `lead` confirms (b)**:
+order, with Google's attribution. No cookie and no script for the visitor. Decided by the user on 2026-11-24:
+**(b) is the variant that ships**. Eva's rule (E8c): reviews are allowed with the client's consent; a client who
+posts a public Google review consents to it being shown, which is her call under her Barreau's rules.
 
-- **(a) rating, count and link** (default): heading, rating line, update line, attribution, link.
-- **(b) the same plus the review quotes** (up to 5, first name and date as returned by Google).
+- **(a) rating, count and link**: heading, rating line, update line, attribution, link (not used; kept as a switch).
+- **(b) the same plus the review quotes** (default): up to 5, in Google's order, with the reviewer's **first name
+  only** (the first word of Google's display name, #80) and the date.
 
 `PROOF.reviews.heading` (h2 on `/a-propos`, h3 in the home teaser)
 > Avis sur Google
@@ -1401,7 +1404,7 @@ None left in this file. Part 2 (2026-11-24) applied as follows.
 | E4d | Nothing yet | Generic list kept (§2.5 step 3) |
 | E4e | By appointment only | `CONTACT.addressBlock.access` |
 | E4f | « Je lis chaque demande » is a standing practice | Kept (§1.6 band, `/contact` intro) |
-| E8b, E8c | Reviews on Google instead of testimonials; text variants | `PROOF.reviews` (a) default, (b) quotes; no testimonial block |
+| E8b, E8c | Reviews on Google instead of testimonials; text variants | `PROOF.reviews` (b) with quotes, decided 2026-11-24; no testimonial block |
 | E11c | Purpose only | « 5 ans » dropped (§12 states no retention for contact requests) |
 | G1 | Glosses fine | Guide glosses kept, markers removed |
 | G2 | No answer | Only today's six forms named; the other forms stay in the guide, « not used on the site » |
@@ -1413,7 +1416,7 @@ None left in this file. Part 2 (2026-11-24) applied as follows.
 
 | Item | Owner | Needed by |
 |---|---|---|
-| Review text from the API: (a) rating + count + link, or (b) with quotes (E8c) | `lead` asks the user; (a) is the default | #80 |
+| Review text from the API: (a) rating + count + link, or (b) with quotes (E8c) | Decided 2026-11-24: (b), quotes with first name and date | #80 |
 | Place ID of her Google Business Profile | Eva or the user | #80, 2026-12-02 |
 | Google Cloud project with billing and an API key | the user | #80 |
 | Edits 2 and 5 of § 12 (processors, « aucun cookie ») | #80 | The Places API call is server-side, so the visitor sends nothing to Google; #80 confirms the wording stands |

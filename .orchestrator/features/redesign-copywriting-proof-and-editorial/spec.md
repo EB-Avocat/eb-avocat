@@ -67,7 +67,9 @@ All in `.orchestrator/features/redesign-copywriting-proof-and-editorial/`.
    consent banner (#66 §6). Built in #80. Prerequisites: a Google Cloud project with billing enabled
    and an API key (set up by the user; the expected volume stays inside the free quota), the place ID
    of Eva's profile, and Eva confirming that the Barreau de Lyon allows reviews on an avocat's site
-   (E8c). #68 writes only the copy for the slots around the reviews, never the review text.
+   (E8c: answered, allowed with the client's consent). The review quotes are shown with the
+   reviewer's first name and the date (user decision, 2026-11-24, variant (b) of `PROOF.reviews`).
+   #68 writes only the copy for the slots around the reviews, never the review text.
 8. **Privacy wording.** The French text of #66 §6 edits 1–5 is written here (it is copy) for
    Eva's approval; #80 implements it.
 9. **No code change to the app.** `frontend/src/lib/constants.ts` is not modified by this

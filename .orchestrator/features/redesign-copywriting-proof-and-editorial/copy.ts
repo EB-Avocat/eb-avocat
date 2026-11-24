@@ -180,7 +180,7 @@ export const CONTACT_BAND = {
 	},
 } as const;
 
-/** Google reviews block: (a) rating + count + link is the default; (b) adds the quotes (E8c, `lead`). */
+/** Google reviews block: (b) rating + count + link + quotes (first name and date) ships, decided 2026-11-24; (a) without quotes. */
 export type ReviewsVariant = "a" | "b";
 
 // Every proof block is conditional: not rendered without its data (copy.md §1.7).
@@ -192,13 +192,13 @@ export const PROOF = {
 	professions:
 		"Je travaille avec toutes les professions de santé libérales, avec les autres professions libérales et avec les entrepreneurs.",
 	reviews: {
-		variant: "a" as ReviewsVariant,
+		variant: "b" as ReviewsVariant,
 		heading: "Avis sur Google",
 		attribution: "Avis publiés sur Google",
 		// Fallback when the fetch fails or returns no review: this link alone.
 		link: "Voir tous les avis sur Google",
 		linkName: "Voir tous les avis sur Google (s’ouvre dans un nouvel onglet)",
-		/** Variant (b) only: render `item` when `variant === "b"`. Review text is Google’s, never typed here. */
+		/** Variant (b): render `item` when `variant === "b"`. Review text is Google’s, never typed here; `author` = first name only. */
 		item: {
 			meta: ({ author, date }: { author: string; date: string }) => `${author} · ${date}`,
 			name: ({ author, date }: { author: string; date: string }) => `Avis de ${author}, ${date}`,
