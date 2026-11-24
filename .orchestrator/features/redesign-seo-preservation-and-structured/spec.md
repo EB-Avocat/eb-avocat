@@ -18,7 +18,7 @@ integration time, so nodes read the inputs from git refs until then:
 | #66 objectives and KPIs (K9 Search Console, K11 GBP) | `origin/main` (`23fcccc`) | `.orchestrator/features/redesign-objectives-audience-and-kpis/objectives.md` |
 | #67 IA (site map, URL table, breadcrumbs) | `origin/main` | `.orchestrator/features/redesign-information-architecture-and-na/ia.md`, `url-table.md` |
 | #69 brand (fonts Aleo + Direction A, palette) | `origin/main` | `.orchestrator/features/redesign-brand-direction-and-moodboard/brand.md` |
-| #68 copy: meta titles and descriptions, h1, FAQ, Eva's answers (**approved by Eva as is, 2026-11-24**, PR not merged yet) | `origin/orch/redesign-copywriting-proof-and-editorial/integration` (`c08716e`) | `.orchestrator/features/redesign-copywriting-proof-and-editorial/copy.md`, `eva-content.md`, `editorial-guide.md` |
+| #68 copy: meta titles and descriptions, h1, FAQ, Eva's answers (**approved by Eva as is, 2026-11-24**, merged in PR #113) | `origin/main` (`23fcccc`) | `.orchestrator/features/redesign-copywriting-proof-and-editorial/copy.md`, `eva-content.md`, `editorial-guide.md` |
 | Audit | this branch | `.orchestrator/features/plan-redesign/audit.md` (A-03, A-11, A-18, A-20, A-21, A-22) |
 
 Read them with `git show <ref>:<path>`.

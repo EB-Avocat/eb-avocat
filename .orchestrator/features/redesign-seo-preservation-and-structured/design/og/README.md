@@ -123,7 +123,7 @@ Dropping the portrait and fitting everything in the square safe area also change
 
 | §6.5 | These templates | Why |
 |---|---|---|
-| Logo ≥ 160 px wide | **128 px** (above the 96 px minimum of §2.2, clear space kept) | Keeps the logo secondary to the title in the narrower sheet. **Lead to confirm**: 160 px also fits (logo plus 27 px clear space ends near y 209, above a 4-line text block starting at y 231) |
+| Logo ≥ 160 px wide | **128 px** (above the 96 px minimum of §2.2, clear space kept) | Keeps the logo secondary to the title in the narrower sheet. **Confirmed by lead (2026-11-24)**: §6.5's 160 px was set for a 660 px column (55 % of 1200); scaled to this 566 px column it is about 137, and 128 keeps the title dominant |
 | Display 56/62, max 3 lines | **48/54, max 4 lines** (the §4 display size) | The column is 566 px, not 55 % of 1200: at 56 px the 78-character `HERO.heading` and long article titles need more than 3 lines |
 | « biezunski-avocat.fr » in 600 24/32 `primary` | **« Eva Biezunski, avocate au Barreau de Lyon »** (`SITE.title`), same style | Spec « Social share images » asks for the name and Barreau line; the share card already shows the domain |
 | Article: left column full width on Sand 100 | **Centred Sand 100 sheet between the bands** | Same square-crop rule as the other templates |
