@@ -72,7 +72,7 @@ inherited from the root layout default (`alternates.canonical: "/"`, A-21).
 | `/robots.txt` | 200 | 200, new content (`metadata.md` §5) | — |
 | `/sitemap.xml` | 200, 4 URLs, fake `lastmod` | 200, rules of `metadata.md` §6 | — |
 | `/manifest.webmanifest`, `/apple-icon.png`, `/icon-192.png`, `/images/*` | 200 | 200, same paths | `/images/icons/*` and logos are hot-linked by Eva's email signature: keep paths (url-table §4) |
-| `/images/og/*.png` | — | 200 (new share images, `design/og/README.md` by `ui`) | Not in sitemap |
+| `/og/*.png` | — | 200 (new share images, `design/og/README.md` by `ui`) | Not in sitemap |
 | `/media/*` | 404 for an unknown blob, 200 for a real one | same | Covers; also on `cdn.` |
 | `/api/contact`, `/api/revalidate` | 405 on GET | same | `Disallow: /api/` |
 | `/api/v1/*` | 200 (Django) | same | `Disallow: /api/` |
