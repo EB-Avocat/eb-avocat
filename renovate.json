@@ -9,7 +9,7 @@
 			"groupName": "non-major dependencies"
 		},
 		{
-			"description": "openapi-typescript (latest 7.13.0) needs the TypeScript 5 JS API (peer ^5.x); TypeScript 6+/7 breaks api-types generation",
+			"description": "openapi-typescript 7.x needs the TypeScript 5 JS API (peer ^5.x); TypeScript 6+/7 breaks api-types generation. Remove this rule once openapi-typescript supports a newer TypeScript",
 			"matchFileNames": ["frontend/tools/api-types/**"],
 			"matchPackageNames": ["typescript"],
 			"allowedVersions": "<6"
