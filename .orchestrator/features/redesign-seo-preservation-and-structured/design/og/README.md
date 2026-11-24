@@ -66,8 +66,8 @@ kicker 5.96 / 5.40. All text passes AA at any size, and the titles also pass AAA
 - `next/og` (satori) **cannot read WOFF2 or variable fonts**. Ship two static TTF instances for it (brand.md
   §6.5), cut from `Aleo[wght].ttf`:
   ```sh
-  fonttools varLib.instancer "Aleo[wght].ttf" wght=400 -o Aleo-Regular.ttf
-  fonttools varLib.instancer "Aleo[wght].ttf" wght=600 -o Aleo-SemiBold.ttf
+  uvx --from fonttools fonttools varLib.instancer "Aleo[wght].ttf" wght=400 -o Aleo-Regular.ttf
+  uvx --from fonttools fonttools varLib.instancer "Aleo[wght].ttf" wght=600 -o Aleo-SemiBold.ttf
   # optional: subset to Latin + French (see brand.md §1.6 for the glyph list)
   ```
   Put them under `frontend/src/app/publications/[slug]/` (or `frontend/assets/fonts/`) with `OFL.txt`, and
@@ -80,9 +80,11 @@ kicker 5.96 / 5.40. All text passes AA at any size, and the titles also pass AAA
    prefers the narrow one), so punctuation never starts a line. The sample titles use U+00A0.
 3. **At most 4 lines**, about 85–95 characters, depending on the letters. A 4-line title takes
    216 px, which is what the layout reserves. **The size never shrinks** below 48.
-4. A longer title is cut at the last whole word that fits on line 4, and « … » (U+2026) is added. Clamp in code
-   (cut at the last word before ~90 characters, add « … ») so the result does not depend on the
-   renderer. Satori's `lineClamp` can be a second guard; check its ellipsis in a test render.
+4. A longer title is cut at the last whole word that fits on line 4, and « … » (U+2026) is added, attached
+   to the last word with no space (« … examinera… »). Clamp in code (cut at the last word so the
+   result, ellipsis included, is at most ~85 characters, the low end of rule 3) so the result does not
+   depend on the renderer. Because a title under the clamp can still need 5 lines with wide letters, the
+   title element **must** also set satori's `lineClamp: 4` as a guard; check its ellipsis in a test render.
 5. The `og:image:alt` / `twitter:image:alt` is the **full** title (never the truncated one), for example
    « SEL ou SCM : quelle société choisir ? — Publications, Eva Biezunski, avocate au Barreau de Lyon ».
    Default: « Eva Biezunski, avocate au Barreau de Lyon. Structurer votre exercice libéral, en accord avec
@@ -95,9 +97,9 @@ PNG from Figcraft; the frame flags an overflow because the title has `maxLines: 
 
 | Template | Build as | Why |
 |---|---|---|
-| **default** | **Static PNG** `frontend/public/og/default.png`, set once in `app/layout.tsx` `openGraph.images` / `twitter.images` (1200 × 630, `type: image/png`, alt above) | The copy is fixed and changes only with `copy.md`. The pixels are exactly what was designed: real logo SVG with its gradient, Aleo's kerning. It needs no font files, no runtime work and no satori quirks. 78 KB |
-| **domaine** (4) | **Static PNG** `frontend/public/og/domaine-<slug>.png`, set in each domaine page's `metadata` (from the one domaine list, only when `hasPage`) | Same reasons. Four files that change only when Eva edits a label or h1, which already means a copy release. A test can assert that each `hasPage` domaine has a file |
-| **article fallback** | **`next/og` `ImageResponse`**, file convention `app/publications/[slug]/opengraph-image.tsx` (and `twitter-image.tsx` re-exporting it), **only for articles without a cover**. With a cover, `generateMetadata` points `openGraph.images` to the cover and the route is not used | Titles come from the back-office and are unbounded, so they cannot be pre-drawn. Satori renders this layout easily (flex column, 3 rects, 3 text blocks, one `<img>`). Pass the logo as a PNG data URL (128 w, or 256 w drawn at 128) rather than the SVG, because satori's SVG support skips some of the Inkscape gradient defs. Generated on demand and cached. Add `revalidate`, or tag it with the article, so a title edit updates the image |
+| **default** | **Static PNG** `frontend/public/og/default.png` (1200 × 630, `type: image/png`, alt above), exported once from the #79 metadata helpers (for example `DEFAULT_SHARE_IMAGE`) and set in `app/layout.tsx` **and** in every page that defines its own `openGraph` / `twitter` | The copy is fixed and changes only with `copy.md`. The pixels are exactly what was designed: real logo SVG with its gradient, Aleo's kerning. It needs no font files, no runtime work and no satori quirks. 78 KB. **Next.js replaces nested metadata objects, it does not merge them**: a page that sets `openGraph` (type, url, title…) drops the layout's `openGraph.images`, and the same for `twitter`. So the helper that builds each page's `openGraph` / `twitter` must include the default image unless the page has its own; a test asserts every indexable route outputs `og:image` and `twitter:image` |
+| **domaine** (4) | **Static PNG** `frontend/public/og/domaine-<slug>.png`, set in each domaine page's `metadata` `openGraph.images` **and** `twitter.images` (from the one domaine list, only when `hasPage`) | Same reasons. Four files that change only when Eva edits a label or h1, which already means a copy release. A test can assert that each `hasPage` domaine has a file |
+| **article fallback** | **`next/og` `ImageResponse`** in a **route handler**, for example `app/publications/[slug]/og-image/route.tsx` (served at `/publications/<slug>/og-image`), **only referenced for articles without a cover**. `generateMetadata` sets both `openGraph.images` and `twitter.images` (with `twitter.card: "summary_large_image"`): the cover when there is one, else the route URL with `width: 1200`, `height: 630` and the full-title alt (rule 5). **Do not use the `opengraph-image.tsx` / `twitter-image.tsx` file convention here**: file-based metadata takes priority over `generateMetadata`, so it would replace the cover on every article that has one, and its `alt` export is static | Titles come from the back-office and are unbounded, so they cannot be pre-drawn. Satori renders this layout easily (flex column, 3 rects, 3 text blocks, one `<img>`). Pass the logo as a PNG data URL (128 w, or 256 w drawn at 128) rather than the SVG, because satori's SVG support skips some of the Inkscape gradient defs. Generated on demand and cached. Add `revalidate`, or tag it with the article, so a title edit updates the image; an unknown or unpublished slug returns 404 |
 
 Do not draw default and domaine with `ImageResponse` "for consistency". One template is shared in spirit
 only: if the article route ever drifts from the PNGs, the PNGs are the reference.
@@ -113,3 +115,12 @@ portrait**, as Task 3 asks ("no photo"), for three reasons:
 
 If Eva wants her face in shares after a photo session, add a separate `default-portrait` variant, kept
 outside the square-crop constraint. No other template changes.
+
+Dropping the portrait and fitting everything in the square safe area also changes these §6.5 values:
+
+| §6.5 | These templates | Why |
+|---|---|---|
+| Logo ≥ 160 px wide | **128 px** (above the 96 px minimum of §2.2, clear space kept) | Keeps the logo secondary to the title in the narrower sheet. **Lead to confirm**: 160 px also fits (logo plus 27 px clear space ends near y 209, above a 4-line text block starting at y 231) |
+| Display 56/62, max 3 lines | **48/54, max 4 lines** (the §4 display size) | The column is 566 px, not 55 % of 1200: at 56 px the 78-character `HERO.heading` and long article titles need more than 3 lines |
+| « biezunski-avocat.fr » in 600 24/32 `primary` | **« Eva Biezunski, avocate au Barreau de Lyon »** (`SITE.title`), same style | Spec « Social share images » asks for the name and Barreau line; the share card already shows the domain |
+| Article: left column full width on Sand 100 | **Centred Sand 100 sheet between the bands** | Same square-crop rule as the other templates |
