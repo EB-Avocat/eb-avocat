@@ -985,7 +985,6 @@ between § 8.2 and § 8.3. Contact band: `CONTACT_BAND.lines.aPropos`, `CONTACT_
 `CONTACT.intro` (lead)
 > Décrivez votre situation en quelques lignes : je lis votre demande et je vous réponds. Si vous préférez, appelez-moi ou envoyez-moi un email.
 
-Fallback: « Décrivez votre situation en quelques lignes : je vous réponds. Si vous préférez, appelez-moi ou envoyez-moi un email. »
 
 ### 9.1 Three channels as equals (phone and email first on mobile, #66 §7)
 
@@ -1156,9 +1155,6 @@ E4: a habit, not a guarantee. 14 words.
 
 `CONTACT.confidentiality.text`
 > Ce que vous m’écrivez est couvert par le secret professionnel. Pour un premier message, restez simple : n’envoyez pas de document confidentiel par ce formulaire. Je vous indiquerai comment me le transmettre.
-
-Fallback: « Je suis tenue au secret professionnel. N'envoyez pas de document confidentiel par ce
-formulaire : appelez-moi ou écrivez-moi, je vous dirai comment faire. »
 
 `CONTACT.delay.heading` (h2)
 > Délai de réponse
