@@ -1,10 +1,10 @@
-# Copy (#68, task T-502 draft)
+# Copy (#68, final, approved by Eva on 2026-11-24)
 
 French copy for every page of the #67 IA, in IA order, one stable key per slot. English notes, French
 quoted as is. **Final version (T-503)**: Eva's answers, parts 1 and 2 (relayed 2026-11-24), are applied. Where she
 gave no answer, the fallback of the draft is applied and the removed item is noted. **No confirmation
-marker is left in this file.** Eva approves it as a whole (final read); the open facts that are not copy
-(place ID, Google Cloud key, review-text decision) are listed in § 13.
+marker is left in this file.** **Approved by Eva as is on 2026-11-24** (relayed by the user). The open facts that are not copy
+(place ID, Google Cloud key) are listed in § 13; the review-text decision is settled (variant (b), §1.7).
 
 Inputs: `editorial-guide.md` (the rules; cited as **G §n**), `spec.md`, `ux-brief.md`, #66
 `objectives.md` (positioning A, §6 privacy), #67 `ia.md` (cited as **IA §n**), `constants.ts`.

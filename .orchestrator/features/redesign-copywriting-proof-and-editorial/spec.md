@@ -120,11 +120,11 @@ Tasks 1–3 are the same owner in sequence (one file set, no branch conflict); t
 
 ## 8. Acceptance criteria (from #68)
 
-- [ ] `editorial-guide.md` committed.
-- [ ] Final French copy for home, domaines, contact (and the other pages of §3), approved by Eva,
+- [x] `editorial-guide.md` committed.
+- [x] Final French copy for home, domaines, contact (and the other pages of §3), approved by Eva (as is, 2026-11-24),
       in `constants.ts`-ready form (`copy.ts`, typechecks, `check-copy.ts` passes).
-- [ ] `proof.md` lists every proof item with its consent status.
-- [ ] Every legal acronym is glossed in plain language on first use on each page (enforced by
+- [x] `proof.md` lists every proof item with its consent status.
+- [x] Every legal acronym is glossed in plain language on first use on each page (enforced by
       `check-copy.ts`).
 
 ## 9. Out of scope
