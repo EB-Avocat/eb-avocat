@@ -7,7 +7,7 @@ quoted as is. In the French examples, spaces inside « » and before `? ! : ;` 
 Inputs: `spec.md` §3–§4, `ux-brief.md`; #66 `objectives.md` (§1, §3, §4); #67 `ia.md` (§4.1, §5,
 §8); #69 `brand.md` (§1.3); `audit.md` A-01, A-05, A-07, A-17, A-30; `frontend/src/lib/constants.ts`.
 
-Status: written by ux, **ethics (§6) and every `[À CONFIRMER]` gloss (§4) wait for Eva**, who has
+Status: written by ux, **Eva confirmed the ethics frame (§6) and the glosses (§4) on 2026-11-24, for now**; she has
 the last word. Open points for `lead` are in §10.
 
 How to read the rules: **Must** = `check-copy.ts` can test it (spec §3) or review rejects it.
@@ -111,7 +111,7 @@ review (and flagged by `check-copy.ts` where marked †).
 | Co-owners / fellow professionals | **associé** (co-owner of a société), **confrère** (same profession, fellow) | « partenaire », « collègue » for an associé | « Consœur » when the person is a woman |
 | Eva's clients | **client(s)**; « les professionnels que j'accompagne » | « patient » (those are *their* patients), « justiciable », « usager » | |
 | Audience | **professionnels libéraux**, **entrepreneurs** | « libéraux » alone as a noun, « chefs d'entreprise » (use « dirigeant » for the role inside a société) | |
-| Her field of law | **droit des sociétés**, **contrats**, **déontologie** | « spécialiste », « experte » (unless Eva holds the official mention, §6) | |
+| Her field of law | **droit des sociétés**, **contrats**, **déontologie** | « spécialiste », « spécialisée » (unless Eva holds the official mention, §6); « experte » only as her own phrase « experte des professions libérales », once per page | |
 | Creating a société | **créer** une société | « constituer », « immatriculer », « monter » | |
 | Selling a practice's clientele | **céder** / **cession** (glossed) | « vendre sa clientèle » in headings; « transmission » without gloss | |
 | First exchange | **premier échange** (call, visioconférence or meeting, E4) | « consultation », « rdv », « premier rendez-vous » in a CTA | « Rendez-vous » is fine in body copy for a booked meeting, never in a CTA (#66 §4) |
@@ -119,7 +119,7 @@ review (and flagged by `check-copy.ts` where marked †).
 | Price of her work | **honoraires** (glossed on first use: « mes honoraires, c'est-à-dire le prix de mon travail ») | « tarifs », « coûts », « prix » (« prix » stays allowed inside the §4 glosses) | A FAQ question may say « Combien ça coûte ? » (people search it); the answer says « honoraires » |
 | Written fee agreement | **convention d'honoraires** (glossed) | « contrat d'honoraires », « devis » unless Eva uses it | E5 |
 | Client's opinion on Google | **avis** (« Laisser un avis ») | « notation », « évaluation », « recommandation », « feedback » | |
-| A client quote on the site | **témoignage** | « avis » (that is Google), « retour d'expérience » | Only with written consent (§6) |
+| A client voice on the site | **avis sur Google** (the Google reviews); no separate **témoignage** collection | « retour d'expérience » | §6 rule 8 |
 | The articles section | **Publications** (nav, section); **article** (one item) | « blog », « actualités » as the section name, « news » | « Actualités » stays a possible *category* |
 | Her diplomas and career | **Diplômes** / **Parcours** | « formations » (the Formations section is dropped, `copy.md` R7) | |
 | About page | **À propos** | « Qui suis-je ? », « Mon cabinet » | IA §4.1 |
@@ -215,25 +215,24 @@ as characters of the French string, with its accents.
 6. The `GLOSSARY` constant (#79–#84) can show each gloss as a tooltip or a « À savoir » line; the
    gloss text is the same everywhere.
 
-Column « Inline form » is what to write on first use. `[À CONFIRMER : …]` = ux is unsure; Eva
-checks, and the marker goes only when she has answered.
+Column « Inline form » is what to write on first use. Eva confirmed the glosses as written (G1). Rows marked « Not used on the site » stay here for later; `copy.md` does not use them.
 
 ### 4.2 Acronyms and company forms
 
 | Term | Inline form (first use) | Gloss (≤ 15 words) | Status |
 |---|---|---|---|
 | SEL | société d'exercice libéral (SEL) | Société dans laquelle un professionnel libéral exerce sa profession. | |
-| SELARL | société d'exercice libéral à responsabilité limitée (SELARL) | Société d'exercice libéral où les associés ne répondent des dettes qu'à hauteur de leurs apports. | `[À CONFIRMER : la responsabilité professionnelle de chacun reste personnelle ; faut-il le dire ici ?]` |
-| SELAS | société d'exercice libéral par actions simplifiée (SELAS) | Société d'exercice libéral dont les statuts organisent librement la direction et les relations entre associés. | |
-| SELU | société d'exercice libéral unipersonnelle (SELU) | Société d'exercice libéral créée et détenue par une seule personne. | `[À CONFIRMER : à garder si Eva la propose ; la SELASU aurait sa ligne]` |
+| SELARL | société d'exercice libéral à responsabilité limitée (SELARL) | Société d'exercice libéral où les associés ne répondent des dettes qu'à hauteur de leurs apports. | Not used on the site (copy.md, G2 and E3). |
+| SELAS | société d'exercice libéral par actions simplifiée (SELAS) | Société d'exercice libéral dont les statuts organisent librement la direction et les relations entre associés. | Not used on the site (copy.md, G2 and E3). |
+| SELU | société d'exercice libéral unipersonnelle (SELU) | Société d'exercice libéral créée et détenue par une seule personne. | Not used on the site (copy.md, G2 and E3). |
 | SCM | société civile de moyens (SCM) | Société qui met en commun le matériel et les locaux, sans partager les honoraires. | |
-| SCP | société civile professionnelle (SCP) | Société où des professionnels exercent ensemble leur profession libérale. | `[À CONFIRMER : à garder ? la SCP n'est pas dans la copie actuelle]` |
+| SCP | société civile professionnelle (SCP) | Société où des professionnels exercent ensemble leur profession libérale. | Not used on the site (copy.md, G2 and E3). |
 | SCI | société civile immobilière (SCI) | Société qui détient un bien immobilier, par exemple les locaux de votre cabinet. | |
 | SPFPL | société de participations financières de professions libérales (SPFPL) | Société qui détient les parts de votre société d'exercice. | |
 | SARL | société à responsabilité limitée (SARL) | Société commerciale où la responsabilité des associés est limitée à leurs apports. | |
 | SAS | société par actions simplifiée (SAS) | Société commerciale aux statuts très libres, avec un ou plusieurs associés. | |
-| EURL | entreprise unipersonnelle à responsabilité limitée (EURL) | Société à responsabilité limitée créée et détenue par une seule personne. | `[À CONFIRMER : à garder si Eva la propose]` |
-| SASU | société par actions simplifiée unipersonnelle (SASU) | Société par actions simplifiée créée et détenue par une seule personne. | `[À CONFIRMER : à garder si Eva la propose]` |
+| EURL | entreprise unipersonnelle à responsabilité limitée (EURL) | Société à responsabilité limitée créée et détenue par une seule personne. | Not used on the site (copy.md, G2 and E3). |
+| SASU | société par actions simplifiée unipersonnelle (SASU) | Société par actions simplifiée créée et détenue par une seule personne. | Not used on the site (copy.md, G2 and E3). |
 | RGPD | règlement général sur la protection des données (RGPD) | Règlement européen qui protège vos données personnelles. | |
 | CNIL | Commission nationale de l'informatique et des libertés (CNIL) | Autorité française qui contrôle l'usage des données personnelles. | |
 
@@ -245,14 +244,14 @@ checks, and the marker goes only when she has answered.
 | pacte d'associés | un pacte d'associés | Accord privé entre associés qui complète les statuts, par exemple en cas de départ. | |
 | apport | un apport | Ce qu'un associé met dans la société : argent, matériel ou clientèle. | |
 | cession | une cession | Vente ou transfert d'une clientèle, de parts ou d'un bien à quelqu'un d'autre. | |
-| fonds libéral | le fonds libéral | Ce qu'on achète en reprenant une activité libérale : patientèle, matériel, bail. | `[À CONFIRMER : formulation juridique exacte du fonds libéral et de sa clientèle selon les professions]` |
-| prêt de clientèle | un prêt de clientèle | Mise à disposition temporaire d'une clientèle, sans la vendre. | `[À CONFIRMER : sens du « prêt » pour les professions servies, E3]` |
-| clause de non-réinstallation | une clause de non-réinstallation | Engagement de ne pas rouvrir un cabinet près de l'ancien après une cession. | `[À CONFIRMER : si le terme sera utilisé]` |
+| fonds libéral | le fonds libéral | Ce qu'on achète en reprenant une activité libérale : patientèle, matériel, bail. | |
+| prêt de clientèle | un prêt de clientèle | Mise à disposition temporaire d'une clientèle, sans la vendre. | Not used on the site (copy.md, G2 and E3). |
+| clause de non-réinstallation | une clause de non-réinstallation | Engagement de ne pas rouvrir un cabinet près de l'ancien après une cession. | Not used on the site (copy.md, G2 and E3). |
 | convention d'honoraires | une convention d'honoraires | Accord écrit qui fixe le prix de mon travail avant que je commence. | Confirmed by Eva (E5): she always signs one. |
 | honoraires | mes honoraires | Le prix de mon travail d'avocate. | |
-| contrat de collaboration | un contrat de collaboration | Contrat où un professionnel travaille à son compte, pour un confrère, avec sa propre clientèle. | `[À CONFIRMER : définition valable pour les professions servies, E2]` |
+| contrat de collaboration | un contrat de collaboration | Contrat où un professionnel travaille à son compte, pour un confrère, avec sa propre clientèle. | |
 | contrat de remplacement | un contrat de remplacement | Contrat par lequel un confrère exerce à votre place pendant votre absence. | |
-| contrat d'exercice | un contrat d'exercice | Contrat qui organise l'exercice commun de plusieurs professionnels : locaux, charges, départ. | `[À CONFIRMER : portée exacte chez Eva]` |
+| contrat d'exercice | un contrat d'exercice | Contrat qui organise l'exercice commun de plusieurs professionnels : locaux, charges, départ. | |
 | contrat de prestation de services | un contrat de prestation de services | Contrat où un professionnel réalise un travail précis pour un autre, contre rémunération. | |
 | entrepreneur individuel | entrepreneur individuel | Vous exercez en votre nom propre, sans créer de société. | |
 | dirigeant | dirigeant | Personne qui dirige une société et l'engage envers les tiers. | |
@@ -263,14 +262,14 @@ checks, and the marker goes only when she has answered.
 | Term | Inline form | Gloss (≤ 15 words) | Status |
 |---|---|---|---|
 | Ordre | votre Ordre | Organisme qui réunit les membres d'une profession réglementée et en fixe les règles. | |
-| Conseil de l'Ordre | le Conseil de l'Ordre | Instance élue qui représente votre profession et veille au respect de ses règles. | `[À CONFIRMER : le nom et le rôle varient selon les Ordres]` |
-| chambre disciplinaire | la chambre disciplinaire | Juridiction de l'Ordre qui juge les manquements aux règles de la profession. | `[À CONFIRMER : même nom pour tous les Ordres ? sinon « instance disciplinaire »]` |
+| Conseil de l'Ordre | le Conseil de l'Ordre | Instance élue qui représente votre profession et veille au respect de ses règles. | |
+| chambre disciplinaire | la chambre disciplinaire | Juridiction de l'Ordre qui juge les manquements aux règles de la profession. | Not used on the site (copy.md, G2 and E3). |
 | contentieux ordinal | un litige devant l'Ordre (contentieux ordinal) | Litige devant l'Ordre de votre profession, par exemple une plainte ou une sanction. | |
 | déontologie | la déontologie | Règles de conduite propres à une profession, par exemple le secret professionnel. | |
 | secret professionnel | le secret professionnel | Obligation de ne rien révéler de ce que vous me confiez. | |
 | profession réglementée | profession réglementée | Profession dont l'accès et l'exercice sont encadrés par la loi et un Ordre. | |
 | profession libérale | profession libérale | Profession exercée de façon indépendante, sous sa propre responsabilité. | |
-| Barreau | Barreau de Lyon | Ordre des avocats de Lyon, auquel je suis inscrite. | `[À CONFIRMER : formulation exacte (Barreau / ordre des avocats)]` |
+| Barreau | Barreau de Lyon | Ordre des avocats de Lyon, auquel je suis inscrite. | |
 
 Terms to add when `copy.md` uses them (not in the table, so not glossed yet): « avantage
 fiscal », « parts sociales », « compte courant d'associé », « clause de non-concurrence », « rupture
@@ -320,10 +319,9 @@ use the escape `\u00A0` in a JS/TS string; `check-copy.ts` flags an ordinary spa
 
 ## 6. Ethics limits for an avocat's communication
 
-**Status: to be confirmed by Eva. She has the last word.** Source frame: the profession's rules on
+**Status: confirmed by Eva for now (X1, 2026-11-24). She has the last word.** Source frame: the profession's rules on
 advertising and personalised solicitation (loi n° 71-1130 du 31 décembre 1971 art. 3 bis;
-Règlement intérieur national, art. 10) `[À CONFIRMER : Eva confirme les articles applicables et
-les règles de son Barreau]`. Nothing here is legal advice; it is the editorial line to apply
+Règlement intérieur national, art. 10). Nothing here is legal advice; it is the editorial line to apply
 until Eva says otherwise. Rule of thumb: **information, not persuasion**.
 
 1. **No comparison, no superlative.** Never « le meilleur », « n° 1 », « la plus qualifiée »,
@@ -341,21 +339,20 @@ until Eva says otherwise. Rule of thumb: **information, not persuasion**.
    (cas fictif) ». Eva reads each one and confirms it is not a real client.
 5. **Secret professionnel.** Never mention that someone *is* a client, nor anything learned in a
    consultation. The contact form asks for the minimum; a line on the form tells the visitor
-   not to send confidential documents through it `[À CONFIRMER : wording and what the form may
-   collect, E11]`. Never confirm in a reply or a comment that a named person is a client.
+   not to send confidential documents through it. Never confirm in a reply or a comment that a named person is a client.
 6. **Honest fees and delays.** A fee or delay appears only if Eva confirms it (E4, E5) and is
    kept true: the principle (« convention d'honoraires écrite, avant de commencer »), not an
    invented figure. No « gratuit », no « devis gratuit », no « prix cassé » unless Eva confirms
    it complies. No urgency or pressure (« avant qu'il ne soit trop tard »), no fear.
-7. **Titles and specialisations.** « Avocate au Barreau de Lyon » is a fact. Never
-   « spécialiste », « experte », « Maître » as a quality claim unless Eva holds the official
-   mention of specialisation `[À CONFIRMER : Eva tient-elle une mention de spécialisation ?]`.
-   « Droit des sociétés » is a *field* she works in, not a claimed specialisation.
-8. **Testimonials and ratings.** Client testimonials and the Google rating are shown only if Eva
-   confirms the rules of her Barreau allow it, with written consent for testimonials (name or
-   initials + profession, or anonymous), a date, and the source `[À CONFIRMER : règle applicable
-   aux témoignages et aux avis]`. Static text, updated by hand, never a live widget; no selection
-   of only the best reviews when the rating is shown.
+7. **Titles and specialisations.** « Avocate au Barreau de Lyon » is a fact. Never « spécialiste » or
+   « spécialisée »: those are reserved for an official mention of specialisation, which Eva does not hold
+   (E1d). Never « Maître » as a quality claim. The one allowed self-description is « experte des professions
+   libérales », Eva's own words, accepted as written, **at most once per page**. « Droit des sociétés » is a
+   *field* she works in, not a claimed specialisation.
+8. **Testimonials and ratings.** There is no separate testimonial collection (E8b): client voices are the
+   Google reviews, left voluntarily by clients. They are shown with Google's attribution and a date, only once
+   the Barreau rule is confirmed (E8c), fetched by the server (no widget, no cookie for the visitor) and never
+   selected: Google's order, up to five. No site testimonial without written consent.
 9. **No individual legal advice in a public article.** An article gives general information,
    dated, with its last update; it does not tell a named reader what to do in their case.
    Law changes: state the date.
@@ -363,7 +360,7 @@ until Eva says otherwise. Rule of thumb: **information, not persuasion**.
     court case file. Quote public decisions only as general rulings.
 11. **Information, not solicitation.** Copy answers questions and invites contact; it does not
     chase the visitor (no countdowns, no « offre limitée », no popups).
-12. **Accuracy first.** An approximate simplification is flagged `[À CONFIRMER]` and not published
+12. **Accuracy first.** An approximate simplification is not published
     until Eva checks it. A plain gloss must still be true (§4).
 
 ---
@@ -386,7 +383,7 @@ review, and `check-copy.ts` checks the ones marked †.
 | Paragraph | ≤ 3 sentences (≈ 60 words) | Hub sections of `/domaines` (§3.4 of `copy.md`) use the same 60-word limit |
 | Card text (domaine, publication teaser) | ≤ 40 words | |
 | FAQ question | ≤ 15 words | In the reader's words |
-| FAQ answer | ≤ 60 words | General and verifiable; anything profession-specific is a `[À CONFIRMER]` |
+| FAQ answer | ≤ 60 words | General and verifiable; anything profession-specific is a |
 | Form label | ≤ 25 characters | « Nom », « Email », « Téléphone (facultatif) » |
 | Form help / error message | ≤ 20 words, says what to do | « Indiquez votre email pour que je puisse vous répondre. » |
 | Success / error page message | ≤ 30 words | |
