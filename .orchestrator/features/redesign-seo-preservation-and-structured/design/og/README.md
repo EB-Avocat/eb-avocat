@@ -80,13 +80,13 @@ kicker 5.96 / 5.40. All text passes AA at any size, and the titles also pass AAA
    prefers the narrow one), so punctuation never starts a line. The sample titles use U+00A0.
 3. **At most 4 lines** (216 px, what the layout reserves; about 85–95 characters depending on the
    letters). **The size never shrinks** below 48.
-4. Longer titles: cut in code at the last whole word so the result, ellipsis included, is ≤ 85
-   characters, then append « … » (U+2026) with no space (« … examinera… »). Also set satori's
+4. Longer titles: cut in code at the last whole word so the result, ellipsis included, is ≤ 90
+   characters (the length `article-long.png` shows fitting in 4 lines; lead, 2026-11-24), then append « … » (U+2026) with no space (« … examinera… »). Also set satori's
    `lineClamp: 4` on the title as a guard for wide-letter titles; check its ellipsis in a test render.
 5. The `og:image:alt` / `twitter:image:alt` is the **full** title (never the truncated one), for example
-   « SEL ou SCM : quelle société choisir ? — Publications, Eva Biezunski, avocate au Barreau de Lyon ».
+   « SEL ou SCM : quelle société choisir ? Publications d’Eva Biezunski, avocate au Barreau de Lyon ».
    Default: « Eva Biezunski, avocate au Barreau de Lyon. Structurer votre exercice libéral, en accord avec
-   votre Ordre et vos associés. » Domaine: « [label] — [h1]. Eva Biezunski, avocate au Barreau de Lyon. »
+   votre Ordre et vos associés. » Domaine: « [label]. [h1]. Eva Biezunski, avocate au Barreau de Lyon. » (no em dash: #68 G §5)
 
 Domaine h1 and default heading fit in 3–4 lines with no truncation. If `copy.md` changes them, re-export the
 PNG from Figcraft and check the title still fits in 4 lines (the layer's `maxLines: 4` truncates silently).

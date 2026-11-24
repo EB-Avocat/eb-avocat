@@ -30,9 +30,9 @@ Share images, from `ui`'s `design/og/README.md` (authoritative on design, files 
 | Page type | Image | Built as | `alt` (README rule 5) |
 |---|---|---|---|
 | home and every page without its own image (hub, `/a-propos`, `/contact`, `/publications` and its variants, legal, 404) | `/og/default.png` (`frontend/public/og/default.png`) | static PNG | « Eva Biezunski, avocate au Barreau de Lyon. Structurer votre exercice libéral, en accord avec votre Ordre et vos associés. » |
-| domaine page, **only when `hasPage`** (a fallback section uses the default) | `/og/domaine-<slug>.png` | static PNG | « [label] — [h1]. Eva Biezunski, avocate au Barreau de Lyon. » |
+| domaine page, **only when `hasPage`** (a fallback section uses the default) | `/og/domaine-<slug>.png` | static PNG | « [label]. [h1]. Eva Biezunski, avocate au Barreau de Lyon. » |
 | article with a cover | the cover (API `cover`) | — | `cover_alt`, else the article title |
-| article without a cover | `/publications/<slug>/og-image` | `next/og` **route handler** `frontend/src/app/publications/[slug]/og-image/route.tsx` (not the `opengraph-image.tsx` file convention, which would override covers) | « [full title] — Publications, Eva Biezunski, avocate au Barreau de Lyon » (full title, never the truncated one) |
+| article without a cover | `/publications/<slug>/og-image` | `next/og` **route handler** `frontend/src/app/publications/[slug]/og-image/route.tsx` (not the `opengraph-image.tsx` file convention, which would override covers) | « [full title]. Publications d’Eva Biezunski, avocate au Barreau de Lyon » (full title, never the truncated one) |
 
 **Both `openGraph.images` and `twitter.images` are set on every indexable page** (with `width`, `height`,
 `alt`). Next replaces nested metadata objects instead of merging them, so a page that sets its own
@@ -788,7 +788,7 @@ Each item: file · expected behaviour. Tests named here are for #86 unless the i
   else `robots: { index: false, follow: true }` and no canonical (never both); `openGraph` (title,
   description, `images`, `type`) and `twitter` (`card`, `images`) always set, `image` defaulting to
   `DEFAULT_SHARE_IMAGE` (§1). `withSuffix(title)` (§2.8) and `cutAtWord(text, max)` (word-boundary cut +
-  « … », used with 155 for descriptions and with 85 by the og-image route) are exported from here.
+  « … », used with 155 for descriptions and with 90 by the og-image route) are exported from here.
 - [ ] `frontend/src/lib/seo/jsonld.ts` (new) · typed builders: `cabinetNode()`, `evaNode()`, `websiteNode()`,
   `pageNode(type, { path, name, description, … })`, `breadcrumbNode(path, trail)`, `serviceNode(domaine, { fallback })`,
   `faqNode(path, faq)`, `blogPostingNode(article)`, `graph(...nodes)` (adds the three shared nodes) and
