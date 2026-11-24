@@ -15,7 +15,7 @@ Sources: #68 `copy.md` (**copy §n**, keys in code font; approved by Eva 2026-11
 |---|---|
 | `metadataBase` | `new URL(SITE.url)` (kept). Every canonical, `og:url` and image is absolute through it |
 | Title | Pages pass the **full string from `copy.md`** as `title: { absolute: KEY.metaTitle }` (the string Eva approved and the one the length check measures). The root `title.template` becomes `%s | Eva Biezunski` (` | Eva Biezunski` = `SITE.titleSuffix`) and only serves routes that pass a bare string (articles, §2.8). `title.default` = `SITE.title`. A test fails if a rendered `<title>` contains `Eva Biezunski` twice |
-| Description | `copy.md` key per page; unique per URL; ≤ 155 |
+| Description | `copy.md` key per page; unique per URL (one exception: `/publications?page=n` reuses page 1's, P3); ≤ 155 |
 | Canonical | **No root default** (`alternates.canonical: "/"` removed). Every indexable route sets its own: absolute, no query string (except `?page=n`, n ≥ 2), no trailing slash, no fragment. Noindex routes set none |
 | Robots meta | Root default `index, follow` + `googleBot: { "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 }` (kept: lets Google show the large share image and full snippets). Noindex routes override `robots` (Next replaces the whole key, so the `googleBot` part goes with it, which is what we want) |
 | `keywords` | **Removed** (ignored by Google, A-22). `authors`, `creator` kept (harmless) |
@@ -169,21 +169,27 @@ linked (E9c).
 
 Title `NOT_FOUND.metaTitle` « Page introuvable \| Eva Biezunski » (32) as `{ absolute }` (today the
 template doubles it) · description none · **no canonical** (today it inherits `/`) · **noindex, follow**,
-one robots meta (today two) · status 404 · no JSON-LD.
+one robots meta (today two) · status 404 · no JSON-LD. Next.js already injects `<meta name="robots"
+content="noindex">` on every 404 response (that is today's second meta), so `not-found.tsx` sets
+`robots: null` (clears the root's `index, follow` without adding its own): Next's injected `noindex` is then
+the only robots meta, and `follow` is the default when only `noindex` is given.
 
 ### 2.13 Error pages (`error.tsx`, `global-error.tsx`)
 
 Client components cannot export `metadata`: render `<title>` and `<meta name="robots" content="noindex" />`
 in the JSX (React 19 hoists them to `<head>`). Title « Une erreur est survenue \| Eva Biezunski » (39, from
 `ERROR_PAGE.title` + suffix; `GLOBAL_ERROR.title` the same way). No canonical, no JSON-LD. The status is
-500 when the error is thrown before streaming; it is not our concern beyond `noindex`.
+500 when the error is thrown before streaming; it is not our concern beyond `noindex`. `error.tsx` renders
+inside the root layout, whose metadata (`<title>` default, `index, follow`) is still emitted: the page then has
+two titles and two robots metas. Google applies the most restrictive robots value, so `noindex` holds; #86's
+« exactly one `<title>` » check applies to indexable routes only, not to error boundaries.
 
 ## 3. Title and description check
 
 Every string of §2 against G §7 / spec: title ≤ 60, description ≤ 155, Lyon and the service in each
 domaine title, one unique title and description per indexable URL. Checked by script on 2026-11-24 from
 `copy.md` at `origin/main` `23fcccc` (#68 merged; same content as `c08716e`). All titles ≤ 60, all descriptions ≤ 155 (and in the 120–155 aim except the legal
-pages), all unique. Problems:
+pages), all unique except the paginated list's description (P3). Problems:
 
 | # | Problem | Where | Severity | Proposal (lead relays to #68; no wording changed here) |
 |---|---|---|---|---|
@@ -325,7 +331,7 @@ no HTML). `isPartOf` → the page. A test asserts the questions equal the render
   the same constant / copy key / API field that renders the visible text.
 - Noindex pages (`/carte`, `?category=` lists, 404, errors, back-office) carry no JSON-LD.
 - One `<script>` per page; the root layout's `Attorney` block is deleted.
-- `JSON.stringify` the graph and escape `<` as `<` before `dangerouslySetInnerHTML` (an article
+- `JSON.stringify` the graph and escape every `<` as `\u003c` before `dangerouslySetInnerHTML` (an article
   title or summary containing `</script>` would otherwise break out of the tag).
 - A unit test per page type (#79 helpers, vitest): output parses as JSON, has `@context` and `@graph`,
   every `{ "@id" }` reference resolves to a node of the same graph, the required properties of §4.3 are
@@ -862,12 +868,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	// Articles first: their dates also date the home and the list.
 	let articles: { slug: string; updatedAt: string }[] = [];
 	try {
-		articles = await getPublicationSlugs(); // [{ slug, updatedAt }], newest first
+		articles = await getPublicationSlugs(); // [{ slug, updatedAt }], in published_at order
 	} catch {
 		articles = []; // a backend outage still serves the static entries
 	}
+	// Compare instants, not strings: the API emits Europe/Paris offsets (+01:00 / +02:00), so
+	// a string comparison can pick the wrong article around a DST change.
 	const newest = articles.reduce<string | undefined>(
-		(max, a) => (!max || a.updatedAt > max ? a.updatedAt : max),
+		(max, a) => (!max || Date.parse(a.updatedAt) > Date.parse(max) ? a.updatedAt : max),
 		undefined,
 	);
 	const url = (path: string) => `${SITE.url}${path}`;
@@ -936,14 +944,15 @@ Each item: file · expected behaviour. Tests named here are for #86 unless the i
   `SITE.titleSuffix`); `openGraph` / `twitter` defaults with the default share image 1200 × 630
   (`/og/default.png`), no `url` at root level; keep `metadataBase`, `robots` + `googleBot`, icons.
 - [ ] `frontend/src/lib/seo/metadata.ts` (new) · `pageMetadata({ path, title, description, image?, robots?, type? })`
-  returns `title: { absolute }`, `description`, `alternates.canonical` = path, `openGraph` (`url` = path,
+  returns `title: { absolute }` (or the bare string when the caller asks for the template suffix: articles
+  of ≤ 44 characters, §2.8, so `title` accepts `string | { absolute: string }`), `description`, `alternates.canonical` = path, `openGraph` (`url` = path,
   title, description, `images`, `type`) and `twitter` (`card`, `images`), so canonical and `og:url` can never
   diverge and both image lists are always set (`image` defaults to `DEFAULT_SHARE_IMAGE`, §1). `path`
   without query except `?page=n`.
 - [ ] `frontend/src/lib/seo/jsonld.ts` (new) · typed builders: `cabinetNode()`, `evaNode()`, `websiteNode()`,
   `pageNode(type, { path, name, description, … })`, `breadcrumbNode(path, trail)`, `serviceNode(domaine, { fallback })`,
   `faqNode(path, faq)`, `blogPostingNode(article)`, `graph(...nodes)` (adds the three shared nodes) and
-  `<JsonLd graph={…} />` (serialises with `<` escaped as `<`).
+  `<JsonLd graph={…} />` (serialises with every `<` escaped as `\u003c`, e.g. `.replace(/</g, "\\u003c")`).
 - [ ] `frontend/src/lib/constants.ts` / `copy.ts` · add `GBP_URL` = `https://www.google.com/maps?cid=15633752146969655329`,
   `CONTACT.geo` = `{ latitude: 45.76494, longitude: 4.8344 }`, `SITE.titleSuffix`; `SITE.title` /
   `SITE.description` from `copy.md` §1.1 (#68 strings).
@@ -974,7 +983,8 @@ Each item: file · expected behaviour. Tests named here are for #86 unless the i
 
 ### #82 publications and sitemap
 
-- [ ] `backend/articles/serializers.py` · add `updated_at` to `PublicArticleSerializer.Meta.fields`; then
+- [ ] `backend/articles/serializers.py` · add `updated_at` to `PublicArticleSerializer.Meta.fields` and drop it
+  from `PublicArticleDetailSerializer`'s extra fields (it inherits it; listing it twice duplicates the name); then
   `tox -e api-types` (never hand-edit `schema.ts`); backend test that the list exposes it.
 - [ ] `frontend/src/lib/publications.ts` · `getPublicationSlugs()` returns `{ slug, updatedAt }[]`;
   `generateStaticParams` in `[slug]/page.tsx` maps `.slug`.
@@ -986,6 +996,9 @@ Each item: file · expected behaviour. Tests named here are for #86 unless the i
   `/publications?page=n`, title `PUBLICATIONS.metaTitlePage` (P3); `page=1` → canonical `/publications`.
   Page body: invalid / out-of-range `page` or unknown `category` → `notFound()` **only when the API
   answered** (backend error → throw). JSON-LD `CollectionPage` on indexable variants only.
+- [ ] `frontend/src/lib/publications.ts` · `getPublications` uses `getJsonOrThrow` (not `getJson`, which turns
+  every failure into an empty list) so the page can tell « the API answered » from « the backend failed »; a
+  `null` list (the API's 404 for an out-of-range page) means 404, a thrown error means throw.
 - [ ] `frontend/src/lib/publications-parse.ts` · `parsePage` returns `null` (not 1) for a non-integer or
   < 1 value so the page can 404 it; `"1"` → 1.
 - [ ] `frontend/src/app/publications/[slug]/page.tsx` · metadata §2.8 (title length rule, summary cut,
@@ -1007,8 +1020,8 @@ Each item: file · expected behaviour. Tests named here are for #86 unless the i
 - [ ] `frontend/src/app/carte/page.tsx` · remove the user-agent check and `redirect("/")` (200 for every UA);
   `robots: { index: false, follow: false }` kept; title `{ absolute: QR_CARD.metaTitle }`; no JSON-LD.
 - [ ] `frontend/src/app/carte/vcard/route.ts` · add header `X-Robots-Tag: noindex`.
-- [ ] `frontend/src/app/not-found.tsx` · `title: { absolute: NOT_FOUND.metaTitle }`, `robots: { index: false, follow: true }`,
-  no canonical (inherits none once C1 lands); one robots meta in the output.
+- [ ] `frontend/src/app/not-found.tsx` · `title: { absolute: NOT_FOUND.metaTitle }`, `robots: null` (Next injects
+  `noindex` on 404 responses; a `robots` value of our own is what produces today's two metas), no canonical (inherits none once C1 lands); one robots meta in the output.
 - [ ] `frontend/src/app/error.tsx`, `global-error.tsx` · `<title>` and `<meta name="robots" content="noindex" />` in JSX.
 - [ ] `frontend/src/app/mentions-legales/page.tsx`, `politique-de-confidentialite/page.tsx` · `pageMetadata` with
   the §2.9 strings (absolute, with suffix), `WebPage` JSON-LD.
