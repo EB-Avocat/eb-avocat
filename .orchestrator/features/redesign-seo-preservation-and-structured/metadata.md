@@ -14,7 +14,7 @@ Sources: #68 `copy.md` (**copy §n**, keys in code font; approved by Eva 2026-11
 | Item | Rule |
 |---|---|
 | `metadataBase` | `new URL(SITE.url)` (kept). Every canonical, `og:url` and image is absolute through it |
-| Title | Pages pass the **full string from `copy.md`** as `title: { absolute: KEY.metaTitle }` (the string Eva approved and the one the length check measures). The root `title.template` becomes `%s | Eva Biezunski` (` | Eva Biezunski` = `SITE.titleSuffix`) and only serves routes that pass a bare string (articles, §2.8). `title.default` = `SITE.title`. A test fails if a rendered `<title>` contains `Eva Biezunski` twice |
+| Title | **Always absolute**: pages pass the full string from `copy.md` (the string Eva approved and the one the length check measures) through `pageMetadata`, which emits `title: { absolute }`. **No root `title.template`** (`title.default` = `SITE.title` only), so a suffix can never be added twice. Articles build their string with `withSuffix(title)` (§2.8). This is the one place the title mechanism is defined; other sections refer to it |
 | Description | `copy.md` key per page; unique per URL (one exception: `/publications?page=n` reuses page 1's, P3); ≤ 155 |
 | Canonical | **No root default** (`alternates.canonical: "/"` removed). Every indexable route sets its own: absolute, no query string (except `?page=n`, n ≥ 2), no trailing slash, no fragment. Noindex routes set none |
 | Robots meta | Root default `index, follow` + `googleBot: { "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 }` (kept: lets Google show the large share image and full snippets). Noindex routes override `robots` (Next replaces the whole key, so the `googleBot` part goes with it, which is what we want) |
@@ -131,7 +131,7 @@ own title; see P3 for the 60-character issue and the chosen fix.
 
 | Field | Value |
 |---|---|
-| Title | Article `title` (API) — **if ≤ 44 characters**: bare string, so the template appends the suffix (« \<title\> \| Eva Biezunski », ≤ 60); **if 45 to 60**: `{ absolute: title }` (no suffix; the brand is in the share card and the breadcrumb); **if > 60** (G §7 allows 70): `{ absolute: title }` and Google truncates; follow-up field `seo_title` if Search Console shows it hurts (P4) |
+| Title | `withSuffix(article.title)`: `title + SITE.titleSuffix` when the result is ≤ 60 (title ≤ 44), else the bare title (45 to 60 fits; > 60, which G §7 allows up to 70, is truncated by Google). Follow-up field `seo_title` if Search Console shows it hurts (P4) |
 | Description | Article `summary`: as is if ≤ 155; else cut to ≤ 154 characters at the last space and « … » added (≤ 155). **Empty summary → no description meta** (Google builds a snippet), never the list's description (today's fallback gives every summary-less article the same description). #85 makes the summary required to publish |
 | Canonical | `/publications/<slug>` |
 | Robots | index, follow |
@@ -195,7 +195,7 @@ pages), all unique except the paginated list's description (P3). Problems:
 |---|---|---|---|---|
 | P1 | **« Lyon » missing from two domaine titles** (spec rule « Lyon and the service in every domaine title ») | `contrats-professionnels` (60, no room), `ordre-et-deontologie` (57) | Medium: « avocat contrat de collaboration Lyon » style queries match the title first; the description, `LegalService` and GBP carry Lyon, so the page can still rank locally | **Keep at launch** (approved copy; a change costs a round with Eva), and revisit at the month-1 review of `monitoring.md` if those pages get impressions for « … lyon » queries at position > 10. Candidates that fit: « Contrats de collaboration à Lyon \| Eva Biezunski » (48, loses « remplacement »), « Contrats d’exercice libéral à Lyon \| Eva Biezunski » (50); « Ordre et contentieux ordinal à Lyon \| Eva Biezunski » (51), « Déontologie et contentieux ordinal à Lyon \| Eva Biezunski » (57) |
 | P2 | Two titles at exactly 60 | `cession-clientele-patientele`, `contrats-professionnels` | Low: Google cuts by pixel width (~580 px desktop); 60 characters of this text fit; if cut, the suffix goes first, which is harmless | None |
-| P3 | `/publications?page=n` needs a unique title; `PUBLICATIONS.metaTitle` + « , page n » is 65 | `/publications?page=n` | Low (page 2 exists only after 13 articles, `PAGE_SIZE` 12) | Use `{ absolute: "Publications, page n \| Eva Biezunski" }` (≤ 38). Needs a copy key `PUBLICATIONS.metaTitlePage` = « Publications, page {{n}} \| Eva Biezunski » and a description `PUBLICATIONS.metaDescriptionPage` = `PUBLICATIONS.metaDescription` (duplicate descriptions on paginated lists are acceptable; Google does not penalise them). **New key for #68** |
+| P3 | `/publications?page=n` needs a unique title; `PUBLICATIONS.metaTitle` + « , page n » is 65 | `/publications?page=n` | Low (page 2 exists only after 13 articles, `PAGE_SIZE` 12) | **New key for #68**: `PUBLICATIONS.metaTitlePage` = « Publications, page {{n}} \| Eva Biezunski » (≤ 38). The description stays `PUBLICATIONS.metaDescription` (duplicate descriptions on paginated lists are acceptable) |
 | P4 | G §7 asks for a hand-written shorter meta title when an article's page part exceeds 44, but the spec says no new back-office field at launch | articles | Low | Rule of §2.8 (suffix only when it fits, else the bare title). G §7 stays the editorial aim; a `seo_title` field is a follow-up for #76 if Search Console shows truncated titles on articles that rank |
 | P5 | Legal pages have no `copy.md` key and descriptions under 120 | legal | Low | Keep today's strings; #75 moves them to `copy.ts` |
 | P6 | Home h1 has no « Lyon » (issue asks for it) | home | Low | Lead's proposal held (task 2, `local-seo.md`): Lyon is in the title, description, eyebrow `HERO.kicker`, NAP and `LegalService` |
@@ -341,8 +341,8 @@ no HTML). `isPartOf` → the page. A test asserts the questions equal the render
 
 Complete, valid JSON, real values from `constants.ts`, `copy.md` and the research above. The full files
 are committed in `jsonld/` next to this file (fixtures for #79's tests); the home example is printed in
-full, the others print their page-specific nodes (the three shared nodes are identical to the home's and
-are in the files).
+full, the domaine page and the article print their page-specific nodes, and a table describes the others
+(the three shared nodes are identical in every file).
 
 **No published article exists today** (live API: count 0), so the article example uses an illustrative
 article (title, summary, dates invented, in the house style); its structure is what matters.
@@ -452,71 +452,6 @@ article (title, summary, dates invented, in the house style); its structure is w
     }
   ]
 }
-```
-
-#### Hub `/domaines`, all four pages shipped (`jsonld/hub.json`): page node
-
-```json
-[
-  {
-    "@type": "CollectionPage",
-    "@id": "https://biezunski-avocat.fr/domaines",
-    "url": "https://biezunski-avocat.fr/domaines",
-    "name": "Mes domaines d’intervention",
-    "description": "Création de sociétés, clientèle ou patientèle, contrats, Ordre et déontologie : les domaines où j’accompagne les professionnels libéraux, à Lyon.",
-    "inLanguage": "fr-FR",
-    "isPartOf": {
-      "@id": "https://biezunski-avocat.fr/#website"
-    },
-    "about": {
-      "@id": "https://biezunski-avocat.fr/#cabinet"
-    }
-  }
-]
-```
-
-#### Hub `/domaines`, « Ordre et déontologie » missed the gate (`jsonld/hub-fallback.json`): page-specific nodes
-
-```json
-[
-  {
-    "@type": "CollectionPage",
-    "@id": "https://biezunski-avocat.fr/domaines",
-    "url": "https://biezunski-avocat.fr/domaines",
-    "name": "Mes domaines d’intervention",
-    "description": "Création de sociétés, clientèle ou patientèle, contrats, Ordre et déontologie : les domaines où j’accompagne les professionnels libéraux, à Lyon.",
-    "inLanguage": "fr-FR",
-    "isPartOf": {
-      "@id": "https://biezunski-avocat.fr/#website"
-    },
-    "about": {
-      "@id": "https://biezunski-avocat.fr/#cabinet"
-    },
-    "mentions": {
-      "@id": "https://biezunski-avocat.fr/domaines#ordre-et-deontologie"
-    }
-  },
-  {
-    "@type": "Service",
-    "@id": "https://biezunski-avocat.fr/domaines#ordre-et-deontologie",
-    "url": "https://biezunski-avocat.fr/domaines#ordre-et-deontologie",
-    "name": "Ordre et déontologie",
-    "serviceType": "Ordre et déontologie",
-    "description": "Votre Ordre fixe la déontologie, les règles de conduite de votre profession. Je vous conseille sur vos questions et vos échanges avec lui. Si un litige s’ouvre devant l’Ordre (contentieux ordinal), je vous défends devant le Conseil de l’Ordre.",
-    "provider": {
-      "@id": "https://biezunski-avocat.fr/#cabinet"
-    },
-    "areaServed": {
-      "@type": "City",
-      "name": "Lyon",
-      "sameAs": "https://www.wikidata.org/wiki/Q456"
-    },
-    "audience": {
-      "@type": "Audience",
-      "audienceType": "Professionnels de santé libéraux, autres professions libérales et entrepreneurs"
-    }
-  }
-]
 ```
 
 #### Domaine page `/domaines/creation-de-societe` (`jsonld/domaine.json`): page-specific nodes
@@ -633,93 +568,19 @@ article (title, summary, dates invented, in the house style); its structure is w
 ]
 ```
 
-#### `/a-propos` (`jsonld/a-propos.json`): page node
+#### The other page types
 
-```json
-[
-  {
-    "@type": "AboutPage",
-    "@id": "https://biezunski-avocat.fr/a-propos",
-    "url": "https://biezunski-avocat.fr/a-propos",
-    "name": "Qui je suis, et comment je travaille",
-    "description": "Eva Biezunski, avocate au Barreau de Lyon : son parcours et sa façon de travailler avec les professionnels libéraux et les entrepreneurs.",
-    "inLanguage": "fr-FR",
-    "isPartOf": {
-      "@id": "https://biezunski-avocat.fr/#website"
-    },
-    "about": {
-      "@id": "https://biezunski-avocat.fr/a-propos#eva"
-    },
-    "mainEntity": {
-      "@id": "https://biezunski-avocat.fr/a-propos#eva"
-    }
-  }
-]
-```
+Their files are complete graphs too (shared nodes + page nodes); only the page node differs from the home:
 
-#### `/contact` (`jsonld/contact.json`): page node
-
-```json
-[
-  {
-    "@type": "ContactPage",
-    "@id": "https://biezunski-avocat.fr/contact",
-    "url": "https://biezunski-avocat.fr/contact",
-    "name": "Écrivez-moi ou appelez-moi",
-    "description": "Trois façons de joindre Eva Biezunski, avocate au Barreau de Lyon : formulaire, téléphone, email. 29 rue du Président Édouard Herriot, 69002 Lyon.",
-    "inLanguage": "fr-FR",
-    "isPartOf": {
-      "@id": "https://biezunski-avocat.fr/#website"
-    },
-    "about": {
-      "@id": "https://biezunski-avocat.fr/#cabinet"
-    },
-    "mainEntity": {
-      "@id": "https://biezunski-avocat.fr/#cabinet"
-    }
-  }
-]
-```
-
-#### `/publications` (`jsonld/publications.json`) and `?page=2` (`jsonld/publications-page-2.json`): page nodes
-
-```json
-[
-  {
-    "@type": "CollectionPage",
-    "@id": "https://biezunski-avocat.fr/publications",
-    "url": "https://biezunski-avocat.fr/publications",
-    "name": "Publications : comprendre le droit de votre exercice",
-    "description": "Articles d’Eva Biezunski, avocate au Barreau de Lyon, pour les professionnels libéraux : sociétés, contrats, patientèle, Ordre et déontologie.",
-    "inLanguage": "fr-FR",
-    "isPartOf": {
-      "@id": "https://biezunski-avocat.fr/#website"
-    },
-    "about": {
-      "@id": "https://biezunski-avocat.fr/#cabinet"
-    }
-  }
-]
-```
-
-```json
-[
-  {
-    "@type": "CollectionPage",
-    "@id": "https://biezunski-avocat.fr/publications?page=2",
-    "url": "https://biezunski-avocat.fr/publications?page=2",
-    "name": "Publications : comprendre le droit de votre exercice",
-    "description": "Articles d’Eva Biezunski, avocate au Barreau de Lyon, pour les professionnels libéraux : sociétés, contrats, patientèle, Ordre et déontologie.",
-    "inLanguage": "fr-FR",
-    "isPartOf": {
-      "@id": "https://biezunski-avocat.fr/#website"
-    },
-    "about": {
-      "@id": "https://biezunski-avocat.fr/#cabinet"
-    }
-  }
-]
-```
+| Fixture | Page-specific nodes | Differs from the nearest example by |
+|---|---|---|
+| `jsonld/hub.json` | `CollectionPage` | `@type`, `@id` / `url` `/domaines`, hub h1 and description, no image |
+| `jsonld/hub-fallback.json` | `CollectionPage` + `Service` `/domaines#ordre-et-deontologie` | as `hub.json`, plus `mentions` → the `Service`, whose `description` is `hubSection.text` (§2.4) |
+| `jsonld/a-propos.json` | `AboutPage` | `about` and `mainEntity` → `#eva` |
+| `jsonld/contact.json` | `ContactPage` | `about` and `mainEntity` → `#cabinet` |
+| `jsonld/publications.json` | `CollectionPage` | list h1 and description |
+| `jsonld/publications-page-2.json` | `CollectionPage` | as `publications.json`, `@id` / `url` `/publications?page=2` |
+| `jsonld/legal.json` | `WebPage` | no `about`, no image |
 
 #### Article `/publications/<slug>` (`jsonld/article.json`, illustrative article): page-specific nodes
 
@@ -797,24 +658,6 @@ article (title, summary, dates invented, in the house style); its structure is w
 ]
 ```
 
-#### Legal `/mentions-legales` (`jsonld/legal.json`): page node
-
-```json
-[
-  {
-    "@type": "WebPage",
-    "@id": "https://biezunski-avocat.fr/mentions-legales",
-    "url": "https://biezunski-avocat.fr/mentions-legales",
-    "name": "Mentions légales",
-    "description": "Mentions légales du site Eva Biezunski Avocate : éditeur, hébergeur et médiation.",
-    "inLanguage": "fr-FR",
-    "isPartOf": {
-      "@id": "https://biezunski-avocat.fr/#website"
-    }
-  }
-]
-```
-
 ### 4.6 What earns a rich result (Google, checked 2026-11)
 
 | Type | Google feature | Expected |
@@ -865,46 +708,37 @@ Sitemap: https://biezunski-avocat.fr/sitemap.xml
 
 ```ts
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-	// Articles first: their dates also date the home and the list.
-	let articles: { slug: string; updatedAt: string }[] = [];
-	try {
-		articles = await getPublicationSlugs(); // [{ slug, updatedAt }], in published_at order
-	} catch {
-		articles = []; // a backend outage still serves the static entries
-	}
-	// Compare instants, not strings: the API emits Europe/Paris offsets (+01:00 / +02:00), so
-	// a string comparison can pick the wrong article around a DST change.
-	const newest = articles.reduce<string | undefined>(
-		(max, a) => (!max || Date.parse(a.updatedAt) > Date.parse(max) ? a.updatedAt : max),
-		undefined,
-	);
-	const url = (path: string) => `${SITE.url}${path}`;
+	const articles = await getPublicationSlugs(); // [{ slug, updatedAt }]; [] when the backend fails
+	// Compare instants, not strings: the API emits +01:00 / +02:00 offsets (Europe/Paris).
+	const newest = articles.length
+		? new Date(Math.max(...articles.map((a) => Date.parse(a.updatedAt))))
+		: undefined;
 
 	return [
-		{ url: url("/"), lastModified: newest },
-		{ url: url("/domaines") },
-		...DOMAINE_LIST.filter((d) => d.hasPage).map((d) => ({ url: url(`/domaines/${d.slug}`) })),
-		{ url: url("/a-propos") },
-		{ url: url("/contact") },
-		{ url: url("/publications"), lastModified: newest },
-		...articles.map((a) => ({ url: url(`/publications/${a.slug}`), lastModified: a.updatedAt })),
-		{ url: url("/mentions-legales") },
-		{ url: url("/politique-de-confidentialite") },
+		{ url: absoluteUrl("/"), lastModified: newest },
+		...SEO_ROUTES.filter((r) => r.inSitemap).map((r) => ({ url: absoluteUrl(r.path) })),
+		{ url: absoluteUrl("/publications"), lastModified: newest },
+		...articles.map((a) => ({
+			url: absoluteUrl(`/publications/${a.slug}`),
+			lastModified: a.updatedAt,
+		})),
 	];
 }
 ```
 
-- Lists only indexable, canonical URLs; never `?page=`, `?category=`, `/carte`, `/avis`, `/carte/vcard`,
-  a domaine page with `hasPage: false`, or anything under `/api/`.
+`SEO_ROUTES` (§8 #79) holds `/domaines`, the domaine pages with `hasPage`, `/a-propos`, `/contact` and the
+two legal pages; `absoluteUrl(path)` = `SITE.url + path`.
+
+- Lists only indexable, canonical URLs; anything not `inSitemap` in `SEO_ROUTES` (`?page=`, `?category=`,
+  `/carte`, `/avis`, a domaine page with `hasPage: false`) is out by construction.
 - `lastModified` is **true or absent** (Next omits `<lastmod>` when `undefined`): articles `updated_at`;
   `/` and `/publications` the newest article's `updated_at`; static pages none. Never `new Date()`.
 - No `changeFrequency`, no `priority` (Google ignores both).
 - Home `loc` `https://biezunski-avocat.fr/` (with the slash or without: same URL; keep what Next renders).
-- `getPublicationSlugs` returns `{ slug, updatedAt }[]`. On a backend failure the sitemap keeps the static
-  entries (today's behaviour: `getJson` already turns a failure into an empty list, so the `try` is a
-  second guard). The stale « Notion » comment goes.
-- The sitemap is revalidated with the articles (`revalidate = 3600` or the `articles` cache tag the
-  backend busts), so a new article appears within the hour.
+- `getPublicationSlugs` returns `{ slug, updatedAt }[]` and `[]` on a backend failure (it reads through
+  `getJson`), so an outage still serves the static entries. The stale « Notion » comment goes.
+- Nothing to add for freshness: `getPublicationSlugs` fetches with the `articles` tag that
+  `app/api/revalidate/route.ts` already busts when content changes.
 
 ## 7. Changes from the spec
 
@@ -915,23 +749,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 | C3 | `?page=n` self-canonical; `page=1` → `/publications`; invalid / out of range → 404 | **Validate, with two details** | (a) 404 only when the API answered; on a backend failure throw, so ISR keeps the last good page (a 404 there would deindex pages during an outage). (b) `n = 1` is valid even when there are 0 articles (empty state stays 200). Page n needs a unique title (P3, new copy key) |
 | C4 | Tracking parameters never in a canonical | **Validate** | Holds with static canonicals |
 | C5 | `/carte` out of `disallow`; keep `/api/`; `/carte/vcard` `X-Robots-Tag: noindex`; drop `host`; never the secret prefix | **Validate, plus** `Disallow: /mcp` | — |
-| C6 | 404, `error.tsx`, `global-error` noindex (404 keeps `follow`) | **Validate, with how** | Error boundaries are client components: `<meta name="robots">` and `<title>` rendered in JSX (§2.13). 404: one robots meta, no canonical, title not doubled |
-| C7 | Sitemap content and `lastModified` true or absent; drop `changeFrequency` / `priority`; `updated_at` in the list serializer | **Validate** | `/` and `/publications` get the newest `updated_at`, omitted with 0 articles (today's case) |
-| C8 | Titles from `copy.md`; root template `%s \| Eva Biezunski`; home absolute | **Change (mechanism)** | Every page with a copy key passes the full approved string as `absolute`; the template only serves articles. Reason: copy.md stores full strings (with suffix), and one mechanism for all pages avoids the double suffix that happens today on the 404 |
-| C9 | Article title = title + suffix | **Change** | Suffix only when the title ≤ 44 (G §7 page-part rule), else the bare title (≤ 60 fits, > 60 truncates). Title + suffix would exceed 60 for most real article titles (G §7 allows 70) |
+| C6 | 404, `error.tsx`, `global-error` noindex (404 keeps `follow`) | **Validate, with how** | §2.12, §2.13 |
+| C7 | Sitemap content and `lastModified` true or absent; drop `changeFrequency` / `priority`; `updated_at` in the list serializer | **Validate** | §6 |
+| C8 | Titles from `copy.md`; root template `%s \| Eva Biezunski`; home absolute | **Change: no template** | §1. `copy.md` stores full strings (suffix included); a template would add it a second time, which is today's doubled 404 title |
+| C9 | Article title = title + suffix | **Change** | §2.8 `withSuffix`: title + suffix would exceed 60 for most real article titles (G §7 allows 70) |
 | C10 | Article description = summary cut at 155 | **Validate, plus** | Empty summary → no description meta (not the list description: duplicates across articles); #85 requires a summary to publish |
 | C11 | Remove `keywords` | **Validate** | — |
 | C12 | `LegalService` replaces `Attorney`, `Attorney` only if a reason | **Validate: `LegalService` alone** | §4.2 |
-| C13 | `areaServed` Lyon / Auvergne-Rhône-Alpes / France (ux decides) | **Change: Lyon only** | The copy claims Lyon only (§4.2) |
+| C13 | `areaServed` Lyon / Auvergne-Rhône-Alpes / France (ux decides) | **Change: Lyon only** | §4.2 |
 | C14 | `hasMap` = GBP URL (E9d pending) | **Validate, resolved now** | CID URL decoded from `REVIEW_URL`: no need to wait for E9d |
 | C15 | No `priceRange`, no `aggregateRating` | **Validate** | Also no `review` |
 | C16 | `WebSite` without `SearchAction` | **Validate, plus** `alternateName` | Site-name feature |
 | C17 | Hub section of a gated domaine: no `Service` or `FAQPage` unless the FAQ is shown | **Change** | `Service` yes (its text is shown in the section), `FAQPage` no (§2.4) |
 | C18 | `FAQPage`, `BlogPosting`, `BreadcrumbList` as specified | **Validate** | `BreadcrumbList` last item without `item`; `BlogPosting.author` → `#eva` |
 | C19 | (not in spec) `og:url` | **Add** | Today every page's `og:url` is the home: shares of any page are attributed to `/` by some networks. Per-page `openGraph.url` |
-| C20 | (not in spec) `www.` redirect | **Add** | Live answers 307; must be 308 (`url-inventory.md` R2) |
+| C20 | (not in spec) `www.` redirect | **Add** | Live answers 307; must be 308, versioned in `vercel.json` (`url-inventory.md` R2) |
 | C21 | (not in spec) legacy `/avocate` | **Add** | 2022 WordPress page with the home's content → 308 to `/` (`url-inventory.md` R6) |
-| C22 | (not in spec) JSON-LD in the page body | **Detail** | Escape `<` in the serialised JSON (§4.4) |
 
 ## 8. Code checklist per issue
 
@@ -939,20 +772,27 @@ Each item: file · expected behaviour. Tests named here are for #86 unless the i
 
 ### #79 helpers and root layout
 
-- [ ] `frontend/src/app/layout.tsx` · remove `alternates.canonical`, `keywords`, the `Attorney` `jsonLd`
-  and its `<script>`; `title: { default: SITE.title, template: "%s | Eva Biezunski" }` (template from
-  `SITE.titleSuffix`); `openGraph` / `twitter` defaults with the default share image 1200 × 630
+- [ ] `frontend/src/app/layout.tsx` · remove `alternates.canonical`, `keywords`, `title.template` and the
+  `<script>`; **move** the `Attorney` `jsonLd` object into `lib/seo/jsonld.ts` as `cabinetNode()` and adapt it
+  (§4.3: `LegalService`, add `geo`, `hasMap`, `logo`, `founder`; drop `priceRange`) rather than rewriting the
+  `CONTACT` mapping; `title: { default: SITE.title }`; `openGraph` / `twitter` defaults with the default share image 1200 × 630
   (`/og/default.png`), no `url` at root level; keep `metadataBase`, `robots` + `googleBot`, icons.
-- [ ] `frontend/src/lib/seo/metadata.ts` (new) · `pageMetadata({ path, title, description, image?, robots?, type? })`
-  returns `title: { absolute }` (or the bare string when the caller asks for the template suffix: articles
-  of ≤ 44 characters, §2.8, so `title` accepts `string | { absolute: string }`), `description`, `alternates.canonical` = path, `openGraph` (`url` = path,
-  title, description, `images`, `type`) and `twitter` (`card`, `images`), so canonical and `og:url` can never
-  diverge and both image lists are always set (`image` defaults to `DEFAULT_SHARE_IMAGE`, §1). `path`
-  without query except `?page=n`.
+- [ ] `frontend/src/lib/seo/routes.ts` (new) · `SEO_ROUTES`: one entry per static route (`path`,
+  `indexable`, `inSitemap`, page `@type`, title and description copy keys, share image), domaine pages
+  derived from `DOMAINES.items` with `hasPage`. `absoluteUrl(path)` (= `SITE.url + path`), `domaineUrl(d)`
+  (`/domaines/<slug>` or `/domaines#<slug>`) and `domaineShareImage(d)` live here and are the only places
+  these URLs are built (links, sitemap, JSON-LD, metadata). The sitemap, the metadata tests and the length
+  check all iterate this list.
+- [ ] `frontend/src/lib/seo/metadata.ts` (new) · `pageMetadata({ path, title, description, image?, indexable = true, type? })`
+  emits `title: { absolute }` (§1); `indexable` → `alternates.canonical` = path and `openGraph.url` = path,
+  else `robots: { index: false, follow: true }` and no canonical (never both); `openGraph` (title,
+  description, `images`, `type`) and `twitter` (`card`, `images`) always set, `image` defaulting to
+  `DEFAULT_SHARE_IMAGE` (§1). `withSuffix(title)` (§2.8) and `cutAtWord(text, max)` (word-boundary cut +
+  « … », used with 155 for descriptions and with 85 by the og-image route) are exported from here.
 - [ ] `frontend/src/lib/seo/jsonld.ts` (new) · typed builders: `cabinetNode()`, `evaNode()`, `websiteNode()`,
   `pageNode(type, { path, name, description, … })`, `breadcrumbNode(path, trail)`, `serviceNode(domaine, { fallback })`,
   `faqNode(path, faq)`, `blogPostingNode(article)`, `graph(...nodes)` (adds the three shared nodes) and
-  `<JsonLd graph={…} />` (serialises with every `<` escaped as `\u003c`, e.g. `.replace(/</g, "\\u003c")`).
+  `<JsonLd graph={…} indexable={…} />` (escapes per §4.4; renders nothing when the page is not indexable).
 - [ ] `frontend/src/lib/constants.ts` / `copy.ts` · add `GBP_URL` = `https://www.google.com/maps?cid=15633752146969655329`,
   `CONTACT.geo` = `{ latitude: 45.76494, longitude: 4.8344 }`, `SITE.titleSuffix`; `SITE.title` /
   `SITE.description` from `copy.md` §1.1 (#68 strings).
@@ -960,15 +800,22 @@ Each item: file · expected behaviour. Tests named here are for #86 unless the i
   fixtures from the feature folder into `frontend/src/lib/seo/__fixtures__/`); every `@id` reference
   resolves; required properties present; serialised output contains no raw `</script`.
 - [ ] Share images `frontend/public/og/default.png` and `domaine-<slug>.png` (from `ui`'s exports);
-  `frontend/src/app/publications/[slug]/og-image/route.tsx` for the article fallback (`ui`'s README).
+  `frontend/src/app/publications/[slug]/og-image/route.tsx` for the article fallback (`ui`'s README), cached:
+  `export const revalidate = 3600`, fonts read once at module scope, the title read through
+  `getPublicationBySlug` (tagged `articles`, so the existing `/api/revalidate` refreshes it).
+- [ ] `frontend/src/lib/seo/metadata.test.ts` (vitest, no network) · over `SEO_ROUTES` and every page's
+  `metadata` / `generateMetadata`: title equals the copy string, one suffix at most, ≤ 60; description ≤ 155
+  and unique (except `?page=n`); canonical = `og:url`; `openGraph.images` and `twitter.images` set;
+  `withSuffix` and `cutAtWord` cases (37, 44, 45, 70 characters; the 185-character summary of §4.5).
 - [ ] `frontend/src/app/manifest.ts` · `name` follows the new `SITE.title` (no SEO effect; keep in sync).
 
 ### #80 home and header
 
 - [ ] `frontend/src/app/page.tsx` · `metadata = pageMetadata({ path: "/", title: SITE.title, description: SITE.description })`
   (absolute title, no suffix); `<JsonLd graph={graph(pageNode("WebPage", { path: "/", name: SITE.title, about: CABINET_ID }))} />`.
-- [ ] `frontend/src/app/avis/route.ts` (new, if `/avis` is built) · count the hit, then 302 to `REVIEW_URL` with
-  `X-Robots-Tag: noindex`, `Cache-Control: no-store`. Not linked (E9c).
+- [ ] `frontend/src/app/avis/route.ts` (new, if `/avis` is built) · count the hit, then return
+  `new Response(null, { status: 302, headers: { Location: REVIEW_URL, "Cache-Control": "no-store" } })`
+  (`Response.redirect()` returns immutable headers). `X-Robots-Tag` comes from `vercel.json` (#86). Not linked (E9c).
 - [ ] Footer and address links · the address links to `GBP_URL` (task 2 detail in `local-seo.md`).
 
 ### #81 domaine pages and hub
@@ -988,12 +835,14 @@ Each item: file · expected behaviour. Tests named here are for #86 unless the i
   `tox -e api-types` (never hand-edit `schema.ts`); backend test that the list exposes it.
 - [ ] `frontend/src/lib/publications.ts` · `getPublicationSlugs()` returns `{ slug, updatedAt }[]`;
   `generateStaticParams` in `[slug]/page.tsx` maps `.slug`.
-- [ ] `frontend/src/app/sitemap.ts` · §6 (no `new Date()`, no `changeFrequency` / `priority`, new pages,
-  domaine pages by `hasPage`, newest `updated_at` on `/` and `/publications`, stale Notion comment gone).
+- [ ] `frontend/src/app/sitemap.ts` · §6.
 - [ ] `frontend/src/app/robots.ts` · §5 (no `/carte`, no `host`, add `/mcp`).
 - [ ] `frontend/src/app/publications/page.tsx` · `generateMetadata({ searchParams })`: `?category=` →
   `robots: { index: false, follow: true }`, no canonical; `?page=n` (n ≥ 2) → canonical
   `/publications?page=n`, title `PUBLICATIONS.metaTitlePage` (P3); `page=1` → canonical `/publications`.
+  Build that URL with `buildHref(page)` from `components/publications/Pagination.tsx` (export it to
+  `lib/publications-parse.ts`), so the canonical, the JSON-LD `@id` and the pagination links share one rule.
+  Metadata and body decide from one `resolvePublicationsView(searchParams, list)` → `{ indexable, path } | notFound`.
   Page body: invalid / out-of-range `page` or unknown `category` → `notFound()` **only when the API
   answered** (backend error → throw). JSON-LD `CollectionPage` on indexable variants only.
 - [ ] `frontend/src/lib/publications.ts` · `getPublications` uses `getJsonOrThrow` (not `getJson`, which turns
@@ -1005,9 +854,6 @@ Each item: file · expected behaviour. Tests named here are for #86 unless the i
   no fallback description, OG article fields, cover or fallback image); missing slug → `notFound()` in
   `generateMetadata` too; JSON-LD `WebPage` + `BreadcrumbList` (Accueil › Publications › title) +
   `BlogPosting`; the visible breadcrumb replaces « ← Retour aux publications » (ia §9).
-- [ ] `frontend/src/lib/seo/description.ts` · `cutDescription(text, 155)`: unchanged if ≤ 155; else cut at the
-  last space before 155 and add « … »; unit test with a 185-character summary (output 150 in §4.5 example).
-
 ### #83 contact and à propos
 
 - [ ] `frontend/src/app/contact/page.tsx` · metadata §2.6 (canonical `/contact` regardless of query);
@@ -1019,9 +865,9 @@ Each item: file · expected behaviour. Tests named here are for #86 unless the i
 
 - [ ] `frontend/src/app/carte/page.tsx` · remove the user-agent check and `redirect("/")` (200 for every UA);
   `robots: { index: false, follow: false }` kept; title `{ absolute: QR_CARD.metaTitle }`; no JSON-LD.
-- [ ] `frontend/src/app/carte/vcard/route.ts` · add header `X-Robots-Tag: noindex`.
-- [ ] `frontend/src/app/not-found.tsx` · `title: { absolute: NOT_FOUND.metaTitle }`, `robots: null` (Next injects
-  `noindex` on 404 responses; a `robots` value of our own is what produces today's two metas), no canonical (inherits none once C1 lands); one robots meta in the output.
+- [ ] `frontend/src/app/carte/vcard/route.ts` · `export const dynamic = "force-static"` (pure constants,
+  served from the CDN); `X-Robots-Tag` comes from `vercel.json` (#86).
+- [ ] `frontend/src/app/not-found.tsx` · §2.12 (absolute title, `robots: null`, no canonical).
 - [ ] `frontend/src/app/error.tsx`, `global-error.tsx` · `<title>` and `<meta name="robots" content="noindex" />` in JSX.
 - [ ] `frontend/src/app/mentions-legales/page.tsx`, `politique-de-confidentialite/page.tsx` · `pageMetadata` with
   the §2.9 strings (absolute, with suffix), `WebPage` JSON-LD.
@@ -1038,13 +884,15 @@ Each item: file · expected behaviour. Tests named here are for #86 unless the i
 
 - [ ] `frontend/e2e/seo-redirects.spec.ts` (Playwright, `BASE_URL` = preview or production; `redirect: "manual"`) ·
   every row of `url-inventory.md` §7 (R1 to R6 and the `/carte` 200): status and `location`.
-- [ ] `frontend/e2e/seo-meta.spec.ts` · for each indexable URL of §2: exactly one `<title>` equal to the
-  copy string, one description, one canonical equal to its own URL (absolute), robots meta as §2, `og:url`
-  = canonical, `og:image` **and** `twitter:image` present (absolute, 1200 × 630 declared, non-empty alt), one `application/ld+json` that parses; for noindex URLs: robots meta / header as §2, no
-  canonical, no JSON-LD. Fails if an indexable route has no canonical or a canonical that is not its own path.
+- [ ] `frontend/e2e/seo-meta.spec.ts` · what only a real render shows, on **one URL per page type** (the
+  §4.6 list, plus `/carte`, a `?category=` list and a 404): exactly one `<title>`, one robots meta (or header),
+  one canonical equal to its own absolute URL or none when noindex, `og:image` and `twitter:image` present,
+  one `application/ld+json` that parses (none when noindex). The per-route data checks are the vitest of #79.
 - [ ] Sitemap / robots test · `sitemap.xml` has exactly the §6 URLs, no `lastmod` equal to the request
   time, no `changefreq` / `priority`; `robots.txt` equals §5.
-- [ ] Vercel · `www.` domain redirect set to 308 (R2), with the user (team `eb-avocat`).
-- [ ] `vercel.json` · add R6 (`/avocate`, `/avocate/` → `/`, permanent) and any R7 row from the Search Console step.
+- [ ] `vercel.json` · add R2 (`www.` host → apex, permanent, next to R1), R6 (`/avocate`, `/avocate/` → `/`,
+  permanent), any R7 row from the Search Console step, and one `headers` entry `X-Robots-Tag: noindex` for
+  `/carte/vcard` and `/avis` (one place for non-HTML noindex; the proxy keeps the back-office's). With the
+  user (team `eb-avocat`): remove the 307 redirect from the `www` domain's settings once R2 is deployed.
 - [ ] Search Console step of `url-inventory.md` §6, one week before launch and on launch day.
 - [ ] Rich Results Test + validator.schema.org on one URL per page type (§4.6); URL Inspection on the same.
