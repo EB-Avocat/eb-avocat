@@ -111,7 +111,7 @@ file), `list_categories`, `create_category`. They apply the token owner's role.
 
 ## Frontend only
 
-Requires [Bun](https://bun.com/) (CI pins `1.3.14`). Set `BACKEND_URL=http://localhost:8000` to
+Requires [Bun](https://bun.com/) (CI pins `1.4.5`). Set `BACKEND_URL=http://localhost:8000` to
 use a running backend; without it the Publications pages show their empty state.
 
 ```sh

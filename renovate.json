@@ -13,6 +13,12 @@
 			"matchFileNames": ["frontend/tools/api-types/**"],
 			"matchPackageNames": ["typescript"],
 			"allowedVersions": "<6"
+		},
+		{
+			"description": "Python interpreter (.python-version, Docker image, requires-python): bump it by hand once Vercel's Python runtime supports the new version",
+			"matchManagers": ["pyenv", "dockerfile", "pep621"],
+			"matchDepNames": ["python"],
+			"enabled": false
 		}
 	],
 	"lockFileMaintenance": { "enabled": true }
