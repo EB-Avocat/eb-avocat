@@ -5,7 +5,8 @@
  *
  * Conventions
  * - Every string is the exact text of its `copy.md` quote block (U+00A0 before » : ; ? ! and after «,
- *   typographic ’). `check-copy.ts` compares them byte for byte.
+ *   typographic ’). `check-copy.ts` compares them byte for byte (only `SITE.titleSuffix` and
+ *   `FOOTER.credit.prefix` ignore their edge spaces, which Markdown drops).
  * - Multi-line blocks of `copy.md` with no sub-keys become arrays:
  *   FAQ → `{ q, a }[]`; situations and `FIRST_CONTACT.steps` → `{ title, text }[]`;
  *   one-line lists (`forWhom.items`, `how.steps`, …) → `string[]`.
@@ -143,7 +144,7 @@ export const FOOTER = {
 		cabinet: {
 			title: "Le cabinet",
 			// → /a-propos, /publications, /contact, then REVIEW.footerLink.
-			links: ["À propos", "Publications", "Contact", REVIEW.footerLink],
+			links: [HEADER.nav.aPropos, HEADER.nav.publications, "Contact", REVIEW.footerLink],
 		},
 	},
 	copyright: `© ${new Date().getFullYear()} Eva Biezunski, avocate au Barreau de Lyon. Tous droits réservés.`,
@@ -750,13 +751,7 @@ export const CONTACT = {
 			"La vérification anti-spam n’a pas abouti. Réessayez dans quelques secondes, ou écrivez-moi par email, ou appelez-moi.",
 	},
 	// The four DOMAINES labels, then OTHER_SUBJECT (must stay last).
-	subjectOptions: [
-		"Création de sociétés",
-		"Clientèle ou patientèle",
-		"Contrats professionnels",
-		"Ordre et déontologie",
-		OTHER_SUBJECT,
-	],
+	subjectOptions: [...DOMAINES.items.map((d) => d.label), OTHER_SUBJECT],
 	gdpr: {
 		text: "J’utilise vos données uniquement pour répondre à votre demande.",
 		// → /politique-de-confidentialite

@@ -11,11 +11,15 @@
  *               may use it when the page's lead (first paragraph) glosses it (guide §4.1 rule 2)
  * - nav-length  nav label > 12 characters
  * - cta-length  CTA / button label > 22 characters
- * - cta-rdv     « rendez-vous » in a CTA
+ * - cta-rdv     « rendez-vous » or « rdv » in a CTA
  * - meta-length meta title > 60, meta description > 155 characters
  * - nbsp        no U+00A0 before » : ; ? ! or after «
- * - third-person « Eva », « Biezunski », « Mme », « Maître », « nous / notre / nos » outside the
- *               allowed places (guide §1.1; « nous » is allowed when it means « vous et moi »)
+ * - third-person « Eva », « Biezunski », « Mme », « Maître » outside the identification places, and
+ *               « nous / notre / nos » anywhere but the legal pages (guide §1.1; « nous » is allowed
+ *               when it means « vous et moi »)
+ * - word-list   « e-mail », « courriel », « clientèle/patientèle », « Cabinet », « n’hésitez pas »,
+ *               « cliquez ici » outside the legal pages (guide §2, §8)
+ * - link-label  « en savoir plus », « lire la suite », « découvrir », « ici » as a whole label
  * - marker      `[À CONFIRMER` left
  * - apostrophe  straight ' in French text
  * - unmapped    a copy key that belongs to no page (so no rule would see it)
@@ -206,6 +210,19 @@ const THIRD_PERSON_OK = [
 ];
 /** « nous » = « vous et moi » without « ensemble » in the sentence (guide §1.1). */
 const NOUS_YOU_AND_I = [/^DOMAINES\.items\[creation-de-societe\]\.how\.steps\[(0|2)\]$/];
+/** Legal pages keep their own register (« le Cabinet », « nos sous-traitants », copy.md R4). */
+const LEGAL = [/^PRIVACY\./];
+
+/** Word list and fillers (guide §1.4, §2, §8), matched on `norm`ed text. */
+const BANNED = [
+	{ re: /(?<![\p{L}\p{N}])e-mail/u, what: "« e-mail » (use « email »)" },
+	{ re: /(?<![\p{L}\p{N}])courriel/u, what: "« courriel » (use « email »)" },
+	{ re: /clientèle\s*\/\s*patientèle|patientèle\s*\/\s*clientèle/u, what: "« clientèle/patientèle » (use « clientèle ou patientèle »)" },
+	{ re: /n'hésitez pas/u, what: "« n’hésitez pas »" },
+	{ re: /cliquez ici/u, what: "« cliquez ici »" },
+];
+/** Generic link labels, banned as a whole label (guide §2, §3.2). */
+const GENERIC_LINK = /^(en savoir plus|lire la suite|découvrir|ici)$/u;
 
 const word = (w: string, flags = "u") => new RegExp(`(?<![\\p{L}\\p{N}])(?:${w})(?![\\p{L}\\p{N}])`, flags);
 const THIRD_PERSON = word("Eva|Biezunski|Mme|Maître");
@@ -248,7 +265,7 @@ function runRules(copy: Copy, pages: Page[]): Failure[] {
 		if (any(NAV_KEYS, path) && len > 12) fail({ rule: "nav-length", key: path, detail: `${len} > 12 characters` });
 		if (any(CTA_KEYS, path)) {
 			if (len > 22) fail({ rule: "cta-length", key: path, detail: `${len} > 22 characters` });
-			if (/rendez-vous/i.test(text)) fail({ rule: "cta-rdv", key: path, detail: "« rendez-vous » in a CTA" });
+			if (/rendez-vous|(?<![\p{L}\p{N}])rdv(?![\p{L}\p{N}])/iu.test(text)) fail({ rule: "cta-rdv", key: path, detail: "« rendez-vous » in a CTA" });
 		}
 		if (any(META_TITLE, path) && len > 60) fail({ rule: "meta-length", key: path, detail: `title ${len} > 60 characters` });
 		if (any(META_DESCRIPTION, path) && len > 155) fail({ rule: "meta-length", key: path, detail: `description ${len} > 155 characters` });
@@ -257,11 +274,21 @@ function runRules(copy: Copy, pages: Page[]): Failure[] {
 		if (!any(THIRD_PERSON_OK, path)) {
 			const m = THIRD_PERSON.exec(text);
 			if (m) fail({ rule: "third-person", key: path, detail: `« ${m[0]} » outside the identification places` });
+		}
+		// « nous » is banned everywhere, identification places included (the site has no team); only
+		// the legal pages keep it.
+		if (!any(LEGAL, path)) {
 			const youAndI = any(NOUS_YOU_AND_I, path);
 			for (const sentence of text.split(/(?<=[.?!…])\s+/)) {
 				const n = NOUS.exec(sentence);
 				if (n && !youAndI && !/ensemble/i.test(sentence)) fail({ rule: "third-person", key: path, detail: `« ${n[0]} »: the site has no team; use « je »` });
 			}
+		}
+		if (!any(LEGAL, path)) {
+			const n = norm(text);
+			for (const b of BANNED) if (b.re.test(n)) fail({ rule: "word-list", key: path, detail: b.what });
+			if (word("Cabinet").test(text)) fail({ rule: "word-list", key: path, detail: "« Cabinet » with a capital C (use « le cabinet »)" });
+			if (GENERIC_LINK.test(n.trim())) fail({ rule: "link-label", key: path, detail: `generic link label « ${text} »` });
 		}
 		if (text.includes("[À CONFIRMER")) fail({ rule: "marker", key: path, detail: "unresolved [À CONFIRMER marker" });
 		if (text.includes("'")) fail({ rule: "apostrophe", key: path, detail: "straight apostrophe, use ’" });
@@ -335,9 +362,11 @@ function runParity(copy: Copy, md: string): Failure[] {
 			.replace(/\{\{email\}\}/g, c.CONTACT.email)
 			.replace(/\{\{address\}\}/g, c.CONTACT.address)
 			.replace(/\{\{year\}\}/g, String(new Date().getFullYear()))
-			.replace(/\{\{limit\.(\w+)\}\}/g, (_m, k: string) => c.CONTACT_LIMITS[k].toLocaleString("fr-FR").replace(/\s/g, NBSP));
-	// Trailing ordinary spaces are lost in Markdown (`SITE.titleSuffix`, `FOOTER.credit.prefix`).
-	const trim = (s: string) => s.replace(/^ +| +$/g, "");
+			// An unknown limit stays `{{limit.x}}`, so it shows up as a difference instead of a crash.
+			.replace(/\{\{limit\.(\w+)\}\}/g, (m, k: string) => (k in c.CONTACT_LIMITS ? c.CONTACT_LIMITS[k].toLocaleString("fr-FR").replace(/\s/g, NBSP) : m));
+	// Leading / trailing ordinary spaces are lost in Markdown: ignored for these keys only.
+	const SPACED = new Set(["SITE.titleSuffix", "FOOTER.credit.prefix"]);
+	const same = (mdLine: string, l: Leaf) => (SPACED.has(l.path) ? resolve(mdLine).trim() === l.text.trim() : resolve(mdLine) === l.text);
 	const show = (s: string) => JSON.stringify(s).replace(/\u00A0/g, "\\u00A0");
 	const covered = new Set<string>();
 	for (const b of parseMd(md)) {
@@ -353,7 +382,7 @@ function runParity(copy: Copy, md: string): Failure[] {
 			continue;
 		}
 		b.lines.forEach((mdLine, i) => {
-			if (trim(resolve(mdLine)) !== trim(got[i].text))
+			if (!same(mdLine, got[i]))
 				failures.push({ rule: "md-parity", key: got[i].path, detail: `copy.md l.${b.line}: differs\n    md: ${show(resolve(mdLine))}\n    ts: ${show(got[i].text)}` });
 		});
 	}
@@ -396,6 +425,12 @@ function selfTest(): string[] {
 		{ rule: "third-person", copy: { T: { text: "Eva vous répond." } }, pages: page(["T"]) },
 		{ rule: "third-person", copy: { T: { contactCta: "Nous contacter" } }, pages: page(["T"]) },
 		{ rule: "third-person", copy: { T: { text: "Notre cabinet vous répond." } }, pages: page(["T"]) },
+		{ rule: "third-person", copy: { T: { metaDescription: "Nous accompagnons les professionnels libéraux." } }, pages: page([], ["T"]) },
+		{ rule: "cta-rdv", copy: { HERO: { cta: "Prendre un RDV" } }, pages: page(["HERO"]) },
+		{ rule: "word-list", copy: { T: { text: "Envoyez-moi un e-mail." } }, pages: page(["T"]) },
+		{ rule: "word-list", copy: { T: { text: "N'hésitez pas à m’écrire." } }, pages: page(["T"]) },
+		{ rule: "word-list", copy: { T: { text: "Le Cabinet vous répond." } }, pages: page(["T"]) },
+		{ rule: "link-label", copy: { T: { link: "En savoir plus" } }, pages: page(["T"]) },
 		{ rule: "marker", copy: { T: { text: "Depuis [À CONFIRMER : année]" } }, pages: page(["T"]) },
 		{ rule: "apostrophe", copy: { T: { text: "Je vous réponds dès aujourd'hui." } }, pages: page(["T"]) },
 		{ rule: "unmapped", copy: { T: { text: "Texte." }, U: { text: "Orphelin." } }, pages: page(["T"]) },
@@ -407,9 +442,12 @@ function selfTest(): string[] {
 		const fired = runRules(c.copy, c.pages).map((f) => f.rule);
 		if (!fired.includes(c.rule)) errors.push(`rule ${c.rule} did not fire on ${JSON.stringify(c.copy)}`);
 	}
-	const md = "`T.a`\n> Bonjour\n\n`T.b`\n> Autre texte\n";
-	const parity = runParity({ CONTACT: { phoneDisplay: "", email: "", address: "" }, CONTACT_LIMITS: {}, T: { a: "Bonjour", b: "Autre", c: "Sans bloc" } }, md);
-	for (const key of ["T.b", "T.c"]) if (!parity.some((f) => f.key === key)) errors.push(`rule md-parity did not fire on ${key}`);
+	const md = "`T.a`\n> Bonjour\n\n`T.b`\n> Autre texte\n\n`T.d`\n> Absent\n\n`T.e`\n> Une ligne\n\n`T.f`\n> Fin\n\n`T.g`\n> {{limit.inconnu}}\n";
+	const parity = runParity(
+		{ CONTACT: { phoneDisplay: "", email: "", address: "" }, CONTACT_LIMITS: {}, T: { a: "Bonjour", b: "Autre", c: "Sans bloc", e: ["Une ligne", "Deux"], f: "Fin ", g: "5" } },
+		md,
+	);
+	for (const key of ["T.b", "T.c", "T.d", "T.e", "T.f", "T.g"]) if (!parity.some((f) => f.key === key)) errors.push(`rule md-parity did not fire on ${key}`);
 	return errors;
 }
 
