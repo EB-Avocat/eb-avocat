@@ -1,0 +1,98 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "LegalService",
+      "@id": "https://biezunski-avocat.fr/#cabinet",
+      "name": "Eva Biezunski",
+      "description": "Avocate au Barreau de Lyon, j’accompagne les professionnels libéraux et les entrepreneurs : choix de la société, statuts, contrats, patientèle, Ordre.",
+      "url": "https://biezunski-avocat.fr/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://biezunski-avocat.fr/images/logo-for-white-background.png",
+        "width": 300,
+        "height": 244
+      },
+      "image": "https://biezunski-avocat.fr/images/portrait.jpeg",
+      "telephone": "+33 7 56 85 62 75",
+      "email": "eva@biezunski-avocat.fr",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "29 rue du Président Édouard Herriot",
+        "postalCode": "69002",
+        "addressLocality": "Lyon",
+        "addressCountry": "FR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 45.76494,
+        "longitude": 4.8344
+      },
+      "hasMap": "https://www.google.com/maps?cid=15633752146969655329",
+      "areaServed": {
+        "@type": "City",
+        "name": "Lyon",
+        "sameAs": "https://www.wikidata.org/wiki/Q456"
+      },
+      "knowsAbout": [
+        "Droit des sociétés",
+        "Exercice libéral",
+        "Création de sociétés",
+        "Clientèle ou patientèle",
+        "Contrats professionnels",
+        "Ordre et déontologie"
+      ],
+      "founder": {
+        "@id": "https://biezunski-avocat.fr/a-propos#eva"
+      },
+      "sameAs": [
+        "https://www.linkedin.com/in/eva-biezunski-36a4b691/",
+        "https://www.google.com/maps?cid=15633752146969655329"
+      ]
+    },
+    {
+      "@type": "Person",
+      "@id": "https://biezunski-avocat.fr/a-propos#eva",
+      "name": "Eva Biezunski",
+      "jobTitle": "Avocate",
+      "url": "https://biezunski-avocat.fr/a-propos",
+      "image": "https://biezunski-avocat.fr/images/portrait.jpeg",
+      "worksFor": {
+        "@id": "https://biezunski-avocat.fr/#cabinet"
+      },
+      "memberOf": {
+        "@type": "Organization",
+        "name": "Barreau de Lyon",
+        "url": "https://www.barreaulyon.com/"
+      },
+      "sameAs": [
+        "https://www.linkedin.com/in/eva-biezunski-36a4b691/"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://biezunski-avocat.fr/#website",
+      "url": "https://biezunski-avocat.fr/",
+      "name": "Eva Biezunski",
+      "alternateName": "Eva Biezunski Avocate",
+      "inLanguage": "fr-FR",
+      "publisher": {
+        "@id": "https://biezunski-avocat.fr/#cabinet"
+      }
+    },
+    {
+      "@type": "CollectionPage",
+      "@id": "https://biezunski-avocat.fr/publications",
+      "url": "https://biezunski-avocat.fr/publications",
+      "name": "Publications : comprendre le droit de votre exercice",
+      "description": "Articles d’Eva Biezunski, avocate au Barreau de Lyon, pour les professionnels libéraux : sociétés, contrats, patientèle, Ordre et déontologie.",
+      "inLanguage": "fr-FR",
+      "isPartOf": {
+        "@id": "https://biezunski-avocat.fr/#website"
+      },
+      "about": {
+        "@id": "https://biezunski-avocat.fr/#cabinet"
+      }
+    }
+  ]
+}

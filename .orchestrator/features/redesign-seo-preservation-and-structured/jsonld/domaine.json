@@ -1,0 +1,191 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "LegalService",
+      "@id": "https://biezunski-avocat.fr/#cabinet",
+      "name": "Eva Biezunski",
+      "description": "Avocate au Barreau de Lyon, j’accompagne les professionnels libéraux et les entrepreneurs : choix de la société, statuts, contrats, patientèle, Ordre.",
+      "url": "https://biezunski-avocat.fr/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://biezunski-avocat.fr/images/logo-for-white-background.png",
+        "width": 300,
+        "height": 244
+      },
+      "image": "https://biezunski-avocat.fr/images/portrait.jpeg",
+      "telephone": "+33 7 56 85 62 75",
+      "email": "eva@biezunski-avocat.fr",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "29 rue du Président Édouard Herriot",
+        "postalCode": "69002",
+        "addressLocality": "Lyon",
+        "addressCountry": "FR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 45.76494,
+        "longitude": 4.8344
+      },
+      "hasMap": "https://www.google.com/maps?cid=15633752146969655329",
+      "areaServed": {
+        "@type": "City",
+        "name": "Lyon",
+        "sameAs": "https://www.wikidata.org/wiki/Q456"
+      },
+      "knowsAbout": [
+        "Droit des sociétés",
+        "Exercice libéral",
+        "Création de sociétés",
+        "Clientèle ou patientèle",
+        "Contrats professionnels",
+        "Ordre et déontologie"
+      ],
+      "founder": {
+        "@id": "https://biezunski-avocat.fr/a-propos#eva"
+      },
+      "sameAs": [
+        "https://www.linkedin.com/in/eva-biezunski-36a4b691/",
+        "https://www.google.com/maps?cid=15633752146969655329"
+      ]
+    },
+    {
+      "@type": "Person",
+      "@id": "https://biezunski-avocat.fr/a-propos#eva",
+      "name": "Eva Biezunski",
+      "jobTitle": "Avocate",
+      "url": "https://biezunski-avocat.fr/a-propos",
+      "image": "https://biezunski-avocat.fr/images/portrait.jpeg",
+      "worksFor": {
+        "@id": "https://biezunski-avocat.fr/#cabinet"
+      },
+      "memberOf": {
+        "@type": "Organization",
+        "name": "Barreau de Lyon",
+        "url": "https://www.barreaulyon.com/"
+      },
+      "sameAs": [
+        "https://www.linkedin.com/in/eva-biezunski-36a4b691/"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://biezunski-avocat.fr/#website",
+      "url": "https://biezunski-avocat.fr/",
+      "name": "Eva Biezunski",
+      "alternateName": "Eva Biezunski Avocate",
+      "inLanguage": "fr-FR",
+      "publisher": {
+        "@id": "https://biezunski-avocat.fr/#cabinet"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://biezunski-avocat.fr/domaines/creation-de-societe",
+      "url": "https://biezunski-avocat.fr/domaines/creation-de-societe",
+      "name": "Créer la société qui correspond à votre exercice",
+      "description": "Vous vous installez ou vous vous associez ? Avocate à Lyon, je choisis avec vous la société adaptée, je rédige les statuts et je fais les démarches.",
+      "inLanguage": "fr-FR",
+      "isPartOf": {
+        "@id": "https://biezunski-avocat.fr/#website"
+      },
+      "breadcrumb": {
+        "@id": "https://biezunski-avocat.fr/domaines/creation-de-societe#breadcrumb"
+      },
+      "mainEntity": {
+        "@id": "https://biezunski-avocat.fr/domaines/creation-de-societe#service"
+      },
+      "primaryImageOfPage": {
+        "@type": "ImageObject",
+        "url": "https://biezunski-avocat.fr/og/domaine-creation-de-societe.png"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://biezunski-avocat.fr/domaines/creation-de-societe#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Accueil",
+          "item": "https://biezunski-avocat.fr/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Domaines",
+          "item": "https://biezunski-avocat.fr/domaines"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Création de sociétés"
+        }
+      ]
+    },
+    {
+      "@type": "Service",
+      "@id": "https://biezunski-avocat.fr/domaines/creation-de-societe#service",
+      "url": "https://biezunski-avocat.fr/domaines/creation-de-societe",
+      "name": "Création de sociétés",
+      "serviceType": "Création de sociétés",
+      "description": "Une société d’exercice libéral (SEL) pour exercer, une société civile de moyens (SCM) pour partager matériel et locaux : je choisis la forme avec vous.",
+      "provider": {
+        "@id": "https://biezunski-avocat.fr/#cabinet"
+      },
+      "areaServed": {
+        "@type": "City",
+        "name": "Lyon",
+        "sameAs": "https://www.wikidata.org/wiki/Q456"
+      },
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "Professionnels de santé libéraux, autres professions libérales et entrepreneurs"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://biezunski-avocat.fr/domaines/creation-de-societe#faq",
+      "url": "https://biezunski-avocat.fr/domaines/creation-de-societe",
+      "isPartOf": {
+        "@id": "https://biezunski-avocat.fr/domaines/creation-de-societe"
+      },
+      "inLanguage": "fr-FR",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Quelle société choisir pour exercer à plusieurs ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Cela dépend de votre profession, du nombre d’associés et de ce que vous mettez en commun. Certaines professions n’ont accès qu’à certaines formes de société. Je compare les options avec vous avant de vous recommander une forme."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Dois-je prévenir mon Ordre quand je crée une société ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Dans de nombreuses professions réglementées, oui : l’Ordre doit être informé, parfois autorisé, avant ou après la création. La règle dépend de votre profession. Je vérifie avec vous ce que prévoit la vôtre."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Qu’est-ce qu’un pacte d’associés, et en ai-je besoin ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "C’est un accord privé entre associés qui complète les statuts, par exemple en cas de départ ou de désaccord. Il n’est pas obligatoire. Il règle à l’avance ce qui pourrait vous opposer plus tard."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Combien cela coûte-t-il ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Avant de commencer, je vous remets une convention d’honoraires : un accord écrit qui fixe le prix de mon travail."
+          }
+        }
+      ]
+    }
+  ]
+}
