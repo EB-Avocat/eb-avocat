@@ -7,6 +7,12 @@
 			"description": "Group all non-major updates into a single PR",
 			"matchUpdateTypes": ["minor", "patch"],
 			"groupName": "non-major dependencies"
+		},
+		{
+			"description": "openapi-typescript (latest 7.13.0) needs the TypeScript 5 JS API (peer ^5.x); TypeScript 6+/7 breaks api-types generation",
+			"matchFileNames": ["frontend/tools/api-types/**"],
+			"matchPackageNames": ["typescript"],
+			"allowedVersions": "<6"
 		}
 	],
 	"lockFileMaintenance": { "enabled": true }
