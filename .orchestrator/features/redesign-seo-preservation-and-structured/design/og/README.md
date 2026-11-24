@@ -78,28 +78,31 @@ kicker 5.96 / 5.40. All text passes AA at any size, and the titles also pass AAA
 1. Break lines at spaces only (no hyphenation) in the 566 px column at 48/54.
 2. Replace the space before `: ; ? ! »` and after `«` with a no-break space (U+00A0, or U+202F if Eva
    prefers the narrow one), so punctuation never starts a line. The sample titles use U+00A0.
-3. **At most 4 lines**, about 85–95 characters, depending on the letters. A 4-line title takes
-   216 px, which is what the layout reserves. **The size never shrinks** below 48.
-4. A longer title is cut at the last whole word that fits on line 4, and « … » (U+2026) is added, attached
-   to the last word with no space (« … examinera… »). Clamp in code (cut at the last word so the
-   result, ellipsis included, is at most ~85 characters, the low end of rule 3) so the result does not
-   depend on the renderer. Because a title under the clamp can still need 5 lines with wide letters, the
-   title element **must** also set satori's `lineClamp: 4` as a guard; check its ellipsis in a test render.
+3. **At most 4 lines** (216 px, what the layout reserves; about 85–95 characters depending on the
+   letters). **The size never shrinks** below 48.
+4. Longer titles: cut in code at the last whole word so the result, ellipsis included, is ≤ 85
+   characters, then append « … » (U+2026) with no space (« … examinera… »). Also set satori's
+   `lineClamp: 4` on the title as a guard for wide-letter titles; check its ellipsis in a test render.
 5. The `og:image:alt` / `twitter:image:alt` is the **full** title (never the truncated one), for example
    « SEL ou SCM : quelle société choisir ? — Publications, Eva Biezunski, avocate au Barreau de Lyon ».
    Default: « Eva Biezunski, avocate au Barreau de Lyon. Structurer votre exercice libéral, en accord avec
    votre Ordre et vos associés. » Domaine: « [label] — [h1]. Eva Biezunski, avocate au Barreau de Lyon. »
 
 Domaine h1 and default heading fit in 3–4 lines with no truncation. If `copy.md` changes them, re-export the
-PNG from Figcraft; the frame flags an overflow because the title has `maxLines: 4`.
+PNG from Figcraft and check the title still fits in 4 lines (the layer's `maxLines: 4` truncates silently).
 
 ## Recommendation for #79: static PNG vs `next/og`
 
 | Template | Build as | Why |
 |---|---|---|
-| **default** | **Static PNG** `frontend/public/og/default.png` (1200 × 630, `type: image/png`, alt above), exported once from the #79 metadata helpers (for example `DEFAULT_SHARE_IMAGE`) and set in `app/layout.tsx` **and** in every page that defines its own `openGraph` / `twitter` | The copy is fixed and changes only with `copy.md`. The pixels are exactly what was designed: real logo SVG with its gradient, Aleo's kerning. It needs no font files, no runtime work and no satori quirks. 78 KB. **Next.js replaces nested metadata objects, it does not merge them**: a page that sets `openGraph` (type, url, title…) drops the layout's `openGraph.images`, and the same for `twitter`. So the helper that builds each page's `openGraph` / `twitter` must include the default image unless the page has its own; a test asserts every indexable route outputs `og:image` and `twitter:image` |
+| **default** | **Static PNG** `frontend/public/og/default.png` (1200 × 630, `type: image/png`, alt above), exported once from the #79 metadata helpers (for example `DEFAULT_SHARE_IMAGE`) and set in `app/layout.tsx` **and** in every page that defines its own `openGraph` / `twitter` (see the note below the table) | The copy is fixed and changes only with `copy.md`. The pixels are exactly what was designed: real logo SVG with its gradient, Aleo's kerning. It needs no font files, no runtime work and no satori quirks. 78 KB |
 | **domaine** (4) | **Static PNG** `frontend/public/og/domaine-<slug>.png`, set in each domaine page's `metadata` `openGraph.images` **and** `twitter.images` (from the one domaine list, only when `hasPage`) | Same reasons. Four files that change only when Eva edits a label or h1, which already means a copy release. A test can assert that each `hasPage` domaine has a file |
 | **article fallback** | **`next/og` `ImageResponse`** in a **route handler**, for example `app/publications/[slug]/og-image/route.tsx` (served at `/publications/<slug>/og-image`), **only referenced for articles without a cover**. `generateMetadata` sets both `openGraph.images` and `twitter.images` (with `twitter.card: "summary_large_image"`): the cover when there is one, else the route URL with `width: 1200`, `height: 630` and the full-title alt (rule 5). **Do not use the `opengraph-image.tsx` / `twitter-image.tsx` file convention here**: file-based metadata takes priority over `generateMetadata`, so it would replace the cover on every article that has one, and its `alt` export is static | Titles come from the back-office and are unbounded, so they cannot be pre-drawn. Satori renders this layout easily (flex column, 3 rects, 3 text blocks, one `<img>`). Pass the logo as a PNG data URL (128 w, or 256 w drawn at 128) rather than the SVG, because satori's SVG support skips some of the Inkscape gradient defs. Generated on demand and cached. Add `revalidate`, or tag it with the article, so a title edit updates the image; an unknown or unpublished slug returns 404 |
+
+**Next.js replaces nested metadata objects, it does not merge them**: a page that sets `openGraph` (type,
+url, title…) drops the layout's `openGraph.images`, and the same for `twitter`. So the one helper that
+builds each page's `openGraph` / `twitter` adds the default image unless the page has its own, and a test
+asserts every indexable route outputs `og:image` and `twitter:image`.
 
 Do not draw default and domaine with `ImageResponse` "for consistency". One template is shared in spirit
 only: if the article route ever drifts from the PNGs, the PNGs are the reference.
