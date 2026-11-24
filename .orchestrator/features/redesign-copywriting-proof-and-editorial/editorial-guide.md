@@ -169,7 +169,7 @@ review (and flagged by `check-copy.ts` where marked †).
 - **Understandable out of context**: the link text alone says where it goes (« Lire l'article
   Choisir sa société d'exercice »), not « En savoir plus » or « Lire la suite ». Card links that
   repeat a generic label (« Lire l'article ») must carry the title in the accessible name.
-- Same destination → same label; different destination → different label.
+- Same destination → same label; different destination → different label. Nav and footer labels are the exception; all in-content links to one destination share one label (« Mon parcours » for `/a-propos`, « Voir toutes les publications » for `/publications`).
 - Phone: visible text is the number (§5); accessible name « Appeler le cabinet au 07 56 85 62 75 ».
 - Email: the address is the visible text, `mailto:`.
 - Domaine links: the domaine's name (« Création de sociétés »), never « Découvrir ».

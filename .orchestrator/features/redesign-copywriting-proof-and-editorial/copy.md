@@ -413,8 +413,8 @@ professionnels (the three of today's home lead), then Ordre et déontologie.
 `HERO.heading` (h1, 78 characters, 12 words; a candidate: Eva approved the positioning paragraph of #66 §3, not this line)
 > Structurer votre exercice libéral, en accord avec votre Ordre et vos associés.
 
-`HERO.subheading` (audience line, positioning A; E2: health, the other liberal professions, entrepreneurs)
-> J’accompagne les professionnels de santé, les autres professions libérales et les entrepreneurs, de la création de leur société aux démarches devant leur Ordre.
+`HERO.subheading` (audience line, positioning A; 23 words, one sentence; the Ordre clause applies to the regulated professions only, entrepreneurs have no Ordre; E2: health, the other liberal professions, entrepreneurs)
+> J’accompagne les professionnels de santé, les autres professions libérales et les entrepreneurs : leur société, leurs contrats et, pour les professions réglementées, leur Ordre.
 
 « Accompagner » is the umbrella verb, used once on the page (G §2). The variant `HERO.subheadingWithProfessions`
 is dropped: this line names the professions, so only one subheading exists.
@@ -962,7 +962,7 @@ E1: the oath was taken on 12 novembre 2020; the page states the year only.
 > J’écris des articles sur ces sujets.
 
 `ABOUT.publications.link`
-> Voir mes publications
+> Voir toutes les publications
 
 → `/publications`.
 
@@ -1205,8 +1205,8 @@ suivante », `pageLabel` « Page ». `backToList` is removed (the breadcrumb 
 `PUBLICATIONS.readMoreName` (accessible name of a card link, so the generic label carries the title, G §3.2)
 > Lire l’article : {{title}}
 
-`PUBLICATIONS.coverAlt` (no « image de », ≤ 125)
-> Illustration de l’article {{title}}
+`PUBLICATIONS.coverAlt` (no string)
+alt="" when the article has no alt; Eva's alt text otherwise. The cover is decorative: the title sits next to it.
 
 Contact band: `CONTACT_BAND.lines.publications`.
 
@@ -1234,7 +1234,7 @@ Contact band: `CONTACT_BAND.lines.publications`.
 > J’écris pour les professionnels libéraux : sociétés, contrats, patientèle, Ordre.
 
 `ARTICLE.authorCard.link`
-> Lire mon parcours
+> Mon parcours
 
 → `/a-propos`.
 
