@@ -121,7 +121,7 @@ review (and flagged by `check-copy.ts` where marked †).
 | Client's opinion on Google | **avis** (« Laisser un avis ») | « notation », « évaluation », « recommandation », « feedback » | |
 | A client quote on the site | **témoignage** | « avis » (that is Google), « retour d'expérience » | Only with written consent (§6) |
 | The articles section | **Publications** (nav, section); **article** (one item) | « blog », « actualités » as the section name, « news » | « Actualités » stays a possible *category* |
-| Her training offer | **Formations** (trainings she gives) | « formations » for her own diplomas | Her own diplomas and career: **Diplômes** / **Parcours** |
+| Her diplomas and career | **Diplômes** / **Parcours** | « formations » (the Formations section is dropped, `copy.md` R7) | |
 | About page | **À propos** | « Qui suis-je ? », « Mon cabinet » | IA §4.1 |
 | Electronic mail | **email** (label « Email ») | « e-mail », « mail », « courriel », « adresse électronique » | Current site already says « Email » |
 | Phone | **téléphone**, verb **appeler** | « Tél. », « portable », « mobile » | |

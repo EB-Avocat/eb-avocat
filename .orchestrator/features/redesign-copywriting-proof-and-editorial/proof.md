@@ -57,6 +57,7 @@ Columns: **Source** (where the fact comes from today) · **Where used** (`copy.m
 | P3 | Diplomas (title, university, year) | Eva (E1b): none given | none | none | no | Eva | part 2 if she adds some | No diploma line (applied) |
 | P4 | Memberships, mandates, commissions, associations | Eva (E1c): none given | none | none | no | Eva | part 2 if she adds some | No membership line (applied) |
 | P5 | Mention de spécialisation (official), if any | Eva (E1d, part 2, sent 2026-11-23); ethics rule 7 | `ABOUT`, `HERO.panel`, meta, only if confirmed | none | no | Eva | part 2 | No claim of specialisation; « droit des sociétés » stays a field of work |
+| P6 | Trainings given (Formations): organisers, audiences, topics, years | Eva (E6a, E6b), answered 2026-11-24: dropped | none (section removed, copy.md R7) | refused | no | Eva | done | No Formations section, pointer or subject option (applied) |
 | P7 | Professions and client types served: every liberal health profession, the other liberal professions, entrepreneurs | Eva (E2a), answered 2026-11-24 | `HERO.subheading`, `PROOF.professions`, `DOMAINES.template.forWhom`, `DOMAINES.hub.forWhom.text` | not needed | **yes** | Eva | done | — |
 | P8 | Domaines of practice (création de sociétés, clientèle ou patientèle, contrats, Ordre et déontologie). Mécénat and Formations are dropped (E6, E7) | Today's `SERVICES`; positioning A; Eva 2026-11-24 | `DOMAINES.*`, `HERO.panel.lines` (« Droit des sociétés, exercice libéral ») | not needed | yes | Eva | page-by-page read (E3) | Pages Eva does not validate become hub sections |
 | P9 | Address, Lyon location | `CONTACT.address` | `HERO.panel.lines`, `FOOTER`, `CONTACT.metaDescription`, `CONTACT_BAND` (home) | not needed | yes | Eva | — | Shipped as is |
@@ -79,7 +80,7 @@ stays in the register as `refused`.
 
 | ID | Item | Source | Where used | Consent | Confirmed by Eva | Owner | Deadline | Fallback |
 |---|---|---|---|---|---|---|---|---|
-| P16 | Figures | Eva (E10): none | none (`PROOF.figures` removed) | declined | — | Eva | done | No figure on the site (applied) |
+| P16 | Figures | Eva (E10): none | none (`PROOF.figures` removed) | refused | — | Eva | done | No figure on the site (applied) |
 | P17 | Typical situations and FAQ of the four domaine pages (anonymised composites) | ux drafts from today's copy and general knowledge; **fictional**, not real clients | `DOMAINES.items[*].situations`, `.faq` | not needed (fictional); each carries the label « Exemple » and the note `DOMAINES.template.situations.note` | partly: the first situations of the création and cession pages come from Eva (E3); Eva reads the composites (X5) | Eva | final read | A situation or FAQ she does not confirm is cut; below the gate (3 situations, 3 FAQ) the page becomes a hub section |
 | P18 | Publications as proof of expertise (latest 3 on home, list, article count) | The back-office (API); Eva's own articles | `HOME.publications.*`, `ARTICLE.*`, `ABOUT.publications.*` | not needed (her own content) | automatic | Eva | — | Block hidden at 0 article or API failure (IA §6) |
 | P19 | Portrait photograph | Photograph used today in `About` (brand #69 §7) | `PROOF.portrait.alt`; `/a-propos`, home proof teaser | not needed | partly (photographer's licence for web use to confirm) | Eva | 2026-12-02 | No portrait; typographic panel only (brand direction A) |

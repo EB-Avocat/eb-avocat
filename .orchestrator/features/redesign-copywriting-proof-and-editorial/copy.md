@@ -315,10 +315,13 @@ user decision; one block, rendered only if Google returns at least one rating)
 > Avis de mes clients sur Google
 
 `PROOF.rating.line` (`{{rating}}` and `{{count}}` come from Google)
-> Note Google : {{rating}}/5 ({{count}} avis)
+> Note Google : {{rating}} / 5 ({{count}} avis)
 
 `PROOF.rating.updated`
 > Mis à jour le {{date}}
+
+Format for `ui` (G §5): `{{rating}}` with a decimal comma (`4,8`, not Google's `4.8`); `{{date}}` as « 2 décembre 2026 »
+(never a relative date such as « il y a 2 mois »).
 
 `PROOF.reviews.attribution`
 > Avis publiés sur Google
@@ -386,7 +389,7 @@ Card texts (home cards §2.2 and hub cards §3.3; ≤ 40 words; benefit, then wh
 > Vous vous installez ou vous vous associez ? Je choisis avec vous la société adaptée, j’en rédige les statuts (ses règles de fonctionnement) et je fais les démarches devant votre Ordre.
 
 `DOMAINES.items[cession-clientele-patientele].card`
-> Vous reprenez ou vous cédez une clientèle ou une patientèle ? Je vous conseille sur la forme la plus adaptée, vente, apport à une société ou prêt, et je rédige l’acte avec vous.
+> Vous reprenez ou vous cédez une clientèle ou une patientèle ? Je vous conseille sur la forme la plus adaptée, vente, apport à une société ou prêt, et je rédige l’acte avec vous. [À CONFIRMER : « prêt » (E3b)]
 
 `DOMAINES.items[contrats-professionnels].card`
 > Vous rejoignez un confrère, vous le remplacez ou vous exercez à ses côtés ? Je rédige et je négocie le contrat qui fixe les règles, y compris celles du départ.
@@ -496,13 +499,13 @@ and `CONTACT.delay.text`.
 
 `FIRST_CONTACT.steps[2]`
 > Vous préparez l’essentiel
-> Apportez ce que vous avez : statuts ou projet de contrat, courriers de votre Ordre, dates importantes. [À CONFIRMER : liste d’Eva (E4d)]
+> Apportez ce que vous avez : statuts ou projet de contrat, courriers de votre Ordre, dates importantes. [À CONFIRMER : liste d’Eva (E4d)]
 
 Fallback for the marker: keep this generic list (every item is general).
 
 `FIRST_CONTACT.steps[3]`
 > Je vous indique mes honoraires
-> Avant de commencer, je vous remets une convention d’honoraires : un accord écrit qui fixe le prix de mon travail.
+> Avant de commencer, je vous remets une convention d’honoraires : un accord écrit qui fixe le prix de mon travail.
 
 E5: Eva always signs one. The principle only: no « forfait », no « temps passé », no figure.
 
@@ -555,7 +558,7 @@ link to the domaine points to `/domaines#<slug>`.
 > Je choisis avec vous la société adaptée à votre profession. Par exemple une société d’exercice libéral (SEL) pour exercer, ou une société civile de moyens (SCM) pour partager matériel et locaux. Je rédige les statuts, le document qui fixe les règles de la société, et je fais les démarches devant votre Ordre.
 
 `DOMAINES.items[cession-clientele-patientele].hubSection.text`
-> Une cession est la vente ou le transfert d’une clientèle ou d’une patientèle. Je vous conseille sur la forme la plus adaptée : cession, apport à une société, ou prêt. Je rédige l’acte avec vous et je vérifie ce que demande votre Ordre.
+> Une cession est la vente ou le transfert d’une clientèle ou d’une patientèle. Je vous conseille sur la forme la plus adaptée : cession, apport à une société, ou prêt. Je rédige l’acte avec vous et je vérifie ce que demande votre Ordre. [À CONFIRMER : « prêt » (E3b)]
 
 `DOMAINES.items[contrats-professionnels].hubSection.text`
 > Je rédige et je négocie les contrats de votre exercice : collaboration, remplacement, exercice en commun, prestation de services. Chacun fixe vos droits, votre rémunération et les conditions d’un départ.
@@ -578,7 +581,7 @@ Formations (E6). The hub shows the four domaines only.
 > Pour qui
 
 `DOMAINES.template.forWhom.intro`
-> Cette page s’adresse aux professionnels de santé, aux autres professions libérales et aux entrepreneurs qui :
+> Cette page s’adresse aux professionnels de santé, aux autres professions libérales et aux entrepreneurs. Elle vous concerne si :
 
 `DOMAINES.template.forWhom.professions` = `PROOF.professions` (§1.7)
 > Je travaille avec toutes les professions de santé libérales, avec les autres professions libérales et avec les entrepreneurs.
@@ -639,7 +642,7 @@ The three other domaines, `label` as link text (§1.8).
 `DOMAINES.items[creation-de-societe].whatIDo.items`
 > Je compare avec vous les formes de société possibles pour votre profession et je vous conseille la plus adaptée.
 > Je rédige les statuts, le document qui fixe les règles de fonctionnement de la société.
-> Je rédige, si besoin, un pacte d’associés : un accord privé entre associés qui complète les statuts, par exemple en cas de départ. [À CONFIRMER : fait partie de ma pratique (E3a)]
+> Je rédige, si besoin, un pacte d’associés : un accord privé entre associés qui complète les statuts, par exemple en cas de départ. [À CONFIRMER : fait partie de ma pratique (E3a)]
 > Je fais les démarches devant votre Ordre.
 
 Fallback for the marker: drop the pacte item (the FAQ answer stays general).
@@ -671,7 +674,7 @@ Fallback for the marker: keep « Je fais les démarches devant votre Ordre. »
 > Un confrère rejoint votre société. Je regarde ce que prévoient les statuts, je les adapte et je règle avec vous ce que cela change pour chacun.
 >
 > Un associé part
-> L’un des associés quitte la société. Je règle avec vous les conditions de son départ : ses parts, ce que prévoient les statuts, la suite de l’activité.
+> L’un des associés quitte la société. Je règle avec vous les conditions de son départ : ses parts, ce que prévoient les statuts, la suite de l’activité.
 >
 > Un professionnel veut partager des locaux et du matériel
 > Chacun garde ses propres honoraires, mais les locaux et le matériel sont communs. Je vous conseille une SCM et j’en rédige les statuts.
@@ -695,8 +698,8 @@ read (X5). If the page feels long, `ui` cuts from the end (6, then 5, then 4); t
 > Qu’est-ce qu’un pacte d’associés, et en ai-je besoin ?
 > C’est un accord privé entre associés qui complète les statuts, par exemple en cas de départ ou de désaccord. Il n’est pas obligatoire. Il règle à l’avance ce qui pourrait vous opposer plus tard.
 >
-> Combien cela coûte-t-il ?
-> Avant de commencer, je vous remets une convention d’honoraires : un accord écrit qui fixe le prix de mon travail.
+> Combien cela coûte-t-il ?
+> Avant de commencer, je vous remets une convention d’honoraires : un accord écrit qui fixe le prix de mon travail.
 
 The cost question states the principle only (E5). The delay is not stated (the duration of a creation depends on the profession and the Ordre, and Eva gave no figure).
 
@@ -713,7 +716,7 @@ publications, « Autres domaines », contact band.
 > Cession de patientèle ou de clientèle à Lyon | Eva Biezunski
 
 `DOMAINES.items[cession-clientele-patientele].metaDescription`
-> Vous cédez ou reprenez une patientèle ? Avocate à Lyon, je vous conseille sur la cession, l’apport ou le prêt, et je rédige l’acte avec vous.
+> Vous cédez ou reprenez une patientèle ? Avocate à Lyon, je vous conseille sur la cession, l’apport ou le prêt, et je rédige l’acte avec vous. [À CONFIRMER : « prêt » (E3b)]
 
 `DOMAINES.items[cession-clientele-patientele].h1`
 > Céder ou reprendre une clientèle ou une patientèle
@@ -734,8 +737,8 @@ publications, « Autres domaines », contact band.
 > Je rédige l’acte avec vous, et j’y prévois ce qui est cédé, à quelles conditions et quand.
 > Je vérifie ce que demande votre Ordre pour cette opération.
 
-Fallback for the marker: drop the « prêt » line and the word in the card and the lead of the hub
-section (the page stays valid with cession and apport).
+Fallback for the « prêt » markers (this list, both cards, the meta description, the hub section, FAQ 1):
+drop the « prêt » line and the word everywhere it appears (the page stays valid with cession and apport).
 
 `DOMAINES.items[cession-clientele-patientele].how.steps`
 > Vous m’exposez votre projet : qui cède, qui reprend, ce qui est concerné.
@@ -757,7 +760,7 @@ Situation 3 is a fictional composite, labelled « Exemple »; Eva reads it in he
 
 `DOMAINES.items[cession-clientele-patientele].faq`
 > Quelle différence entre cession, apport et prêt de clientèle ?
-> Une cession transfère la clientèle contre un prix. Un apport la place dans une société, en échange de parts ; un prêt la met à disposition sans la transférer. Le bon choix dépend de votre projet. [À CONFIRMER : exactitude du « prêt » (E3)]
+> Une cession transfère la clientèle contre un prix. Un apport la place dans une société, en échange de parts ; un prêt la met à disposition sans la transférer. Le bon choix dépend de votre projet. [À CONFIRMER : exactitude du « prêt » (E3b)]
 >
 > Mon Ordre doit-il être informé d’une cession ?
 > Souvent oui : beaucoup d’Ordres demandent à être informés, voire à approuver l’opération. La règle dépend de votre profession. Je vérifie ce qui s’applique à vous avant la signature. [À CONFIRMER : règle par profession servie (E2b)]
@@ -766,7 +769,7 @@ Situation 3 is a fictional composite, labelled « Exemple »; Eva reads it in he
 > C’est l’engagement de ne pas rouvrir un cabinet près de l’ancien après une cession. Elle protège celui qui reprend. Sa durée et son étendue doivent rester raisonnables. [À CONFIRMER : le terme sera utilisé, règles par profession (E3b)]
 >
 > Combien cela coûte-t-il ?
-> Avant de commencer, je vous remets une convention d’honoraires : un accord écrit qui fixe le prix de mon travail.
+> Avant de commencer, je vous remets une convention d’honoraires : un accord écrit qui fixe le prix de mon travail.
 
 The cost question states the principle only (E5). Fallback for the third question: drop it if Eva does not
 use the term (the glossary row stays unused). **Launch gate (IA §2, ≥ 3 FAQ):** the page keeps three
@@ -833,7 +836,7 @@ The three situations are fictional composites, labelled « Exemple »; Eva reads
 > Oui, avant de signer. Contactez-moi : je vous dis ce qu’il prévoit, ce qui manque et ce que je vous conseille de négocier. Je vous indiquerai comment me le transmettre.
 >
 > Combien coûte la rédaction d’un contrat ?
-> Avant de commencer, je vous remets une convention d’honoraires : un accord écrit qui fixe le prix de mon travail.
+> Avant de commencer, je vous remets une convention d’honoraires : un accord écrit qui fixe le prix de mon travail.
 
 The cost question states the principle only (E5).
 
@@ -919,7 +922,7 @@ The three situations are fictional composites, labelled « Exemple »; Eva reads
 > Mon parcours d’avocate à Lyon | Eva Biezunski
 
 `ABOUT.metaDescription` (third person allowed in meta, G §1.1)
-> Eva Biezunski, avocate au Barreau de Lyon : son parcours et sa façon de travailler avec les professionnels libéraux et les entrepreneurs.
+> Eva Biezunski, avocate au Barreau de Lyon : son parcours et sa façon de travailler avec les professionnels libéraux et les entrepreneurs.
 
 `ABOUT.h1`
 > Qui je suis, et comment je travaille
@@ -1150,10 +1153,10 @@ today's policy figure (« conservées 5 ans à compter du traitement de cette d
 > votre profession et, si elle existe, votre société
 > votre projet ou votre question, en quelques lignes
 > les dates importantes (signature, réponse de votre Ordre)
-> les autres personnes concernées (associé, confrère), pour que je vérifie tout conflit d’intérêts
+> les autres personnes concernées (associé, confrère), pour que je vérifie tout conflit d’intérêts (un autre client dont les intérêts s’opposent aux vôtres)
 
-« Conflit d'intérêts » is glossed in the FAQ of `ordre-et-deontologie`; on this page the clause is
-self-explaining. If the reader needs the gloss, `GLOSSARY` supplies the tooltip (G §4.1 rule 6).
+« Conflit d'intérêts » is glossed inline on this page (G §4.1 rule 3: each page glosses its own first use);
+`GLOSSARY` can supply the same text as a tooltip (G §4.1 rule 6).
 
 `CONTACT.confidentiality.heading` (h2)
 > Confidentialité
@@ -1413,7 +1416,7 @@ Part 2 (still with Eva, markers kept as asked): E1d, E2b, E4d, E4e, E4f, E8b, E8
 
 Not in the part 2 list and not answered in part 1 (so the marker stays; `lead` to say if they go with part 2
 or take the fallback): E3a pacte d'associés and enregistrement (§4, 2 markers); E3b prêt, démarches
-auprès de l'Ordre, non-réinstallation (§5, 4 markers); E3c contract definitions (§6, 2 markers); E3d
+auprès de l'Ordre, non-réinstallation (§5, the home and hub cards, the meta description and the hub section: 7 markers); E3c contract definitions (§6, 2 markers); E3d
 chambre disciplinaire (§7, 1 marker).
 
 ### 13.2 Answered in part 1 (applied)
