@@ -59,9 +59,15 @@ All in `.orchestrator/features/redesign-copywriting-proof-and-editorial/`.
    rule that differs by Ordre unless Eva confirms it). Eva validates or cuts; a page she does not
    validate falls back to its `/domaines#<slug>` section (#67 §2), and `copy.md` says which.
 7. **Proof and consent.** No testimonial or client name ships without written consent recorded
-   in `proof.md`. Case examples are anonymised composites, marked as such to Eva. Google rating:
-   shown only if Eva agrees, as static text with its date and a link to the Google profile, updated
-   by hand (no API, no new vendor).
+   in `proof.md`. Case examples are anonymised composites, marked as such to Eva. Google reviews
+   (decided by the user on 2026-11-24, replacing "static text by hand"): Eva wants them on the site.
+   The server fetches them from the Google Places API once a day: rating, review count and up to
+   5 reviews in Google's own order, shown with Google's attribution and a link to the profile. The
+   visitor's browser never contacts Google, so there is no cookie, no third-party script and no
+   consent banner (#66 §6). Built in #80. Prerequisites: a Google Cloud project with billing enabled
+   and an API key (set up by the user; the expected volume stays inside the free quota), the place ID
+   of Eva's profile, and Eva confirming that the Barreau de Lyon allows reviews on an avocat's site
+   (E8c). #68 writes only the copy for the slots around the reviews, never the review text.
 8. **Privacy wording.** The French text of #66 §6 edits 1–5 is written here (it is copy) for
    Eva's approval; #80 implements it.
 9. **No code change to the app.** `frontend/src/lib/constants.ts` is not modified by this
