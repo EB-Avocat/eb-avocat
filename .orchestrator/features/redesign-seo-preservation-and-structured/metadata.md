@@ -50,7 +50,7 @@ Lengths are characters of the exact French string (U+2019 apostrophes and U+00A0
 |---|---|
 | Title | `SITE.title` (= `HOME.metaTitle`), absolute, no suffix: « Eva Biezunski, avocate au Barreau de Lyon » · 41 ✓ |
 | Description | `SITE.description` (= `HOME.metaDescription`): « Avocate au Barreau de Lyon, j’accompagne les professionnels libéraux et les entrepreneurs : choix de la société, statuts, contrats, patientèle, Ordre. » · 150 ✓ |
-| Canonical | `https://biezunski-avocat.fr/` (Next renders it without the slash; same URL) |
+| Canonical | `https://biezunski-avocat.fr/` (Next renders it without the slash; same URL). Every « canonical equals its own URL » check (#86 `seo-meta.spec.ts`, URL Inspection, D8, D11) compares `/` after removing one trailing slash, so `https://biezunski-avocat.fr` and `https://biezunski-avocat.fr/` match |
 | Robots | index, follow (root default) |
 | Sitemap | yes · `lastModified` = newest published article's `updated_at` (the home lists the latest articles); omitted when there is no article |
 | OG / Twitter | `website` · `/og/default.png` |
@@ -123,6 +123,9 @@ no breadcrumb). The `CollectionPage` lists it in `mentions`.
 | `?page=` invalid / out of range | 404 page (§2.12) | — | — | 404 | no | none |
 | `?category=<slug>` (± `page`) | as `/publications` | as `/publications` | **none** | **noindex, follow** | no | none (noindex) |
 | `?category=<unknown>` | 404 page | — | — | 404 | no | none |
+
+An empty `?category=` is the same as no category (the pagination's `buildHref` ignores it): `/publications`
+rules apply, never a 404 or a noindex.
 
 OG / Twitter: `website` · default image. A title must be unique per indexable URL, so page n ≥ 2 needs its
 own title; see P3 for the 60-character issue and the chosen fix.
@@ -710,14 +713,15 @@ Sitemap: https://biezunski-avocat.fr/sitemap.xml
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	const articles = await getPublicationSlugs(); // [{ slug, updatedAt }]; [] when the backend fails
 	// Compare instants, not strings: the API emits +01:00 / +02:00 offsets (Europe/Paris).
-	const newest = articles.length
-		? new Date(Math.max(...articles.map((a) => Date.parse(a.updatedAt))))
-		: undefined;
+	// Drop unparsable dates: an invalid Date makes Next's XML serializer throw and the whole sitemap 500.
+	const times = articles.map((a) => Date.parse(a.updatedAt)).filter(Number.isFinite);
+	const newest = times.length ? new Date(Math.max(...times)) : undefined;
 
 	return [
-		{ url: absoluteUrl("/"), lastModified: newest },
-		...SEO_ROUTES.filter((r) => r.inSitemap).map((r) => ({ url: absoluteUrl(r.path) })),
-		{ url: absoluteUrl("/publications"), lastModified: newest },
+		...SEO_ROUTES.filter((r) => r.inSitemap).map((r) => ({
+			url: absoluteUrl(r.path),
+			lastModified: r.lastModified === "newest-article" ? newest : undefined,
+		})),
 		...articles.map((a) => ({
 			url: absoluteUrl(`/publications/${a.slug}`),
 			lastModified: a.updatedAt,
@@ -726,8 +730,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 }
 ```
 
-`SEO_ROUTES` (§8 #79) holds `/domaines`, the domaine pages with `hasPage`, `/a-propos`, `/contact` and the
-two legal pages; `absoluteUrl(path)` = `SITE.url + path`.
+`SEO_ROUTES` (§8 #79) holds `/` and `/publications` (`lastModified: "newest-article"`), `/domaines`, the
+domaine pages with `hasPage`, `/a-propos`, `/contact` and the two legal pages (no `lastModified`), each with
+`inSitemap: true`, so every URL is emitted once, from this one list; `absoluteUrl(path)` = `SITE.url + path`.
 
 - Lists only indexable, canonical URLs; anything not `inSitemap` in `SEO_ROUTES` (`?page=`, `?category=`,
   `/carte`, `/avis`, a domaine page with `hasPage: false`) is out by construction.
@@ -777,8 +782,8 @@ Each item: file · expected behaviour. Tests named here are for #86 unless the i
   (§4.3: `LegalService`, add `geo`, `hasMap`, `logo`, `founder`; drop `priceRange`) rather than rewriting the
   `CONTACT` mapping; `title: { default: SITE.title }`; `openGraph` / `twitter` defaults with the default share image 1200 × 630
   (`/og/default.png`), no `url` at root level; keep `metadataBase`, `robots` + `googleBot`, icons.
-- [ ] `frontend/src/lib/seo/routes.ts` (new) · `SEO_ROUTES`: one entry per static route (`path`,
-  `indexable`, `inSitemap`, page `@type`, title and description copy keys, share image), domaine pages
+- [ ] `frontend/src/lib/seo/routes.ts` (new) · `SEO_ROUTES`: one entry per static route, `/` and
+  `/publications` included (`path`, `indexable`, `inSitemap`, `lastModified?: "newest-article"`, page `@type`, title and description copy keys, share image), domaine pages
   derived from `DOMAINES.items` with `hasPage`. `absoluteUrl(path)` (= `SITE.url + path`), `domaineUrl(d)`
   (`/domaines/<slug>` or `/domaines#<slug>`) and `domaineShareImage(d)` live here and are the only places
   these URLs are built (links, sitemap, JSON-LD, metadata). The sitemap, the metadata tests and the length
@@ -796,14 +801,18 @@ Each item: file · expected behaviour. Tests named here are for #86 unless the i
 - [ ] `frontend/src/lib/constants.ts` / `copy.ts` · add `GBP_URL` = `https://www.google.com/maps?cid=15633752146969655329`,
   `CONTACT.geo` = `{ latitude: 45.76494, longitude: 4.8344 }`, `SITE.titleSuffix`; `SITE.title` /
   `SITE.description` from `copy.md` §1.1 (#68 strings).
-- [ ] `frontend/src/lib/seo/jsonld.test.ts` · one test per page type against `jsonld/<type>.json` (copy the
-  fixtures from the feature folder into `frontend/src/lib/seo/__fixtures__/`); every `@id` reference
+- [ ] `frontend/src/__tests__/lib/seo/jsonld.test.ts` · one test per page type against `jsonld/<type>.json` (copy the
+  fixtures from the feature folder into `frontend/src/__tests__/lib/seo/__fixtures__/`; the repo keeps its tests under
+  `src/__tests__/`); every `@id` reference
   resolves; required properties present; serialised output contains no raw `</script`.
 - [ ] Share images `frontend/public/og/default.png` and `domaine-<slug>.png` (from `ui`'s exports);
   `frontend/src/app/publications/[slug]/og-image/route.tsx` for the article fallback (`ui`'s README), cached:
   `export const revalidate = 3600`, fonts read once at module scope, the title read through
-  `getPublicationBySlug` (tagged `articles`, so the existing `/api/revalidate` refreshes it).
-- [ ] `frontend/src/lib/seo/metadata.test.ts` (vitest, no network) · over `SEO_ROUTES` and every page's
+  `getPublicationBySlug` (tagged `articles`, so the existing `/api/revalidate` refreshes it); an unknown or
+  unpublished slug answers 404 (`design/og/README.md`). The PNGs under `.orchestrator/**` are Git LFS pointers
+  (`.gitattributes`): run `git lfs pull` before copying, and keep `frontend/public/og/` out of the LFS patterns
+  so Vercel serves real files. Add `og/` to the `frontend/src/proxy.ts` matcher exclusions (like `images/`).
+- [ ] `frontend/src/__tests__/lib/seo/metadata.test.ts` (vitest, no network) · over `SEO_ROUTES` and every page's
   `metadata` / `generateMetadata`: title equals the copy string, one suffix at most, ≤ 60; description ≤ 155
   and unique (except `?page=n`); canonical = `og:url`; `openGraph.images` and `twitter.images` set;
   `withSuffix` and `cutAtWord` cases (37, 44, 45, 70 characters; the 185-character summary of §4.5).
@@ -849,7 +858,10 @@ Each item: file · expected behaviour. Tests named here are for #86 unless the i
   every failure into an empty list) so the page can tell « the API answered » from « the backend failed »; a
   `null` list (the API's 404 for an out-of-range page) means 404, a thrown error means throw.
 - [ ] `frontend/src/lib/publications-parse.ts` · `parsePage` returns `null` (not 1) for a non-integer or
-  < 1 value so the page can 404 it; `"1"` → 1.
+  < 1 value so the page can 404 it; `"1"` → 1, and an **absent** `page` (`undefined`) stays 1 (the list's first
+  page must not 404). Update the callers (`getPublications` compares `current > 1`, so handle `null` first) and
+  `frontend/src/__tests__/lib/publications-parse.test.ts`, whose cases `"abc"`, `"-2"` and `2.7` now expect
+  `null`.
 - [ ] `frontend/src/app/publications/[slug]/page.tsx` · metadata §2.8 (title length rule, summary cut,
   no fallback description, OG article fields, cover or fallback image); missing slug → `notFound()` in
   `generateMetadata` too; JSON-LD `WebPage` + `BreadcrumbList` (Accueil › Publications › title) +
@@ -887,7 +899,9 @@ Each item: file · expected behaviour. Tests named here are for #86 unless the i
 - [ ] `frontend/e2e/seo-meta.spec.ts` · what only a real render shows, on **one URL per page type** (the
   §4.6 list, plus `/carte`, a `?category=` list and a 404): exactly one `<title>`, one robots meta (or header),
   one canonical equal to its own absolute URL or none when noindex, `og:image` and `twitter:image` present,
-  one `application/ld+json` that parses (none when noindex). The per-route data checks are the vitest of #79.
+  one `application/ld+json` that parses (none when noindex). On a **preview** host assert the robots *meta*
+  only: Vercel adds `X-Robots-Tag: noindex` to every preview response, so the header check runs on
+  production (D3). The per-route data checks are the vitest of #79.
 - [ ] Sitemap / robots test · `sitemap.xml` has exactly the §6 URLs, no `lastmod` equal to the request
   time, no `changefreq` / `priority`; `robots.txt` equals §5.
 - [ ] `vercel.json` · add R2 (`www.` host → apex, permanent, next to R1), R6 (`/avocate`, `/avocate/` → `/`,

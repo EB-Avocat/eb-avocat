@@ -35,7 +35,7 @@ Everything is saved in the feature folder under `baseline/` (paths below) and su
 | B9 | GBP insights | GBP dashboard → Performance, last 6 months: calls, website clicks, direction requests, searches; review count and rating (`local-seo.md` A9) | `baseline/gbp-insights-<date>.png` or CSV; the monthly average (`G_m`) | **Eva** (sends to #86) | L − 7 | K11, K8 proxy |
 | B10 | Core Web Vitals of the old site | PageSpeed Insights (Lighthouse + CrUX field data when it exists) on `/`, `/carte`; one article if any | `baseline/cwv-before.json`; CrUX can be empty for a small site: write « no field data » | #86 | L − 7 | K10 |
 | B11 | Index size | Search Console → Pages: number of indexed URLs | One number | #86 | L − 1 | K9 |
-| B12 | Preview gate | Preview deployment of the launch branch, before the DNS switch: `robots.txt` equals `metadata.md` §5, no `noindex` and no `X-Robots-Tag` on indexable pages (a preview host often sends `noindex`; **the production build must not**), sitemap equals §6, canonical equals own URL on one page per type, JSON-LD parses | Playwright `seo-meta.spec.ts`, `seo-redirects.spec.ts`; Rich Results Test and validator on one URL per type (`metadata.md` §4.6) | #86 | L − 2 | K9 |
+| B12 | Preview gate | Preview deployment of the launch branch, before the DNS switch: `robots.txt` equals `metadata.md` §5, no `noindex` robots **meta** on indexable pages (a preview host always sends an `X-Robots-Tag: noindex` header, so the header is checked on production at D3; **the production build must send neither**), sitemap equals §6, canonical equals own URL on one page per type, JSON-LD parses | Playwright `seo-meta.spec.ts`, `seo-redirects.spec.ts`; Rich Results Test and validator on one URL per type (`metadata.md` §4.6) | #86 | L − 2 | K9 |
 
 **Gate.** If B0 or B1 cannot be done (no property, no data), launch is not blocked, but the log says « no
 baseline » for K9 and the brand rule C4 falls back to the B7 SERP snapshot plus GBP B9. Tell `lead`.
@@ -53,7 +53,7 @@ In this order. A step marked **stop** must pass before the next block.
 | D5 | **`www.` 307 → 308** (one-off) | After R2 is deployed (`vercel.json`), the **User** removes the 307 redirect from the `www.biezunski-avocat.fr` domain's settings in the Vercel project (team `eb-avocat`, CLI only), keeping the domain attached. Then `curl -sI https://www.biezunski-avocat.fr/publications` | `308`, `location: https://biezunski-avocat.fr/publications` | **User**, #86 checks |
 | D6 | Sitemap | `curl https://biezunski-avocat.fr/sitemap.xml` | Exactly the URLs of `metadata.md` §6 (only domaine pages that passed the gate), no `lastmod` equal to the request time, no `changefreq`, no `priority` | #86 |
 | D7 | Submit the sitemap | Search Console → Sitemaps → `sitemap.xml` | Status « Success », discovered = count of D6 | #86 (or User) |
-| D8 | URL Inspection, live test, one URL per page type | Search Console → URL Inspection → « Test live URL » on `/`, `/domaines`, one domaine page, `/a-propos`, `/contact`, `/publications`, one article (if any), `/mentions-legales`; plus `/carte` | Crawl allowed, indexing allowed, **user-declared canonical = the URL itself**, page fetch successful; `/carte` says « noindex » | #86 |
+| D8 | URL Inspection, live test, one URL per page type | Search Console → URL Inspection → « Test live URL » on `/`, `/domaines`, one domaine page, `/a-propos`, `/contact`, `/publications`, one article (if any), `/mentions-legales`; plus `/carte` | Crawl allowed, indexing allowed, **user-declared canonical = the URL itself** (for `/`, with or without the final slash), page fetch successful; `/carte` says « noindex » | #86 |
 | D9 | Request indexing | URL Inspection → « Request indexing » on `/`, `/domaines`, each live domaine page, `/a-propos`, `/contact` (about 10 a day is the quota) | Requested; note the time | #86 |
 | D10 | Rich Results Test and Schema.org validator | one URL per type (`metadata.md` §4.6) | Breadcrumbs valid on domaine and article; no error on `LegalService`, `Person`, `WebSite`, `Service`, `FAQPage`, `BlogPosting`; warnings noted | #86 |
 | D11 | Canonical and share check | `curl` + `view-source` on one URL per type; Facebook / LinkedIn share debugger on `/` | One `<title>`, one canonical equal to the URL, `og:image` 1200 × 630 resolves | #86 |
@@ -163,7 +163,7 @@ Brand queries are the part of K9 that must not fall (`objectives.md`: « Brand �
    with `B_w + G_m / 4.3`. If the sum holds, nothing is lost: log it.
 2. **Position.** Is the exact brand query still position 1 to 3 (C11, incognito)? Is the site name,
    title and snippet as in B7? If the site is gone or lower:
-   - URL Inspection on `/`: indexed? Google-selected canonical = `https://biezunski-avocat.fr/`? Live test
+   - URL Inspection on `/`: indexed? Google-selected canonical = `https://biezunski-avocat.fr/` (with or without the final slash)? Live test
      reports « Indexing allowed »? (D3: a `noindex` on `/` explains a drop within days.)
    - `robots.txt` (C13) and the status of `/` and of `www.` (C12): a 307 or 5xx on `www.` or an apex outage.
    - Vercel logs: 5xx on `/` or on the API fallback.
