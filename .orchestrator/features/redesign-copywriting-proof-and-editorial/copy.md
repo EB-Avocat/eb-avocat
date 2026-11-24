@@ -322,7 +322,7 @@ the review-text question (E8c) is confirmed**; two variants, **(a) is the defaul
 > Avis sur Google
 
 `PROOF.rating.line` (`{{rating}}` and `{{count}}` come from the Places API)
-> Note Google : {{rating}} / 5 ({{count}} avis)
+> Note Google : {{rating}} / 5 ({{count}} avis)
 
 `PROOF.rating.updated`
 > Mis à jour le {{date}}
@@ -336,7 +336,7 @@ Format for `ui` (G §5): `{{rating}}` with a decimal comma (`4,8`, not Google's 
 `PROOF.reviews.link` (visible text; opens a new tab; shown in (a) and (b))
 > Voir tous les avis sur Google
 
-`PROOF.reviews.link.name` (accessible name, says the new tab)
+`PROOF.reviews.linkName` (accessible name, says the new tab)
 > Voir tous les avis sur Google (s’ouvre dans un nouvel onglet)
 
 Variant (b) only:
@@ -414,7 +414,7 @@ professionnels (the three of today's home lead), then Ordre et déontologie.
 > Structurer votre exercice libéral, en accord avec votre Ordre et vos associés.
 
 `HERO.subheading` (audience line, positioning A; 23 words, one sentence; the Ordre clause applies to the regulated professions only, entrepreneurs have no Ordre; E2: health, the other liberal professions, entrepreneurs)
-> J’accompagne les professionnels de santé, les autres professions libérales et les entrepreneurs : leur société, leurs contrats et, pour les professions réglementées, leur Ordre.
+> J’accompagne les professionnels de santé, les autres professions libérales et les entrepreneurs : leur société, leurs contrats et, pour les professions réglementées, leur Ordre.
 
 « Accompagner » is the umbrella verb, used once on the page (G §2). The variant `HERO.subheadingWithProfessions`
 is dropped: this line names the professions, so only one subheading exists.
@@ -497,7 +497,7 @@ and `CONTACT.delay.text`.
 
 `FIRST_CONTACT.steps[2]`
 > Vous préparez l’essentiel
-> Apportez ce que vous avez : statuts ou projet de contrat, courriers de votre Ordre, dates importantes.
+> Apportez ce que vous avez : statuts ou projet de contrat, courriers de votre Ordre, dates importantes.
 
 E4d, nothing yet: fallback applied. The list stays generic (no invented specifics).
 
@@ -756,7 +756,7 @@ guide, marked « not used on the site ».
 Situation 3 is a fictional composite, labelled « Exemple »; Eva reads it in her final read (X5).
 
 `DOMAINES.items[cession-clientele-patientele].faq`
-> Quelle différence entre cession et apport ?
+> Quelle différence entre cession et apport ?
 > Une cession transfère la clientèle contre un prix. Un apport la place dans une société, en échange de parts. Le bon choix dépend de votre projet.
 >
 > Mon Ordre doit-il être informé d’une cession ?
